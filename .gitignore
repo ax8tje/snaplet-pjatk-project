@@ -22,7 +22,7 @@ ios/.xcode.env.local
 
 # Android/IntelliJ
 build/
-.idea
+.idea/
 .gradle
 local.properties
 *.iml
@@ -30,6 +30,14 @@ local.properties
 .cxx/
 *.keystore
 !debug.keystore
+
+# IDEs
+.vscode/
+.vs/
+*.swp
+*.swo
+*~
+.DS_Store
 
 # Node
 node_modules/
@@ -46,9 +54,6 @@ yarn-error.log
 /ios/Pods/
 
 # Temporary files
-*.swp
-*.swo
-*~
 .#*
 
 # Expo
@@ -73,7 +78,3 @@ coverage/
 
 # Watchman
 .watchmanconfig
-
-# Misc
-.vscode/
-.editorconfig
