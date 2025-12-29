@@ -12,12 +12,7 @@ CompileC ... gRPC-Core ... xds_wrr_locality.o ... xds_wrr_locality.cc
 
 1. **Static Framework Flag**: Added `$RNFirebaseAsStaticFramework = true` to build Firebase as static framework
 
-2. **Version Pinning**: Pinned gRPC-Core to version 1.59.2 with modular headers disabled:
-   ```ruby
-   pod 'gRPC-Core', '1.59.2', :modular_headers => false
-   ```
-
-3. **Build Settings**: Added specific compiler flags for gRPC-Core:
+2. **Build Settings**: Added specific compiler flags for gRPC-Core in post_install hook:
    - `GRPC_BAZEL_BUILD=1` preprocessor definition
    - `CLANG_WARN_STRICT_PROTOTYPES = NO`
    - `CLANG_CXX_LANGUAGE_STANDARD = c++17`
@@ -48,10 +43,11 @@ npm run ios
 
 ## Why This Fix Works
 
-- **Static Framework**: Reduces linking complexity and avoids dynamic framework issues
-- **Version Pinning**: Ensures we use a tested, compatible version of gRPC-Core
+- **Static Framework**: Reduces linking complexity and avoids dynamic framework issues with Firebase
 - **Build Settings**: Suppresses warnings and configures the compiler to properly handle gRPC-Core's C++ code
 - **C++17 Standard**: Ensures compatibility with modern C++ features used in gRPC-Core
+- **GRPC_BAZEL_BUILD**: Enables compatibility mode for gRPC-Core compilation
+- **No Version Lock**: Allows Firebase to use its required gRPC-Core version (1.62.x)
 
 ## If Issues Persist
 
