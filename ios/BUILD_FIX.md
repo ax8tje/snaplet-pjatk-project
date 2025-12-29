@@ -12,11 +12,15 @@ CompileC ... gRPC-Core ... xds_wrr_locality.o ... xds_wrr_locality.cc
 
 1. **Static Framework Flag**: Added `$RNFirebaseAsStaticFramework = true` to build Firebase as static framework
 
-2. **Build Settings**: Added specific compiler flags for gRPC-Core in post_install hook:
-   - `GRPC_BAZEL_BUILD=1` preprocessor definition
-   - `CLANG_WARN_STRICT_PROTOTYPES = NO`
-   - `CLANG_CXX_LANGUAGE_STANDARD = c++17`
-   - `GCC_WARN_INHIBIT_ALL_WARNINGS = YES`
+2. **Build Settings**: Added comprehensive compiler flags for gRPC-Core in post_install hook:
+   - `GRPC_BAZEL_BUILD=1` - Enables Bazel compatibility mode
+   - `GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=0` - Fixes protobuf import issues
+   - `CLANG_WARN_STRICT_PROTOTYPES = NO` - Disables strict prototype warnings
+   - `CLANG_CXX_LANGUAGE_STANDARD = gnu++17` - Uses GNU C++17 with extensions
+   - `CLANG_CXX_LIBRARY = libc++` - Explicitly sets C++ standard library
+   - `GCC_WARN_INHIBIT_ALL_WARNINGS = YES` - Suppresses all GCC warnings
+   - `WARNING_CFLAGS = -Wno-everything` - Suppresses all Clang warnings
+   - `IPHONEOS_DEPLOYMENT_TARGET = 13.0` - Ensures iOS 13+ compatibility
 
 ## Steps to Rebuild
 
@@ -44,10 +48,12 @@ npm run ios
 ## Why This Fix Works
 
 - **Static Framework**: Reduces linking complexity and avoids dynamic framework issues with Firebase
-- **Build Settings**: Suppresses warnings and configures the compiler to properly handle gRPC-Core's C++ code
-- **C++17 Standard**: Ensures compatibility with modern C++ features used in gRPC-Core
-- **GRPC_BAZEL_BUILD**: Enables compatibility mode for gRPC-Core compilation
-- **No Version Lock**: Allows Firebase to use its required gRPC-Core version (1.62.x)
+- **GNU C++17**: The `gnu++17` standard provides necessary GNU extensions for gRPC-Core 1.62.x
+- **Explicit C++ Library**: Setting `libc++` ensures compatibility with modern iOS toolchains
+- **Protobuf Import Fix**: `GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=0` resolves header import conflicts
+- **Warning Suppression**: Multiple flags ensure warnings don't block compilation of third-party code
+- **GRPC_BAZEL_BUILD**: Enables Bazel compatibility mode for proper gRPC-Core compilation
+- **No Version Lock**: Allows Firebase to use its required gRPC-Core version (1.62.x) while maintaining build stability
 
 ## If Issues Persist
 
