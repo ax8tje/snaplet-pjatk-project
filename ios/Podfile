@@ -5,6 +5,11 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
+# HERMES ENGINE DISABLED
+# Hermes is disabled to prevent persistent build script execution errors
+# The app will use JavaScriptCore instead
+# If you encounter build errors, run: npm run ios:clean
+
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
