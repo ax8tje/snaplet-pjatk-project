@@ -22,6 +22,10 @@ CompileC ... gRPC-Core ... xds_wrr_locality.o ... xds_wrr_locality.cc
    - `WARNING_CFLAGS = -Wno-everything` - Suppresses all Clang warnings
    - `IPHONEOS_DEPLOYMENT_TARGET = 13.0` - Ensures iOS 13+ compatibility
 
+3. **gRPC-C++ Module Map Fix**: Added settings to prevent module map path issues:
+   - `USE_HEADERMAP = NO` - Disables header maps to avoid absolute path issues
+   - `CLANG_ENABLE_MODULES = NO` - Disables Clang modules for gRPC-C++ to prevent modulemap not found errors
+
 ## Steps to Rebuild
 
 Run these commands from the project root:
@@ -53,6 +57,7 @@ npm run ios
 - **Protobuf Import Fix**: `GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=0` resolves header import conflicts
 - **Warning Suppression**: Multiple flags ensure warnings don't block compilation of third-party code
 - **GRPC_BAZEL_BUILD**: Enables Bazel compatibility mode for proper gRPC-Core compilation
+- **Module Map Fix**: Disabling modules for gRPC-C++ prevents absolute path issues with modulemap files that reference paths like `/Users/myco/WebstormProjects/...`
 - **No Version Lock**: Allows Firebase to use its required gRPC-Core version (1.62.x) while maintaining build stability
 
 ## If Issues Persist
