@@ -107,10 +107,38 @@ npm run type-check
 - `npm start` - Start Metro bundler
 - `npm run android` - Run on Android device/emulator
 - `npm run ios` - Run on iOS simulator
+- `npm run ios:clean` - Clean iOS Pods and reinstall (fixes build issues)
+- `npm run ios:pod-install` - Reinstall iOS Pods
 - `npm run lint` - Run ESLint
 - `npm run format` - Format code with Prettier
 - `npm run type-check` - Run TypeScript type checking
 - `npm test` - Run tests
+
+## Troubleshooting
+
+### iOS Build Issues
+
+If you encounter Hermes build script errors like:
+```
+PhaseScriptExecution [CP-User] [Hermes] Replace Hermes for the right configuration
+```
+
+**Solution:**
+1. Clean and reinstall pods:
+```bash
+npm run ios:clean
+```
+
+2. If the issue persists, manually clean Xcode build cache:
+```bash
+cd ios
+rm -rf ~/Library/Developer/Xcode/DerivedData
+pod deintegrate
+pod install
+cd ..
+```
+
+**Note:** Hermes engine is currently disabled in this project to prevent build errors. The app uses JavaScriptCore instead.
 
 ## Features (Planned)
 
