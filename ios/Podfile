@@ -13,6 +13,9 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
+# Fix for gRPC-Core build issues
+$RNFirebaseAsStaticFramework = true
+
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -36,6 +39,9 @@ target 'SnapletPjatk' do
     # Pods for testing
   end
 
+  # Pin gRPC-Core to a compatible version to avoid build issues
+  pod 'gRPC-Core', '1.59.2', :modular_headers => false
+
   post_install do |installer|
     # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
@@ -52,6 +58,15 @@ target 'SnapletPjatk' do
 
         # Fix for Hermes script execution issues
         config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386'
+
+        # Fix for gRPC-Core C++ compilation issues
+        if target.name == 'gRPC-Core'
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'GRPC_BAZEL_BUILD=1'
+          config.build_settings['CLANG_WARN_STRICT_PROTOTYPES'] = 'NO'
+          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+          config.build_settings['GCC_WARN_INHIBIT_ALL_WARNINGS'] = 'YES'
+        end
       end
     end
 
