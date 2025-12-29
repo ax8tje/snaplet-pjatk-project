@@ -16,6 +16,7 @@ end
 
 target 'SnapletPjatk' do
   config = use_native_modules!
+  use_modular_headers!
 
   use_react_native!(
     :path => config[:reactNativePath],
