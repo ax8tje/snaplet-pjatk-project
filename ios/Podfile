@@ -42,7 +42,14 @@ target 'SnapletPjatk' do
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
         config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+
+        # Fix for Hermes script execution issues
+        config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386'
       end
     end
+
+    # Ensure Hermes scripts have proper permissions
+    system('chmod +x ../node_modules/react-native/sdks/hermes-engine/utils/*.sh 2>/dev/null || true')
+    system('chmod +x ../node_modules/react-native/scripts/xcode/*.sh 2>/dev/null || true')
   end
 end
