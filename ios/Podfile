@@ -68,6 +68,19 @@ target 'SnapletPjatk' do
           config.build_settings['WARNING_CFLAGS'] = '-Wno-everything'
           config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
         end
+
+        # Fix for gRPC-C++ compilation issues
+        if target.name == 'gRPC-C++'
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'GRPC_BAZEL_BUILD=1'
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=0'
+          config.build_settings['CLANG_WARN_STRICT_PROTOTYPES'] = 'NO'
+          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'gnu++17'
+          config.build_settings['CLANG_CXX_LIBRARY'] = 'libc++'
+          config.build_settings['GCC_WARN_INHIBIT_ALL_WARNINGS'] = 'YES'
+          config.build_settings['WARNING_CFLAGS'] = '-Wno-everything'
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+        end
       end
     end
 
