@@ -8,4 +8,10 @@ module.exports = {
             },
         },
     },
+    project: {
+        ios: {
+            // Temporarily disable Hermes to fix build issues
+            unstable_reactLegacyComponentNames: [],
+        },
+    },
 };
