@@ -6,6 +6,8 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
+    "ios:clean": "cd ios && rm -rf Pods Podfile.lock && pod install && cd ..",
+    "ios:pod-install": "cd ios && pod install && cd ..",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
