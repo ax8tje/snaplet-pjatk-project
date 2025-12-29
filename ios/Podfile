@@ -94,6 +94,12 @@ target 'SnapletPjatk' do
           config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
           config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'OPENSSL_NO_ASM=1'
         end
+
+        # Fix for gRPC-C++ module map path issues
+        if target.name == 'gRPC-C++'
+          config.build_settings['USE_HEADERMAP'] = 'NO'
+          config.build_settings['CLANG_ENABLE_MODULES'] = 'NO'
+        end
       end
     end
 
