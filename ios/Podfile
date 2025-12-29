@@ -14,7 +14,7 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'SnapletTemp' do
+target 'SnapletPjatk' do
   config = use_native_modules!
 
   use_react_native!(
@@ -23,7 +23,7 @@ target 'SnapletTemp' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'SnapletTempTests' do
+  target 'SnapletPjatkTests' do
     inherit! :complete
     # Pods for testing
   end
