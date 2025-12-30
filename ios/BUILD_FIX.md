@@ -100,6 +100,32 @@ npm run ios
 - **Module Map Fix**: Disabling modules for gRPC-C++ prevents absolute path issues with modulemap files that reference paths like `/Users/myco/WebstormProjects/...`
 - **No Version Lock**: Allows Firebase to use its required gRPC-Core version (1.62.x) while maintaining build stability
 
+## Common Issues
+
+### .xcode.env.local Path with Spaces
+
+If you see an error like:
+```
+export: `Support/JetBrains/WebStorm2024.3/node/versions/22.11.0/bin/node': not a valid identifier
+```
+
+This means your `ios/.xcode.env.local` file has a NODE_BINARY path with spaces that needs to be quoted.
+
+**Fix:**
+Edit `ios/.xcode.env.local` and ensure the path is quoted:
+```bash
+# Wrong:
+export NODE_BINARY=/Users/myco/Library/Application Support/JetBrains/WebStorm2024.3/node/versions/22.11.0/bin/node
+
+# Correct:
+export NODE_BINARY="/Users/myco/Library/Application Support/JetBrains/WebStorm2024.3/node/versions/22.11.0/bin/node"
+```
+
+Alternatively, delete the `.xcode.env.local` file to use the default node from PATH:
+```bash
+rm ios/.xcode.env.local
+```
+
 ## If Issues Persist
 
 If you still encounter build errors:
