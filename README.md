@@ -37,6 +37,11 @@ snaplet-pjatk/
 - npm >= 9
 - React Native development environment configured
 
+### Platform-Specific Setup Guides
+
+- **Windows 11**: See [WINDOWS_SETUP.md](WINDOWS_SETUP.md) for detailed Windows 11 setup instructions
+- **macOS/Linux**: Follow the instructions below
+
 ### Installation
 
 1. Install dependencies:
