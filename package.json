@@ -5,10 +5,13 @@
   "description": "Snaplet PJATK - React Native Photo Sharing App",
   "scripts": {
     "android": "react-native run-android",
+    "android:clean": "cd android && gradlew clean && cd ..",
+    "android:build": "cd android && gradlew assembleDebug && cd ..",
     "ios": "react-native run-ios",
     "ios:clean": "cd ios && rm -rf Pods Podfile.lock && pod install && cd ..",
     "ios:pod-install": "cd ios && pod install && cd ..",
     "start": "react-native start",
+    "start:reset": "react-native start --reset-cache",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
