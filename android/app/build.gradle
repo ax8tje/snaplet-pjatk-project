@@ -102,6 +102,15 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+
+    kotlinOptions {
+        jvmTarget = "17"
+        freeCompilerArgs += [
+            "-opt-in=com.facebook.react.bridge.ReactMarker",
+            "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
+            "-Xsuppress-version-warnings"
+        ]
+    }
 }
 
 dependencies {
