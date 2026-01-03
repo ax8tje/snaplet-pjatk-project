@@ -22,16 +22,23 @@ buildscript {
 apply plugin: "com.facebook.react.rootproject"
 
 subprojects { subproject ->
-    subproject.afterEvaluate {
-        if (subproject.plugins.hasPlugin('org.jetbrains.kotlin.android') ||
-            subproject.plugins.hasPlugin('org.jetbrains.kotlin.jvm')) {
-            subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-                kotlinOptions {
-                    freeCompilerArgs += [
-                        "-opt-in=com.facebook.react.bridge.ReactMarker",
-                        "-opt-in=com.facebook.react.uimanager.UIManagerHelper"
-                    ]
-                }
+    subproject.pluginManager.withPlugin('org.jetbrains.kotlin.android') {
+        subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions {
+                freeCompilerArgs += [
+                    "-opt-in=com.facebook.react.bridge.ReactMarker",
+                    "-opt-in=com.facebook.react.uimanager.UIManagerHelper"
+                ]
+            }
+        }
+    }
+    subproject.pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
+        subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions {
+                freeCompilerArgs += [
+                    "-opt-in=com.facebook.react.bridge.ReactMarker",
+                    "-opt-in=com.facebook.react.uimanager.UIManagerHelper"
+                ]
             }
         }
     }
