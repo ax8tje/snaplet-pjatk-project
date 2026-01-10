@@ -22,7 +22,7 @@ buildscript {
 apply plugin: "com.facebook.react.rootproject"
 
 subprojects { subproject ->
-    afterEvaluate {
+    subproject.afterEvaluate {
         if (subproject.name == 'react-native-vision-camera') {
             subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { task ->
                 task.kotlinOptions {
