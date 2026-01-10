@@ -32,9 +32,13 @@ subprojects { subproject ->
                     "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
                     "-opt-in=com.facebook.react.bridge.FrameworkAPI"
                 ]
-                // Add additional flag for react-native-vision-camera
+                // Add additional flags for react-native-vision-camera
                 if (subproject.name == 'react-native-vision-camera') {
-                    baseArgs += "-Xsuppress-version-warnings"
+                    baseArgs += [
+                        "-Xskip-metadata-version-check",
+                        "-Xsuppress-version-warnings",
+                        "-Xallow-unstable-dependencies"
+                    ]
                 }
                 freeCompilerArgs += baseArgs
                 allWarningsAsErrors = false
@@ -52,9 +56,13 @@ subprojects { subproject ->
                     "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
                     "-opt-in=com.facebook.react.bridge.FrameworkAPI"
                 ]
-                // Add additional flag for react-native-vision-camera
+                // Add additional flags for react-native-vision-camera
                 if (subproject.name == 'react-native-vision-camera') {
-                    baseArgs += "-Xsuppress-version-warnings"
+                    baseArgs += [
+                        "-Xskip-metadata-version-check",
+                        "-Xsuppress-version-warnings",
+                        "-Xallow-unstable-dependencies"
+                    ]
                 }
                 freeCompilerArgs += baseArgs
                 allWarningsAsErrors = false
