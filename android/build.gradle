@@ -22,26 +22,27 @@ buildscript {
 apply plugin: "com.facebook.react.rootproject"
 
 subprojects { subproject ->
-    def configureKotlinOptions = {
-        if (subproject.plugins.hasPlugin('org.jetbrains.kotlin.android') ||
-            subproject.plugins.hasPlugin('org.jetbrains.kotlin.jvm')) {
-            subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-                kotlinOptions {
-                    freeCompilerArgs += [
-                        "-opt-in=com.facebook.react.bridge.ReactMarker",
-                        "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
-                        "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI"
-                    ]
-                }
+    subproject.pluginManager.withPlugin('org.jetbrains.kotlin.android') {
+        subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions {
+                freeCompilerArgs += [
+                    "-opt-in=com.facebook.react.bridge.ReactMarker",
+                    "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
+                    "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI"
+                ]
             }
         }
     }
 
-    if (subproject.state.executed) {
-        configureKotlinOptions()
-    } else {
-        subproject.afterEvaluate {
-            configureKotlinOptions()
+    subproject.pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
+        subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions {
+                freeCompilerArgs += [
+                    "-opt-in=com.facebook.react.bridge.ReactMarker",
+                    "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
+                    "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI"
+                ]
+            }
         }
     }
 }
