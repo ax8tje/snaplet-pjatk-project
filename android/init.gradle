@@ -1,0 +1,21 @@
+// Gradle init script to fix react-native-vision-camera Kotlin compilation
+allprojects {
+    afterEvaluate { project ->
+        if (project.name == 'react-native-vision-camera') {
+            project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { task ->
+                task.kotlinOptions {
+                    freeCompilerArgs = [
+                        "-opt-in=kotlin.RequiresOptIn",
+                        "-opt-in=com.facebook.react.bridge.ReactMarker",
+                        "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
+                        "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
+                        "-opt-in=com.facebook.react.bridge.FrameworkAPI",
+                        "-Xskip-metadata-version-check",
+                        "-Xsuppress-version-warnings"
+                    ]
+                    allWarningsAsErrors = false
+                }
+            }
+        }
+    }
+}
