@@ -28,8 +28,10 @@ subprojects { subproject ->
                 freeCompilerArgs += [
                     "-opt-in=com.facebook.react.bridge.ReactMarker",
                     "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
-                    "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI"
+                    "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
+                    "-opt-in=com.facebook.react.bridge.FrameworkAPI"
                 ]
+                allWarningsAsErrors = false
             }
         }
     }
@@ -40,8 +42,10 @@ subprojects { subproject ->
                 freeCompilerArgs += [
                     "-opt-in=com.facebook.react.bridge.ReactMarker",
                     "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
-                    "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI"
+                    "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
+                    "-opt-in=com.facebook.react.bridge.FrameworkAPI"
                 ]
+                allWarningsAsErrors = false
             }
         }
     }
