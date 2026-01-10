@@ -22,6 +22,24 @@ buildscript {
 apply plugin: "com.facebook.react.rootproject"
 
 subprojects { subproject ->
+    afterEvaluate {
+        if (subproject.name == 'react-native-vision-camera') {
+            subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { task ->
+                task.kotlinOptions {
+                    freeCompilerArgs += [
+                        "-opt-in=kotlin.RequiresOptIn",
+                        "-opt-in=com.facebook.react.bridge.ReactMarker",
+                        "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
+                        "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
+                        "-opt-in=com.facebook.react.bridge.FrameworkAPI",
+                        "-Xsuppress-version-warnings"
+                    ]
+                    allWarningsAsErrors = false
+                }
+            }
+        }
+    }
+
     subproject.pluginManager.withPlugin('org.jetbrains.kotlin.android') {
         subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
             kotlinOptions {
