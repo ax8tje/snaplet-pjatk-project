@@ -108,6 +108,7 @@ android {
         freeCompilerArgs += [
             "-opt-in=com.facebook.react.bridge.ReactMarker",
             "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
+            "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
             "-Xsuppress-version-warnings"
         ]
     }
