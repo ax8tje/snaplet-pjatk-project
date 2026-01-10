@@ -26,10 +26,11 @@ subprojects { subproject ->
         subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
             kotlinOptions {
                 freeCompilerArgs += [
-                    "-opt-in=com.facebook.react.bridge.ReactMarker",
-                    "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
-                    "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
-                    "-opt-in=com.facebook.react.bridge.FrameworkAPI"
+                    "-opt-in=kotlin.RequiresOptIn",
+                    "-Xopt-in=com.facebook.react.bridge.ReactMarker",
+                    "-Xopt-in=com.facebook.react.uimanager.UIManagerHelper",
+                    "-Xopt-in=com.facebook.react.internal.ReactNativeInternalAPI",
+                    "-Xopt-in=com.facebook.react.bridge.FrameworkAPI"
                 ]
                 allWarningsAsErrors = false
             }
@@ -40,10 +41,11 @@ subprojects { subproject ->
         subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
             kotlinOptions {
                 freeCompilerArgs += [
-                    "-opt-in=com.facebook.react.bridge.ReactMarker",
-                    "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
-                    "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
-                    "-opt-in=com.facebook.react.bridge.FrameworkAPI"
+                    "-opt-in=kotlin.RequiresOptIn",
+                    "-Xopt-in=com.facebook.react.bridge.ReactMarker",
+                    "-Xopt-in=com.facebook.react.uimanager.UIManagerHelper",
+                    "-Xopt-in=com.facebook.react.internal.ReactNativeInternalAPI",
+                    "-Xopt-in=com.facebook.react.bridge.FrameworkAPI"
                 ]
                 allWarningsAsErrors = false
             }
