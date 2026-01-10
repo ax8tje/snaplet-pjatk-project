@@ -23,16 +23,17 @@ This timing error occurs because Gradle's project evaluation order is not guaran
 
 ## Solution
 
-Replace the timing-dependent `afterEvaluate` block with `pluginManager.withPlugin()` callbacks:
+Replace the problematic `subprojects { subproject.afterEvaluate { } }` pattern with the correct `allprojects { afterEvaluate { project -> } }` pattern:
 
-- **Before**: Used `afterEvaluate` to configure react-native-vision-camera after project evaluation
-- **After**: Use `pluginManager.withPlugin()` which triggers when the Kotlin plugin is applied, regardless of evaluation timing
+- **Before**: Used `subprojects { subproject.afterEvaluate { } }` which tried to register callbacks on already-evaluated projects
+- **After**: Use `allprojects { afterEvaluate { project -> } }` which registers callbacks during the configuration phase
 
 ### Key Changes
 
-1. **Removed** the problematic `afterEvaluate` block (lines 25-48)
-2. **Integrated** vision-camera specific compiler flags into existing `pluginManager.withPlugin()` blocks using conditional checks
-3. **Added** all necessary Kotlin compiler flags for react-native-vision-camera:
+1. **Changed** from `subprojects` to `allprojects` scope
+2. **Fixed** the `afterEvaluate` registration timing by using the correct pattern
+3. **Improved** flag merging to preserve existing compiler args and avoid duplicates
+4. **Added** all necessary Kotlin compiler flags for react-native-vision-camera:
    - `-opt-in=kotlin.RequiresOptIn`
    - `-opt-in=com.facebook.react.bridge.ReactMarker`
    - `-opt-in=com.facebook.react.uimanager.UIManagerHelper`
@@ -44,12 +45,12 @@ Replace the timing-dependent `afterEvaluate` block with `pluginManager.withPlugi
 
 ### Why This Works
 
-The `pluginManager.withPlugin()` approach is superior because:
+The `allprojects { afterEvaluate { } }` pattern avoids timing errors because:
 
-- ✅ **No timing dependency**: Executes when the plugin is applied, not when the project is evaluated
-- ✅ **Gradle recommended**: This is the official Gradle pattern for plugin-specific configuration
-- ✅ **More maintainable**: Clearer intent and better separation of concerns
-- ✅ **Applied consistently**: Works for both `kotlin.android` and `kotlin.jvm` plugins
+- ✅ **Correct callback registration**: Registers callbacks during configuration, not after evaluation
+- ✅ **Applies to all projects**: Uses `allprojects` instead of `subprojects` to include all modules
+- ✅ **Merges args properly**: Preserves existing compiler args and adds new ones without conflicts
+- ✅ **No evaluation timing dependency**: The callback is registered before projects are evaluated
 
 ## Technical Context
 
