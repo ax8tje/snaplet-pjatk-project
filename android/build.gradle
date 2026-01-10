@@ -22,7 +22,7 @@ buildscript {
 apply plugin: "com.facebook.react.rootproject"
 
 subprojects { subproject ->
-    subproject.afterEvaluate {
+    def configureKotlinOptions = {
         if (subproject.plugins.hasPlugin('org.jetbrains.kotlin.android') ||
             subproject.plugins.hasPlugin('org.jetbrains.kotlin.jvm')) {
             subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
@@ -34,6 +34,14 @@ subprojects { subproject ->
                     ]
                 }
             }
+        }
+    }
+
+    if (subproject.state.executed) {
+        configureKotlinOptions()
+    } else {
+        subproject.afterEvaluate {
+            configureKotlinOptions()
         }
     }
 }
