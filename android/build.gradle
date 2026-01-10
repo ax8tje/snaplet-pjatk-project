@@ -22,39 +22,25 @@ buildscript {
 apply plugin: "com.facebook.react.rootproject"
 
 subprojects { subproject ->
-    subproject.afterEvaluate {
-        if (subproject.name == 'react-native-vision-camera') {
-            subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { task ->
-                // Force override all Kotlin options for vision-camera
-                task.kotlinOptions {
-                    // Replace existing args entirely for this module
-                    def existingArgs = freeCompilerArgs ?: []
-                    freeCompilerArgs = existingArgs + [
-                        "-opt-in=kotlin.RequiresOptIn",
-                        "-opt-in=com.facebook.react.bridge.ReactMarker",
-                        "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
-                        "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
-                        "-opt-in=com.facebook.react.bridge.FrameworkAPI",
-                        "-Xskip-metadata-version-check",
-                        "-Xsuppress-version-warnings",
-                        "-Xallow-unstable-dependencies"
-                    ]
-                    allWarningsAsErrors = false
-                }
-            }
-        }
-    }
-
     subproject.pluginManager.withPlugin('org.jetbrains.kotlin.android') {
         subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
             kotlinOptions {
-                freeCompilerArgs += [
+                def baseArgs = [
                     "-opt-in=kotlin.RequiresOptIn",
                     "-opt-in=com.facebook.react.bridge.ReactMarker",
                     "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
                     "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
                     "-opt-in=com.facebook.react.bridge.FrameworkAPI"
                 ]
+                // Add additional flags for react-native-vision-camera
+                if (subproject.name == 'react-native-vision-camera') {
+                    baseArgs += [
+                        "-Xskip-metadata-version-check",
+                        "-Xsuppress-version-warnings",
+                        "-Xallow-unstable-dependencies"
+                    ]
+                }
+                freeCompilerArgs += baseArgs
                 allWarningsAsErrors = false
             }
         }
@@ -63,13 +49,22 @@ subprojects { subproject ->
     subproject.pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
         subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
             kotlinOptions {
-                freeCompilerArgs += [
+                def baseArgs = [
                     "-opt-in=kotlin.RequiresOptIn",
                     "-opt-in=com.facebook.react.bridge.ReactMarker",
                     "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
                     "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
                     "-opt-in=com.facebook.react.bridge.FrameworkAPI"
                 ]
+                // Add additional flags for react-native-vision-camera
+                if (subproject.name == 'react-native-vision-camera') {
+                    baseArgs += [
+                        "-Xskip-metadata-version-check",
+                        "-Xsuppress-version-warnings",
+                        "-Xallow-unstable-dependencies"
+                    ]
+                }
+                freeCompilerArgs += baseArgs
                 allWarningsAsErrors = false
             }
         }
