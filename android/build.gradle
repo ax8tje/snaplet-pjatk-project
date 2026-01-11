@@ -22,9 +22,9 @@ buildscript {
 apply plugin: "com.facebook.react.rootproject"
 
 subprojects { subproject ->
-    // Configure Kotlin compilation for all subprojects using afterEvaluate on each subproject
-    // This is safe because we're evaluating individual subprojects, not the root project
-    subproject.afterEvaluate {
+    // Configure Kotlin compilation when the Kotlin plugin is applied
+    // Using plugins.withId to avoid afterEvaluate issues
+    subproject.plugins.withId("kotlin-android") {
         subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { task ->
             task.kotlinOptions {
                 def baseArgs = [
