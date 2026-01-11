@@ -21,9 +21,9 @@ buildscript {
 
 apply plugin: "com.facebook.react.rootproject"
 
-allprojects {
+subprojects {
     afterEvaluate { project ->
-        // Configure Kotlin compilation for all projects
+        // Configure Kotlin compilation for all subprojects
         project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { task ->
             task.kotlinOptions {
                 def baseArgs = [
