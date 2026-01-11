@@ -21,33 +21,32 @@ buildscript {
 
 apply plugin: "com.facebook.react.rootproject"
 
-subprojects {
-    afterEvaluate { project ->
-        // Configure Kotlin compilation for all subprojects
-        project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { task ->
-            task.kotlinOptions {
-                def baseArgs = [
-                    "-opt-in=kotlin.RequiresOptIn",
-                    "-opt-in=com.facebook.react.bridge.ReactMarker",
-                    "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
-                    "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
-                    "-opt-in=com.facebook.react.bridge.FrameworkAPI"
+subprojects { subproject ->
+    // Configure Kotlin compilation for all subprojects
+    // Use tasks.withType which is lazy and doesn't require afterEvaluate
+    subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { task ->
+        task.kotlinOptions {
+            def baseArgs = [
+                "-opt-in=kotlin.RequiresOptIn",
+                "-opt-in=com.facebook.react.bridge.ReactMarker",
+                "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
+                "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
+                "-opt-in=com.facebook.react.bridge.FrameworkAPI"
+            ]
+
+            // Add additional flags for react-native-vision-camera
+            if (subproject.name == 'react-native-vision-camera') {
+                baseArgs += [
+                    "-Xskip-metadata-version-check",
+                    "-Xsuppress-version-warnings",
+                    "-Xallow-unstable-dependencies"
                 ]
-
-                // Add additional flags for react-native-vision-camera
-                if (project.name == 'react-native-vision-camera') {
-                    baseArgs += [
-                        "-Xskip-metadata-version-check",
-                        "-Xsuppress-version-warnings",
-                        "-Xallow-unstable-dependencies"
-                    ]
-                }
-
-                // Get existing args and merge with new ones
-                def existingArgs = freeCompilerArgs ?: []
-                freeCompilerArgs = (existingArgs + baseArgs).unique()
-                allWarningsAsErrors = false
             }
+
+            // Get existing args and merge with new ones
+            def existingArgs = freeCompilerArgs ?: []
+            freeCompilerArgs = (existingArgs + baseArgs).unique()
+            allWarningsAsErrors = false
         }
     }
 }
