@@ -1,18 +1,20 @@
 diff --git a/node_modules/react-native-vision-camera/android/build.gradle b/node_modules/react-native-vision-camera/android/build.gradle
-index 88ea6a5..80940c8 100644
+index 88ea6a5..f3fd0f1 100644
 --- a/node_modules/react-native-vision-camera/android/build.gradle
 +++ b/node_modules/react-native-vision-camera/android/build.gradle
-@@ -137,6 +137,16 @@ android {
+@@ -137,6 +137,18 @@ android {
      targetCompatibility JavaVersion.VERSION_1_8
    }
  
 +  kotlinOptions {
 +    jvmTarget = "17"
++    allWarningsAsErrors = false
 +    freeCompilerArgs += [
 +      "-opt-in=com.facebook.react.bridge.ReactMarker",
 +      "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
 +      "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
-+      "-Xsuppress-version-warnings"
++      "-Xsuppress-version-warnings",
++      "-Xskip-runtime-version-check"
 +    ]
 +  }
 +
