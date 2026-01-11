@@ -1,29 +1,44 @@
 diff --git a/node_modules/react-native-vision-camera/android/build.gradle b/node_modules/react-native-vision-camera/android/build.gradle
-index 88ea6a5..2c60089 100644
+index 88ea6a5..175190f 100644
 --- a/node_modules/react-native-vision-camera/android/build.gradle
 +++ b/node_modules/react-native-vision-camera/android/build.gradle
-@@ -137,6 +137,21 @@ android {
+@@ -137,6 +137,23 @@ android {
      targetCompatibility JavaVersion.VERSION_1_8
    }
  
 +  kotlinOptions {
 +    jvmTarget = "17"
++    allWarningsAsErrors = false
 +    freeCompilerArgs += [
 +      "-opt-in=com.facebook.react.bridge.ReactMarker",
 +      "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
-+      "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI"
++      "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
++      "-Xsuppress-version-warnings"
 +    ]
 +  }
 +
 +  tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 +    kotlinOptions {
-+      freeCompilerArgs += "-Xsuppress-version-warnings"
++      allWarningsAsErrors = false
 +    }
 +  }
 +
    externalNativeBuild {
      cmake {
        path "CMakeLists.txt"
+@@ -164,6 +181,12 @@ android {
+   }
+ }
+ 
++configurations.all {
++  resolutionStrategy {
++    force 'com.facebook.react:react-android:0.74.0'
++  }
++}
++
+ dependencies {
+   //noinspection GradleDynamicVersion
+   implementation "com.facebook.react:react-android:+"
 diff --git a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/frameprocessor/VisionCameraProxy.kt b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/frameprocessor/VisionCameraProxy.kt
 index 81bd1af..742fcbf 100644
 --- a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/frameprocessor/VisionCameraProxy.kt
