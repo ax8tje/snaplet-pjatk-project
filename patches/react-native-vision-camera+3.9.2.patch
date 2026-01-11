@@ -1,20 +1,21 @@
-diff --git a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/frameprocessor/VisionCameraProxy.kt b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/frameprocessor/VisionCameraProxy.kt
-index 81bd1af..d30a296 100644
---- a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/frameprocessor/VisionCameraProxy.kt
-+++ b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/frameprocessor/VisionCameraProxy.kt
-@@ -5,6 +5,7 @@ import androidx.annotation.Keep
- import androidx.annotation.UiThread
- import com.facebook.jni.HybridData
- import com.facebook.proguard.annotations.DoNotStrip
-+import com.facebook.react.bridge.FrameworkAPI
- import com.facebook.react.bridge.ReactApplicationContext
- import com.facebook.react.bridge.UiThreadUtil
- import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
-@@ -14,6 +15,7 @@ import com.mrousavy.camera.core.ViewNotFoundError
- import java.lang.ref.WeakReference
+diff --git a/node_modules/react-native-vision-camera/android/build.gradle b/node_modules/react-native-vision-camera/android/build.gradle
+index 88ea6a5..cb4efc1 100644
+--- a/node_modules/react-native-vision-camera/android/build.gradle
++++ b/node_modules/react-native-vision-camera/android/build.gradle
+@@ -137,6 +137,16 @@ android {
+     targetCompatibility JavaVersion.VERSION_1_8
+   }
  
- @Suppress("KotlinJniMissingFunction") // we use fbjni.
-+@OptIn(FrameworkAPI::class)
- class VisionCameraProxy(private val reactContext: ReactApplicationContext) {
-   companion object {
-     const val TAG = "VisionCameraProxy"
++  kotlinOptions {
++    jvmTarget = "1.8"
++    freeCompilerArgs += [
++      "-opt-in=com.facebook.react.bridge.ReactMarker",
++      "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
++      "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
++      "-Xsuppress-version-warnings"
++    ]
++  }
++
+   externalNativeBuild {
+     cmake {
+       path "CMakeLists.txt"
