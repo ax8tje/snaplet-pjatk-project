@@ -121,6 +121,30 @@ npm run type-check
 
 ## Troubleshooting
 
+### Android Vision Camera Build Issues
+
+If you encounter compilation errors related to `react-native-vision-camera`:
+
+```
+This API is provided only for React Native frameworks and not intended for general users
+```
+
+**Solution:** The project includes a `patch-package` patch that automatically fixes these issues. The patch will be applied when you run `npm install`.
+
+**What the patch does:**
+- Adds file-level suppression for internal framework API usage
+- Configures kotlinOptions with proper JVM target and opt-in flags
+- Forces React Native 0.74.0 version to prevent version mismatches
+
+If build still fails after `npm install`:
+```bash
+# Clean and rebuild
+cd android
+./gradlew clean
+cd ..
+npm run android
+```
+
 ### iOS Build Issues
 
 If you encounter Hermes build script errors like:
@@ -144,6 +168,15 @@ cd ..
 ```
 
 **Note:** Hermes engine is currently disabled in this project to prevent build errors. The app uses JavaScriptCore instead.
+
+### App Registration Error
+
+If you see:
+```
+"SnapletTemp" has not been registered
+```
+
+**Solution:** This was fixed by updating `MainActivity.kt` to use the correct app name `"SnapletPjatk"` matching `app.json`.
 
 ## Features (Planned)
 
