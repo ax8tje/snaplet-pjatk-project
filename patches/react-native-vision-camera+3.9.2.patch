@@ -1,23 +1,54 @@
 diff --git a/node_modules/react-native-vision-camera/android/build.gradle b/node_modules/react-native-vision-camera/android/build.gradle
-index 88ea6a5..f3fd0f1 100644
+index 88ea6a5..2c60089 100644
 --- a/node_modules/react-native-vision-camera/android/build.gradle
 +++ b/node_modules/react-native-vision-camera/android/build.gradle
-@@ -137,6 +137,18 @@ android {
+@@ -137,6 +137,21 @@ android {
      targetCompatibility JavaVersion.VERSION_1_8
    }
  
 +  kotlinOptions {
 +    jvmTarget = "17"
-+    allWarningsAsErrors = false
 +    freeCompilerArgs += [
 +      "-opt-in=com.facebook.react.bridge.ReactMarker",
 +      "-opt-in=com.facebook.react.uimanager.UIManagerHelper",
-+      "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI",
-+      "-Xsuppress-version-warnings",
-+      "-Xskip-runtime-version-check"
++      "-opt-in=com.facebook.react.internal.ReactNativeInternalAPI"
 +    ]
++  }
++
++  tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
++    kotlinOptions {
++      freeCompilerArgs += "-Xsuppress-version-warnings"
++    }
 +  }
 +
    externalNativeBuild {
      cmake {
        path "CMakeLists.txt"
+diff --git a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/frameprocessor/VisionCameraProxy.kt b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/frameprocessor/VisionCameraProxy.kt
+index 81bd1af..064fce2 100644
+--- a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/frameprocessor/VisionCameraProxy.kt
++++ b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/frameprocessor/VisionCameraProxy.kt
+@@ -13,7 +13,7 @@ import com.mrousavy.camera.CameraView
+ import com.mrousavy.camera.core.ViewNotFoundError
+ import java.lang.ref.WeakReference
+ 
+-@Suppress("KotlinJniMissingFunction") // we use fbjni.
++@Suppress("KotlinJniMissingFunction", "INTERNAL_FRAMEWORK_API_USAGE") // we use fbjni.
+ class VisionCameraProxy(private val reactContext: ReactApplicationContext) {
+   companion object {
+     const val TAG = "VisionCameraProxy"
+@@ -27,6 +27,7 @@ class VisionCameraProxy(private val reactContext: ReactApplicationContext) {
+   val context: ReactApplicationContext
+     get() = reactContext
+ 
++  @Suppress("INTERNAL_FRAMEWORK_API_USAGE")
+   init {
+     val jsCallInvokerHolder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
+     val jsRuntimeHolder =
+@@ -69,5 +70,6 @@ class VisionCameraProxy(private val reactContext: ReactApplicationContext) {
+     FrameProcessorPluginRegistry.getPlugin(name, this, options)
+ 
+   // private C++ funcs
++  @Suppress("INTERNAL_FRAMEWORK_API_USAGE")
+   private external fun initHybrid(jsContext: Long, jsCallInvokerHolder: CallInvokerHolderImpl, scheduler: VisionCameraScheduler): HybridData
+ }
