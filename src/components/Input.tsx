@@ -22,7 +22,7 @@ export const Input: React.FC<InputProps> = ({
     <View style={[styles.container, containerStyle]}>
       {icon && <View style={styles.iconContainer}>{icon}</View>}
       <TextInput
-        style={[styles.input, icon && styles.inputWithIcon, style]}
+        style={[styles.input, icon ? styles.inputWithIcon : null, style]}
         placeholderTextColor="#999999"
         {...props}
       />
