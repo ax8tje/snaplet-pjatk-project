@@ -33,7 +33,7 @@
     "react-native-gesture-handler": "~2.16.2",
     "react-native-safe-area-context": "^4.8.2",
     "react-native-screens": "^3.29.0",
-    "react-native-vision-camera": "^3.9.0",
+    "react-native-vision-camera": "^4.7.3",
     "zustand": "^4.4.7"
   },
   "devDependencies": {
