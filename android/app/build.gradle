@@ -103,6 +103,12 @@ android {
         }
     }
 
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+
     kotlinOptions {
         jvmTarget = "17"
         freeCompilerArgs += [
