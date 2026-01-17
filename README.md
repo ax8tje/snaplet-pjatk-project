@@ -41,6 +41,7 @@ snaplet-pjatk/
 
 - **Windows 11**: See [WINDOWS_SETUP.md](WINDOWS_SETUP.md) for detailed Windows 11 setup instructions
 - **macOS/Linux**: Follow the instructions below
+- **Java Configuration**: The project requires Java 17+. See [STARTUP_TROUBLESHOOTING.md](STARTUP_TROUBLESHOOTING.md#platform-specific-notes) for platform-specific Java configuration
 
 ### Installation
 
@@ -129,6 +130,20 @@ If you see a red error screen when starting the app, see **[STARTUP_TROUBLESHOOT
 1. Start Metro bundler first: `npm start`
 2. Wait for Metro to load
 3. In a new terminal, run: `npm run android`
+
+### Java Version Error - "Requires Java 17"
+
+If you see `Android Gradle plugin requires Java 17 to run. You are currently using Java 11`:
+
+**Windows:**
+- The project is pre-configured for Java 19 at `C:\Program Files\Java\jdk-19`
+- If your Java is elsewhere, update `android/gradle.properties` line 13
+
+**Linux/macOS:**
+- Comment out line 13 in `android/gradle.properties`
+- Ensure your system Java is version 17+
+
+See **[STARTUP_TROUBLESHOOTING.md](STARTUP_TROUBLESHOOTING.md#platform-specific-notes)** for detailed instructions.
 
 ### Android Vision Camera Build Issues
 
