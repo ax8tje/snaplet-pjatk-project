@@ -121,6 +121,15 @@ npm run type-check
 
 ## Troubleshooting
 
+### Startup Issues - "Unable to load script" Error
+
+If you see a red error screen when starting the app, see **[STARTUP_TROUBLESHOOTING.md](STARTUP_TROUBLESHOOTING.md)** for detailed solutions.
+
+**Quick fix:**
+1. Start Metro bundler first: `npm start`
+2. Wait for Metro to load
+3. In a new terminal, run: `npm run android`
+
 ### Android Vision Camera Build Issues
 
 If you encounter compilation errors related to `react-native-vision-camera`:
