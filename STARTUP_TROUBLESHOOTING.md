@@ -55,21 +55,42 @@ Added network security config to allow Metro bundler connection on localhost.
 - Allows cleartext traffic to localhost and emulator IPs
 
 ### 2. Gradle Configuration
-Fixed platform-specific Java path in `gradle.properties`:
-- Removed Windows-specific `org.gradle.java.home` setting
-- Now uses system default Java installation
+Configured Java path in `gradle.properties` for cross-platform compatibility:
+- Windows: Uses explicit path to Java 19 (`C:\Program Files\Java\jdk-19`)
+- Linux/macOS: Users should comment out the path to use system Java
+- See "Platform-Specific Notes" below for configuration instructions
 
 ## Platform-Specific Notes
 
-### Linux/macOS
-The fixes applied should work out of the box.
-
 ### Windows
-If you're on Windows, you may need to uncomment and set the Java path in `android/gradle.properties`:
+**IMPORTANT**: The project is configured for Windows by default with Java 19 path set in `android/gradle.properties`:
 ```properties
 org.gradle.java.home=C\:\\Program Files\\Java\\jdk-19
 ```
-(Adjust the path to match your Java installation)
+
+**If you have Java installed in a different location:**
+1. Open `android/gradle.properties`
+2. Update line 13 with your Java 17+ installation path
+3. Example: `org.gradle.java.home=C\:\\Program Files\\Java\\jdk-17`
+
+**If you don't have Java 17+:**
+- Download and install JDK 17 or higher from [Oracle](https://www.oracle.com/java/technologies/downloads/) or [Adoptium](https://adoptium.net/)
+- Update the path in `android/gradle.properties` accordingly
+
+### Linux/macOS
+**IMPORTANT**: You need to comment out the Windows Java path:
+1. Open `android/gradle.properties`
+2. Comment out line 13:
+```properties
+# org.gradle.java.home=C\:\\Program Files\\Java\\jdk-19
+```
+3. Gradle will automatically use your system Java installation
+
+**Checking your Java version:**
+```bash
+java -version
+# Should show version 17 or higher
+```
 
 ## Still Having Issues?
 
