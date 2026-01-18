@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snaplet PJATK - Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .card h3 {
+            color: #764ba2;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .tech-item {
+            background: #f7f7f7;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .tech-item strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .feature {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .feature h4 {
+            margin-bottom: 10px;
+        }
+
+        .docs-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .doc-link {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .doc-link:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .doc-link strong {
+            display: block;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: white;
+            margin-top: 40px;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📸 Snaplet PJATK</h1>
+            <p>React Native Photo Sharing Application</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>📊 Project Overview</h2>
+            <p>
+                Snaplet PJATK is a modern photo-sharing application built with React Native and TypeScript.
+                It features real-time updates, cloud storage integration, and a beautiful user interface.
+            </p>
+
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-value">31</span>
+                    <span class="stat-label">Tests Passing</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">100%</span>
+                    <span class="stat-label">Component Coverage</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">React Native</span>
+                    <span class="stat-label">0.74.0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">TypeScript</span>
+                    <span class="stat-label">5.3+</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🛠️ Technology Stack</h2>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <strong>Framework</strong>
+                    React Native 0.74.0
+                </div>
+                <div class="tech-item">
+                    <strong>Language</strong>
+                    TypeScript 5.3+
+                </div>
+                <div class="tech-item">
+                    <strong>State Management</strong>
+                    Zustand
+                </div>
+                <div class="tech-item">
+                    <strong>Navigation</strong>
+                    React Navigation
+                </div>
+                <div class="tech-item">
+                    <strong>Backend</strong>
+                    Firebase (Auth, Firestore, Storage)
+                </div>
+                <div class="tech-item">
+                    <strong>Camera</strong>
+                    React Native Vision Camera
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>✨ Features</h2>
+            <div class="features">
+                <div class="feature">
+                    <h4>🔐 User Authentication</h4>
+                    <p>Secure Firebase authentication</p>
+                </div>
+                <div class="feature">
+                    <h4>📷 Photo Capture</h4>
+                    <p>High-quality camera integration</p>
+                </div>
+                <div class="feature">
+                    <h4>☁️ Cloud Storage</h4>
+                    <p>Firebase cloud storage</p>
+                </div>
+                <div class="feature">
+                    <h4>🔄 Real-time Feed</h4>
+                    <p>Live photo updates</p>
+                </div>
+                <div class="feature">
+                    <h4>👤 User Profiles</h4>
+                    <p>Customizable profiles</p>
+                </div>
+                <div class="feature">
+                    <h4>💬 Social Features</h4>
+                    <p>Likes and comments</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📚 Documentation</h2>
+            <div class="docs-links">
+                <a href="https://github.com/ax8tje/snaplet-pjatk-project/blob/main/README.md" class="doc-link">
+                    <strong>📖 README</strong>
+                    <p>Getting started guide</p>
+                </a>
+                <a href="https://github.com/ax8tje/snaplet-pjatk-project/blob/main/WINDOWS_SETUP.md" class="doc-link">
+                    <strong>🪟 Windows Setup</strong>
+                    <p>Windows 11 installation</p>
+                </a>
+                <a href="https://github.com/ax8tje/snaplet-pjatk-project/blob/main/STARTUP_TROUBLESHOOTING.md" class="doc-link">
+                    <strong>🔧 Troubleshooting</strong>
+                    <p>Common issues & fixes</p>
+                </a>
+                <a href="https://github.com/ax8tje/snaplet-pjatk-project/blob/main/TEST_REPORT.md" class="doc-link">
+                    <strong>🧪 Test Report</strong>
+                    <p>Testing documentation</p>
+                </a>
+                <a href="https://github.com/ax8tje/snaplet-pjatk-project/blob/main/SCREENS_README.md" class="doc-link">
+                    <strong>📱 Screens Guide</strong>
+                    <p>Screen documentation</p>
+                </a>
+                <a href="https://github.com/ax8tje/snaplet-pjatk-project" class="doc-link">
+                    <strong>💻 GitHub Repo</strong>
+                    <p>View source code</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🚀 Quick Start</h2>
+            <h3>Installation</h3>
+            <p>Clone the repository and install dependencies:</p>
+            <pre><code>git clone https://github.com/ax8tje/snaplet-pjatk-project.git
+cd snaplet-pjatk-project
+npm install</code></pre>
+
+            <h3>Platform-Specific Setup</h3>
+            <ul>
+                <li><strong>Windows 11:</strong> See <a href="https://github.com/ax8tje/snaplet-pjatk-project/blob/main/WINDOWS_SETUP.md">WINDOWS_SETUP.md</a></li>
+                <li><strong>macOS/Linux:</strong> Follow the README instructions</li>
+                <li><strong>iOS:</strong> Run <code>cd ios && pod install</code></li>
+            </ul>
+
+            <h3>Run the App</h3>
+            <pre><code># Start Metro bundler
+npm start
+
+# Run on Android
+npm run android
+
+# Run on iOS
+npm run ios</code></pre>
+        </div>
+
+        <div class="card">
+            <h2>🧪 Testing</h2>
+            <p>The project includes comprehensive testing with Jest and React Native Testing Library.</p>
+            <ul>
+                <li><strong>Total Tests:</strong> 31 tests (all passing)</li>
+                <li><strong>Component Coverage:</strong> 100% for tested components</li>
+                <li><strong>Test Framework:</strong> Jest 29.7.0</li>
+                <li><strong>Testing Library:</strong> @testing-library/react-native</li>
+            </ul>
+
+            <h3>Run Tests</h3>
+            <pre><code># Run all tests
+npm test
+
+# Run with coverage
+npm test -- --coverage
+
+# Watch mode
+npm test -- --watch</code></pre>
+        </div>
+
+        <div class="card">
+            <h2>📁 Project Structure</h2>
+            <pre><code>snaplet-pjatk/
+├── src/
+│   ├── screens/       # Screen components
+│   ├── components/    # Reusable UI components
+│   ├── services/      # Business logic & API services
+│   ├── navigation/    # Navigation configuration
+│   ├── store/         # Zustand state management
+│   ├── types/         # TypeScript type definitions
+│   └── utils/         # Utility functions & helpers
+├── android/           # Android native code
+├── ios/              # iOS native code
+├── assets/           # Images, fonts, etc.
+└── __tests__/        # Test files</code></pre>
+        </div>
+
+        <div class="card">
+            <h2>🤝 Contributing</h2>
+            <p>This is a PJATK university project. For issues or feature requests, please use the GitHub Issues page.</p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Snaplet PJATK - Private University Project</p>
+            <p>Built with ❤️ using React Native & TypeScript</p>
+        </div>
+    </footer>
+</body>
+</html>
