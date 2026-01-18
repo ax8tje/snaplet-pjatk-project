@@ -1,0 +1,43 @@
+# local.properties.example
+# Copy this file to 'local.properties' and update paths for your machine
+# This file is ignored by git (see .gitignore)
+
+# ============================================
+# Android SDK Location
+# ============================================
+# Required: Set this to your Android SDK path
+#
+# macOS (typical Homebrew installation):
+# sdk.dir=/Users/YOUR_USERNAME/Library/Android/sdk
+#
+# macOS (Android Studio default):
+# sdk.dir=/Users/YOUR_USERNAME/Library/Android/sdk
+#
+# Windows:
+# sdk.dir=C\:\\Users\\YOUR_USERNAME\\AppData\\Local\\Android\\Sdk
+#
+# Linux:
+# sdk.dir=/home/YOUR_USERNAME/Android/Sdk
+
+sdk.dir=
+
+# ============================================
+# Java Home (Optional - usually not needed)
+# ============================================
+# Only set this if Gradle can't find your Java installation automatically
+# Most users should leave this commented out
+#
+# macOS (Homebrew OpenJDK):
+# Find your Java path with: /usr/libexec/java_home -v 17
+# org.gradle.java.home=/opt/homebrew/opt/openjdk@17
+#
+# macOS (Oracle JDK):
+# org.gradle.java.home=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
+#
+# Windows:
+# org.gradle.java.home=C\:\\Program Files\\Java\\jdk-17
+#
+# Linux:
+# org.gradle.java.home=/usr/lib/jvm/java-17-openjdk-amd64
+
+# DO NOT set org.gradle.java.home unless absolutely necessary
