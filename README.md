@@ -39,8 +39,9 @@ snaplet-pjatk/
 
 ### Platform-Specific Setup Guides
 
+- **macOS**: See [MACOS_SETUP.md](MACOS_SETUP.md) for complete macOS Android development setup
 - **Windows 11**: See [WINDOWS_SETUP.md](WINDOWS_SETUP.md) for detailed Windows 11 setup instructions
-- **macOS/Linux**: Follow the instructions below
+- **Linux**: Follow the instructions below
 - **Java Configuration**: The project requires Java 17+. See [STARTUP_TROUBLESHOOTING.md](STARTUP_TROUBLESHOOTING.md#platform-specific-notes) for platform-specific Java configuration
 
 ### Installation
