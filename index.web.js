@@ -1,100 +1,41 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './figma/styles.css';
 
-// Import Figma screens for demo
-const LoginScreen = () => {
+// Import screens
+import LoginScreen from './src/screens/LoginScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import MessagesScreen from './src/screens/MessagesScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import CameraScreen from './src/screens/CameraScreen';
+import PostDetailScreen from './src/screens/PostDetailScreen';
+
+// Main App component with routing
+const App = () => {
   return (
-    <div className="frame-1-1" style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
-      <div className="hello-2" style={{ marginBottom: '30px' }}>
-        <div className="rectangle-9-3"></div>
-        <img src="figma/images/rectangle-4.png" className="rectangle-4" alt="logo" style={{ width: '120px', height: '120px', borderRadius: '60px' }} />
-      </div>
-
-      <h1 style={{ fontSize: '32px', fontWeight: 'bold', color: '#000', marginBottom: '40px' }}>📸 Snaplet PJATK</h1>
-
-      <div style={{ width: '90%', maxWidth: '350px' }}>
-        <input
-          type="email"
-          placeholder="Email"
-          style={{
-            width: '100%',
-            padding: '15px',
-            marginBottom: '15px',
-            border: '1px solid #ddd',
-            borderRadius: '10px',
-            fontSize: '16px',
-            backgroundColor: '#f9f9f9'
-          }}
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          style={{
-            width: '100%',
-            padding: '15px',
-            marginBottom: '10px',
-            border: '1px solid #ddd',
-            borderRadius: '10px',
-            fontSize: '16px',
-            backgroundColor: '#f9f9f9'
-          }}
-        />
-
-        <p style={{ textAlign: 'right', color: '#3A2B20', fontSize: '14px', marginBottom: '25px' }}>
-          Forgot your password?
-        </p>
-
-        <button
-          style={{
-            width: '100%',
-            padding: '15px',
-            backgroundColor: '#667eea',
-            color: '#FDF5DD',
-            border: 'none',
-            borderRadius: '10px',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            marginBottom: '15px'
-          }}
-        >
-          Sign in
-        </button>
-
-        <p style={{ textAlign: 'center', color: '#3A2B20', fontSize: '14px', marginBottom: '20px' }}>
-          Create new account
-        </p>
-
-        <p style={{ textAlign: 'center', color: '#3A2B20', fontSize: '14px', marginBottom: '15px' }}>
-          Or continue with
-        </p>
-
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
-          <button style={{ width: '60px', height: '60px', borderRadius: '30px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}>
-            <span style={{ fontSize: '24px' }}>f</span>
-          </button>
-          <button style={{ width: '60px', height: '60px', borderRadius: '30px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}>
-            <span style={{ fontSize: '24px' }}>G</span>
-          </button>
-          <button style={{ width: '60px', height: '60px', borderRadius: '30px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}>
-            <span style={{ fontSize: '24px' }}></span>
-          </button>
-        </div>
-      </div>
-
-      <p style={{ marginTop: '40px', color: '#888', fontSize: '12px' }}>
-        React Native Web Demo • Figma Design
-      </p>
-    </div>
+    <Router basename="/snaplet-pjatk-project">
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<LoginScreen />} />
+        <Route path="/register" element={<RegisterScreen />} />
+        <Route path="/home" element={<HomeScreen />} />
+        <Route path="/settings" element={<SettingsScreen />} />
+        <Route path="/messages" element={<MessagesScreen />} />
+        <Route path="/profile" element={<ProfileScreen />} />
+        <Route path="/camera" element={<CameraScreen />} />
+        <Route path="/post/:id" element={<PostDetailScreen />} />
+      </Routes>
+    </Router>
   );
 };
 
 // Render app
 ReactDOM.render(
   <React.StrictMode>
-    <LoginScreen />
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );
