@@ -85,3 +85,6 @@ coverage/
 
 # Watchman
 .watchmanconfig
+
+# Web build (dist is temporary, docs/ contains the deployed version)
+dist/

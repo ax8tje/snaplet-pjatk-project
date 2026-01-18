@@ -1,4 +1,13 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#667eea"><meta name="description" content="Snaplet PJATK - React Native Photo Sharing Application"><title>Snaplet PJATK - Photo Sharing App</title><style>* {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Snaplet PJATK - React Native Photo Sharing Application">
+    <title>Snaplet PJATK - Photo Sharing App</title>
+    <style>
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -53,7 +62,18 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
-        }</style></head><body><div id="loading"><h1>📸 Snaplet PJATK</h1><div class="spinner"></div><p style="margin-top: 20px;">Loading...</p></div><div id="root"></div><script>// Remove loading screen when app loads
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <h1>📸 Snaplet PJATK</h1>
+        <div class="spinner"></div>
+        <p style="margin-top: 20px;">Loading...</p>
+    </div>
+    <div id="root"></div>
+    <script>
+        // Remove loading screen when app loads
         window.addEventListener('load', function() {
             setTimeout(function() {
                 const loading = document.getElementById('loading');
@@ -65,4 +85,7 @@
                     }, 500);
                 }
             }, 1000);
-        });</script><script defer="defer" src="/snaplet-pjatk-project/bundle.4497a62d0e1215c33c8c.js"></script></body></html>
+        });
+    </script>
+</body>
+</html>
