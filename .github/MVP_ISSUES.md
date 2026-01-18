@@ -2,6 +2,8 @@
 
 This document contains the prioritized issues for the Snaplet PJATK MVP with focus on deployment, Firebase backend, and actionable development tasks.
 
+**📌 GitHub Free Tier Compatible:** All issues in this document are designed to work with GitHub Free accounts, especially for public repositories.
+
 ---
 
 ## 🎯 MVP Goals
@@ -134,10 +136,12 @@ Set up automated testing and deployment pipeline using GitHub Actions.
   - [ ] Auto-deploy docs to GitHub Pages
   - [ ] Run full test suite
   - [ ] Build Android APK (optional)
-- [ ] Set up branch protection rules
-  - [ ] Require PR reviews
-  - [ ] Require passing tests
-  - [ ] Require up-to-date branches
+- [ ] Set up branch protection rules (GitHub Free compatible)
+  - [ ] Require pull requests before merging to main
+  - [ ] Require status checks to pass (tests, lint)
+  - [ ] Require conversation resolution
+  - [ ] Disable force pushes and deletions
+  - [ ] Note: Required reviews need GitHub Pro (use manual review process)
 - [ ] Add status badges to README
 - [ ] Document CI/CD pipeline
 
@@ -162,9 +166,14 @@ jobs:
 
 **Acceptance Criteria:**
 - Tests run automatically on every PR
-- Main branch protected with required checks
+- Main branch protected with required checks (GitHub Free compatible)
 - Deployment happens automatically on merge
 - Status badges show current build status
+
+**GitHub Free Notes:**
+- GitHub Actions provides 2,000 minutes/month for free (public repos get unlimited)
+- Branch protection works well on public repos
+- For private repos, consider making repo public or manual review process
 
 ---
 
