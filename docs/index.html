@@ -1,29 +1,73 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#667eea"><meta name="description" content="Snaplet PJATK - React Native Photo Sharing Application"><title>Snaplet PJATK - Photo Sharing App</title><style>* {
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="description" content="Snaplet PJATK - React Native Photo Sharing App"><meta name="theme-color" content="#000000"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><title>📸 Snaplet PJATK</title><style>* {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        html, body, #root {
-            width: 100%;
+        html {
             height: 100%;
             overflow: hidden;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: #000000; /* Czarne tło */
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Kontener aplikacji - wygląda jak telefon */
+        #app-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 414px; /* Szerokość iPhone Pro Max */
+            max-height: 896px; /* Wysokość iPhone Pro Max */
+            background: #ffffff;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.05),
+                0 20px 60px rgba(0,0,0,0.8),
+                0 10px 30px rgba(0,0,0,0.6);
+            overflow: hidden;
+            border-radius: 0; /* Bez zaokrągleń na mobile */
+        }
+
+        /* Na większych ekranach dodaj zaokrąglenia (wygląd telefonu) */
+        @media (min-width: 768px) {
+            #app-container {
+                border-radius: 40px;
+                max-height: 844px;
+            }
+        }
+
+        /* Na bardzo dużych ekranach */
+        @media (min-width: 1200px) {
+            #app-container {
+                max-width: 428px;
+                max-height: 926px;
+            }
         }
 
         #root {
-            display: flex;
-            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* Loading screen */
-        #loading {
-            position: fixed;
+        #loading-screen {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
@@ -35,17 +79,24 @@
             align-items: center;
             color: white;
             z-index: 9999;
+            transition: opacity 0.5s ease;
         }
 
-        #loading h1 {
-            font-size: 3em;
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #loading-screen h1 {
+            font-size: 2.5em;
             margin-bottom: 20px;
+            font-weight: 700;
         }
 
         .spinner {
             width: 50px;
             height: 50px;
-            border: 5px solid rgba(255,255,255,0.3);
+            border: 4px solid rgba(255,255,255,0.3);
             border-top-color: white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -53,16 +104,49 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
-        }</style></head><body><div id="loading"><h1>📸 Snaplet PJATK</h1><div class="spinner"></div><p style="margin-top: 20px;">Loading...</p></div><div id="root"></div><script>// Remove loading screen when app loads
+        }
+
+        #loading-screen p {
+            margin-top: 20px;
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        /* Scrollbar styling for desktop */
+        #root::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #root::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        #root::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        #root::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }</style><script defer="defer" src="/snaplet-pjatk-project/bundle.js"></script></head><body><div id="app-container"><div id="loading-screen"><h1>📸 Snaplet</h1><div class="spinner"></div><p>Loading your moments...</p></div><div id="root"></div></div><script>// Remove loading screen when app loads
         window.addEventListener('load', function() {
             setTimeout(function() {
-                const loading = document.getElementById('loading');
-                if (loading) {
-                    loading.style.opacity = '0';
-                    loading.style.transition = 'opacity 0.5s';
+                const loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
                     setTimeout(function() {
-                        loading.style.display = 'none';
+                        loadingScreen.remove();
                     }, 500);
                 }
-            }, 1000);
-        });</script><script defer="defer" src="/snaplet-pjatk-project/bundle.4497a62d0e1215c33c8c.js"></script></body></html>
+            }, 1500);
+        });
+
+        // Prevent zoom on double tap (iOS)
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);</script></body></html>
