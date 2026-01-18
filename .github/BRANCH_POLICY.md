@@ -132,31 +132,50 @@ release/<version-number>
 
 ## Branch Protection Rules
 
-### For `main` branch:
+### GitHub Free vs Paid Plans
 
-**Required Status Checks:**
-- ✅ All tests must pass
-- ✅ ESLint checks must pass
-- ✅ TypeScript type checking must pass
-- ✅ Build must succeed
+**✅ Available on GitHub Free (Public Repositories):**
+- Require pull request before merging
+- Require status checks to pass (with GitHub Actions)
+- Require conversation resolution before merging
+- Restrict force pushes
+- Restrict deletions
 
-**Pull Request Settings:**
+**⚠️ Requires GitHub Pro/Team/Enterprise (or Public Repo for some features):**
+- Require pull request reviews (approvals)
+- Dismiss stale reviews
+- Require review from code owners
+- Required number of approvals
+
+### For `main` branch (GitHub Free - Public Repo):
+
+**Recommended Settings:**
 - ✅ Require pull request before merging
-- ✅ Require approvals: 1 (adjust based on team size)
-- ✅ Dismiss stale approvals when new commits are pushed
-- ✅ Require review from code owners (if CODEOWNERS file exists)
-
-**Additional Settings:**
-- ✅ Require branches to be up to date before merging
+- ✅ Require status checks to pass before merging
+  - ✅ GitHub Actions: test workflow
+  - ✅ GitHub Actions: lint workflow
 - ✅ Require conversation resolution before merging
 - ❌ Allow force pushes: Disabled
 - ❌ Allow deletions: Disabled
 
-### Setting up on GitHub:
+**Manual Review Process (since required reviews aren't available):**
+- Team members manually review PRs before merging
+- Use PR checklists to ensure quality
+- Self-review thoroughly before creating PR
+- Post in team chat when PR is ready for review
+
+### Setting up on GitHub Free:
 1. Go to: `Settings` → `Branches`
 2. Click `Add branch protection rule`
 3. Branch name pattern: `main`
-4. Configure settings as above
+4. Check: "Require a pull request before merging"
+5. Check: "Require status checks to pass before merging" (if you have GitHub Actions)
+6. Check: "Require conversation resolution before merging"
+7. Uncheck: "Allow force pushes"
+8. Uncheck: "Allow deletions"
+9. Save changes
+
+**Note:** For private repos on GitHub Free, branch protection is very limited. Consider making your repo public for better protection features.
 
 ---
 
