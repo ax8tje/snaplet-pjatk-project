@@ -1,14 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './figma/styles.css';
 
-// Import Figma screens for demo
+// Simple login screen - no external CSS needed
 const LoginScreen = () => {
   return (
     <div className="frame-1-1" style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
       <div className="hello-2" style={{ marginBottom: '30px' }}>
         <div className="rectangle-9-3"></div>
-        <img src="figma/images/rectangle-4.png" className="rectangle-4" alt="logo" style={{ width: '120px', height: '120px', borderRadius: '60px' }} />
+        <img src="/snaplet-pjatk-project/figma/images/rectangle-4.png" className="rectangle-4" alt="logo" style={{ width: '120px', height: '120px', borderRadius: '60px' }} />
       </div>
 
       <h1 style={{ fontSize: '32px', fontWeight: 'bold', color: '#000', marginBottom: '40px' }}>📸 Snaplet PJATK</h1>
