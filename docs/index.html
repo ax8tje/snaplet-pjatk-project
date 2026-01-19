@@ -144,20 +144,7 @@
 
         #root::-webkit-scrollbar-thumb:hover {
             background: #555;
-        }</style><script defer="defer" src="/snaplet-pjatk-project/bundle.js"></script></head><body><div id="app-container"><div id="loading-screen"><h1>📸 Snaplet</h1><div class="spinner"></div><p>Loading your moments...</p></div><div id="root"></div></div><script>// Remove loading screen when app loads
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                const loadingScreen = document.getElementById('loading-screen');
-                if (loadingScreen) {
-                    loadingScreen.classList.add('hidden');
-                    setTimeout(function() {
-                        loadingScreen.remove();
-                    }, 500);
-                }
-            }, 1500);
-        });
-
-        // Prevent zoom on double tap (iOS)
+        }</style><script defer="defer" src="/snaplet-pjatk-project/bundle.js"></script></head><body><div id="app-container"><div id="loading-screen"><h1>📸 Snaplet</h1><div class="spinner"></div><p>Loading your moments...</p></div><div id="root"></div></div><script>// Prevent zoom on double tap (iOS)
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function(event) {
             const now = Date.now();
