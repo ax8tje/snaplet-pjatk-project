@@ -154,6 +154,75 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+            background: #FDF5DD;
+        }
+
+        /* Login/Register Frames Better Layout */
+        .frame-1-1 > *, .frame-2-24 > * {
+            max-width: 320px;
+            width: 100%;
+        }
+
+        .frame-1-1 .hello-2, .frame-2-24 .hello-25 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .frame-1-1 .rectangle-9-3, .frame-2-24 .rectangle-9-26 {
+            width: 100px;
+            height: 100px;
+            background: #FDF5DD;
+            margin-bottom: 10px;
+        }
+
+        .frame-1-1 .text-23, .frame-2-24 .text-47 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .rounded-rectangle-5, .rounded-rectangle-28,
+        .rectangle-89-6, .rectangle-89-29, .rectangle-95-32 {
+            height: 48px;
+            background: rgba(200, 200, 200, 0.3);
+            border-radius: 8px;
+            margin: 8px 0;
+            padding: 12px 16px;
+        }
+
+        .rectangle-90-10, .rectangle-90-34 {
+            height: 48px;
+            background: #3A2B20;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .text-11, .text-35 {
+            color: #FDF5DD !important;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .rectangle-92-14, .rectangle-93-16, .rectangle-94-15,
+        .rectangle-92-38, .rectangle-93-40, .rectangle-94-39 {
+            width: 56px;
+            height: 56px;
+            background: white;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }</style><script defer="defer" src="/snaplet-pjatk-project/bundle.js"></script></head><body><div id="app-container"><div id="loading-screen"><h1>📸 Snaplet</h1><div class="spinner"></div><p>Loading your moments...</p></div><div id="root"></div></div><script>// Prevent zoom on double tap (iOS)
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function(event) {
