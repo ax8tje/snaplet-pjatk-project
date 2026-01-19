@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "description": "Snaplet PJATK - React Native Photo Sharing App",
+  "author": {
+    "name": "ax8tje",
+    "email": "stasko004@gmail.com"
+  },
   "scripts": {
     "android": "react-native run-android",
     "android:clean": "cd android && gradlew clean && cd ..",
