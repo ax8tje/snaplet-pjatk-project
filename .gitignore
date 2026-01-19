@@ -88,3 +88,34 @@ coverage/
 
 # Web build
 dist/
+
+# Cleanup - No longer needed for web-only project
+# (Files kept locally but not tracked in git)
+ios/
+android/
+figma/
+docs/
+
+# Backup files
+*.backup
+
+# Old documentation (superseded)
+CREATE_PR.md
+PR_DETAILS.md
+PR_SUMMARY.md
+RAPORT_Z_TESTOW_FORMALNY.md
+TEST_REPORT.md
+WINDOWS_QUICKSTART.md
+WINDOWS_SETUP.md
+STARTUP_TROUBLESHOOTING.md
+SCREENS_README.md
+react-native.config.js
+
+# Old .github files (superseded by new issues)
+.github/MVP_ISSUES.md
+.github/ISSUES_TO_CREATE.md
+.github/create-issues.sh
+.github/BRANCH_POLICY.md
+.github/PR_DESCRIPTION.md
+.github/ISSUE_TEMPLATE/
+.github/workflows/deploy.yml
