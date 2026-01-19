@@ -165,6 +165,365 @@
         #root::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
+
+        /* CLEAN PHONE APP STYLES */
+
+        .screen {
+            width: 100%;
+            min-height: 100vh;
+            background: #FDF5DD;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 32px 32px;
+        }
+
+        .logo-container {
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-text {
+            font-size: 32px;
+            font-weight: 700;
+            color: #000;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .screen-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 32px;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 340px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            color: #808080;
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            height: 52px;
+            background: rgba(200, 200, 200, 0.25);
+            border: none;
+            border-radius: 12px;
+            padding: 0 16px;
+            font-size: 16px;
+            color: #333;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            background: rgba(200, 200, 200, 0.35);
+        }
+
+        .input-field::placeholder {
+            color: #999;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin: 8px 0 24px;
+        }
+
+        .forgot-password span {
+            font-size: 13px;
+            color: #3A2B20;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            width: 100%;
+            height: 52px;
+            background: #3A2B20;
+            border: none;
+            border-radius: 12px;
+            color: #FDF5DD;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .link-text {
+            text-align: center;
+            font-size: 14px;
+            color: #3A2B20;
+            margin: 12px 0 24px;
+            cursor: pointer;
+        }
+
+        .divider {
+            text-align: center;
+            font-size: 14px;
+            color: #3A2B20;
+            margin: 24px 0;
+            position: relative;
+        }
+
+        .social-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .social-btn {
+            width: 64px;
+            height: 64px;
+            background: white;
+            border: none;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+        }
+
+        .social-btn:active {
+            transform: scale(0.95);
+        }
+
+        .social-btn img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        /* HOME SCREEN STYLES */
+        .home-screen {
+            padding: 20px 16px 80px;
+            background: #5D4037;
+        }
+
+        .home-header {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .settings-btn {
+            width: 56px;
+            height: 56px;
+            background: #FDF5DD;
+            border: none;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .grid-item {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .empty-item {
+            background: #FDF5DD;
+        }
+
+        .add-item {
+            background: #5D4037;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .add-icon {
+            font-size: 40px;
+            color: #FDF5DD;
+            font-weight: 200;
+        }
+
+        .timer-item {
+            background: #A1887F;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .timer-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #FDF5DD;
+            border-top-color: transparent;
+            border-radius: 50%;
+            margin-bottom: 8px;
+        }
+
+        .timer-text {
+            font-size: 10px;
+            color: #FDF5DD;
+            font-weight: 600;
+        }
+
+        /* SETTINGS SCREEN STYLES */
+        .settings-screen {
+            padding: 0;
+            background: #FDF5DD;
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 32px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+        }
+
+        .settings-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .search-container {
+            padding: 16px 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 44px;
+            background: rgba(200, 200, 200, 0.2);
+            border: none;
+            border-radius: 12px;
+            padding: 0 16px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .settings-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 80px;
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .settings-item:active {
+            background: rgba(0,0,0,0.03);
+        }
+
+        .settings-icon {
+            font-size: 24px;
+            margin-right: 16px;
+        }
+
+        .settings-label {
+            flex: 1;
+            font-size: 16px;
+            color: #000;
+        }
+
+        .settings-arrow {
+            font-size: 24px;
+            color: #999;
+        }
+
+        /* BOTTOM NAV STYLES */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 414px;
+            height: 64px;
+            background: #FDF5DD;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
     </style>
 </head>
 <body>

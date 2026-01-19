@@ -1,38 +1,86 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const RegisterScreen = () => {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   return (
-    <div className="frame-2-24">
-      <div className="hello-25">
-        <div className="rectangle-9-26"></div>
-        <img src="/snaplet-pjatk-project/figma/images/rectangle-27.png" className="rectangle-27" alt="rectangle" />
+    <div className="screen register-screen">
+      {/* Logo Section */}
+      <div className="logo-container">
+        <div className="logo">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <rect x="8" y="8" width="32" height="32" rx="6" stroke="black" strokeWidth="2"/>
+            <path d="M20 18L28 24L20 30V18Z" fill="black"/>
+          </svg>
+          <span className="logo-text">Snaplet</span>
+        </div>
       </div>
-      <div className="rounded-rectangle-28"></div>
-      <div className="rectangle-89-29"></div>
-      <p className="text-30"><span className="text-rgb-128-128-128">Email</span></p>
-      <p className="text-31"><span className="text-rgb-128-128-128">Password</span></p>
-      <div className="rectangle-95-32"></div>
-      <p className="text-33"><span className="text-rgb-128-128-128">Confirm Password</span></p>
-      <div className="rectangle-90-34" onClick={() => navigate('/home')} style={{cursor: 'pointer'}}></div>
-      <p className="text-35" onClick={() => navigate('/home')} style={{cursor: 'pointer'}}><span className="text-rgb-253-245-221">Sign up</span></p>
-      <p className="text-36" onClick={() => navigate('/login')} style={{cursor: 'pointer'}}><span className="text-rgb-58-43-32">Already have an account</span></p>
-      <p className="text-37"><span className="text-rgb-58-43-32">Or continue with</span></p>
-      <div className="rectangle-92-38"></div>
-      <div className="rectangle-94-39"></div>
-      <div className="rectangle-93-40"></div>
-      <div className="platform-facebook-color-negative">
-        <img src="/snaplet-pjatk-project/figma/images/vector-42.svg" className="vector-42" alt="facebook" />
+
+      {/* Title */}
+      <h1 className="screen-title">Create account</h1>
+
+      {/* Form */}
+      <div className="form-container">
+        <div className="input-group">
+          <label className="input-label">Email</label>
+          <input
+            type="email"
+            className="input-field"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+
+        <div className="input-group">
+          <label className="input-label">Password</label>
+          <input
+            type="password"
+            className="input-field"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+
+        <div className="input-group">
+          <label className="input-label">Confirm Password</label>
+          <input
+            type="password"
+            className="input-field"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+        </div>
+
+        <button className="btn-primary" onClick={() => navigate('/home')}>
+          Sign up
+        </button>
+
+        <div className="link-text" onClick={() => navigate('/login')}>
+          Already have an account
+        </div>
+
+        <div className="divider">Or continue with</div>
+
+        {/* Social Buttons */}
+        <div className="social-buttons">
+          <button className="social-btn">
+            <img src="/snaplet-pjatk-project/figma/images/vector-42.svg" alt="Facebook" />
+          </button>
+          <button className="social-btn">
+            <img src="/snaplet-pjatk-project/figma/images/vector-44.svg" alt="Google" />
+          </button>
+          <button className="social-btn">
+            <img src="/snaplet-pjatk-project/figma/images/vector-46.svg" alt="Apple" />
+          </button>
+        </div>
       </div>
-      <div className="platform-google-color-negative">
-        <img src="/snaplet-pjatk-project/figma/images/vector-44.svg" className="vector-44" alt="google" />
-      </div>
-      <div className="platform-apple-color-negative">
-        <img src="/snaplet-pjatk-project/figma/images/vector-46.svg" className="vector-46" alt="apple" />
-      </div>
-      <p className="text-47"><span className="text-black">Create account</span></p>
     </div>
   );
 };
