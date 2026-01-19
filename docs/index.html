@@ -144,6 +144,16 @@
 
         #root::-webkit-scrollbar-thumb:hover {
             background: #555;
+        }
+
+        /* Figma Frame Positioning */
+        .frame-1-1, .frame-2-24, .frame-3-48, .frame-4-102,
+        .frame-5-143, .frame-6-208, .frame-7-245, .frame-8-245 {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }</style><script defer="defer" src="/snaplet-pjatk-project/bundle.js"></script></head><body><div id="app-container"><div id="loading-screen"><h1>📸 Snaplet</h1><div class="spinner"></div><p>Loading your moments...</p></div><div id="root"></div></div><script>// Prevent zoom on double tap (iOS)
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function(event) {
