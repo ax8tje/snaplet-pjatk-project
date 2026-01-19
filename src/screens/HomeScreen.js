@@ -5,57 +5,59 @@ import BottomNav from '../components/BottomNav';
 const HomeScreen = () => {
   const navigate = useNavigate();
 
+  const photos = [
+    '/snaplet-pjatk-project/figma/images/rectangle-61-67.png',
+    '/snaplet-pjatk-project/figma/images/rectangle-62-68.png',
+    '/snaplet-pjatk-project/figma/images/rectangle-63-69.png',
+    '/snaplet-pjatk-project/figma/images/rectangle-64-70.png',
+    '/snaplet-pjatk-project/figma/images/rectangle-65-71.png',
+    '/snaplet-pjatk-project/figma/images/rectangle-66-72.png',
+  ];
+
+  const timers = [
+    { id: 1, time: '36:32:12' },
+    { id: 2, time: '60:32:12' },
+    { id: 3, time: '12:32:12' },
+  ];
+
   return (
-    <div className="frame-3-48">
-      <div className="rectangle-10-49"></div>
-      <div className="text-link"></div>
-      <div className="mode-light"></div>
-      <img src="/snaplet-pjatk-project/figma/images/ellipse-6-52.svg" className="ellipse-6-52" alt="ellipse-6" />
-      <div className="text-link"></div>
-
-      {/* Photo Grid */}
-      <img src="/snaplet-pjatk-project/figma/images/rectangle-61-67.png" className="rectangle-61-67" alt="rectangle-61" />
-      <img src="/snaplet-pjatk-project/figma/images/rectangle-62-68.png" className="rectangle-62-68" alt="rectangle-62" />
-      <img src="/snaplet-pjatk-project/figma/images/rectangle-63-69.png" className="rectangle-63-69" alt="rectangle-63" />
-      <img src="/snaplet-pjatk-project/figma/images/rectangle-64-70.png" className="rectangle-64-70" alt="rectangle-64" />
-      <img src="/snaplet-pjatk-project/figma/images/rectangle-65-71.png" className="rectangle-65-71" alt="rectangle-65" />
-      <img src="/snaplet-pjatk-project/figma/images/rectangle-66-72.png" className="rectangle-66-72" alt="rectangle-66" />
-      <img src="/snaplet-pjatk-project/figma/images/rectangle-67-73.png" className="rectangle-67-73" alt="rectangle-67" />
-
-      {/* Empty rectangles */}
-      <div className="rectangle-68-74"></div>
-      <div className="rectangle-69-75"></div>
-      <div className="rectangle-70-76"></div>
-      <div className="rectangle-71-77"></div>
-      <div className="rectangle-72-78"></div>
-      <div className="rectangle-73-79"></div>
-      <div className="rectangle-74-80"></div>
-      <div className="rectangle-75-81"></div>
-      <div className="rectangle-76-82"></div>
-      <div className="rectangle-77-83"></div>
-      <div className="rectangle-78-84"></div>
-      <div className="rectangle-79-85"></div>
-      <div className="rectangle-80-86"></div>
-      <div className="rectangle-81-87"></div>
-      <div className="rectangle-82-88"></div>
-      <div className="rectangle-83-89"></div>
-
-      {/* Add button */}
-      <div className="edit-add-plus" onClick={() => navigate('/camera')} style={{cursor: 'pointer'}}>
-        <img src="/snaplet-pjatk-project/figma/images/vector-91.svg" className="vector-91" alt="vector" />
+    <div className="screen home-screen">
+      {/* Header with settings */}
+      <div className="home-header">
+        <button className="settings-btn" onClick={() => navigate('/settings')}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="3" stroke="#3A2B20" strokeWidth="2"/>
+            <path d="M12 5V3M12 21V19M19 12H21M3 12H5M17.6 17.6L19 19M5 5L6.4 6.4M6.4 17.6L5 19M19 5L17.6 6.4" stroke="#3A2B20" strokeWidth="2"/>
+          </svg>
+        </button>
       </div>
 
-      {/* Timers */}
-      <div className="rectangle-84-92"></div>
-      <div className="rectangle-85-93"></div>
-      <img src="/snaplet-pjatk-project/figma/images/ellipse-8-94.svg" className="ellipse-8-94" alt="ellipse-8" />
-      <p className="text-95"><span className="text-rgb-253-245-221">36:32:12</span></p>
-      <div className="rectangle-86-96"></div>
-      <p className="text-97"><span className="text-rgb-253-245-221">60:32:12</span></p>
-      <p className="text-98"><span className="text-rgb-253-245-221">12:32:12</span></p>
-      <img src="/snaplet-pjatk-project/figma/images/vector-99.svg" className="vector-99" alt="vector" />
-      <img src="/snaplet-pjatk-project/figma/images/ellipse-7-100.svg" className="ellipse-7-100" alt="ellipse-7" />
-      <img src="/snaplet-pjatk-project/figma/images/ellipse-9-101.svg" className="ellipse-9-101" alt="ellipse-9" />
+      {/* Photo Grid */}
+      <div className="photo-grid">
+        {photos.map((photo, index) => (
+          <div key={index} className="grid-item photo-item">
+            <img src={photo} alt={`Photo ${index + 1}`} />
+          </div>
+        ))}
+
+        {/* Empty placeholders */}
+        {[...Array(10)].map((_, index) => (
+          <div key={`empty-${index}`} className="grid-item empty-item"></div>
+        ))}
+
+        {/* Add button */}
+        <div className="grid-item add-item" onClick={() => navigate('/camera')}>
+          <div className="add-icon">+</div>
+        </div>
+
+        {/* Timer items */}
+        {timers.map((timer) => (
+          <div key={timer.id} className="grid-item timer-item">
+            <div className="timer-spinner"></div>
+            <span className="timer-text">{timer.time}</span>
+          </div>
+        ))}
+      </div>
 
       <BottomNav active="home" />
     </div>
