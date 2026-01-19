@@ -109,6 +109,7 @@ WINDOWS_QUICKSTART.md
 WINDOWS_SETUP.md
 STARTUP_TROUBLESHOOTING.md
 SCREENS_README.md
+react-native.config.js
 
 # Old .github files (superseded by new issues)
 .github/MVP_ISSUES.md
