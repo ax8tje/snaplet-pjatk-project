@@ -31,10 +31,25 @@ const App = () => {
   );
 };
 
+// Remove loading screen helper
+const removeLoadingScreen = () => {
+  const loadingScreen = document.getElementById('loading-screen');
+  if (loadingScreen) {
+    loadingScreen.classList.add('hidden');
+    setTimeout(() => {
+      loadingScreen.remove();
+    }, 500);
+  }
+};
+
 // Render app
 ReactDOM.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById('root'),
+  () => {
+    // Called after React has successfully mounted
+    removeLoadingScreen();
+  }
 );
