@@ -118,4 +118,3 @@ react-native.config.js
 .github/BRANCH_POLICY.md
 .github/PR_DESCRIPTION.md
 .github/ISSUE_TEMPLATE/
-.github/workflows/deploy.yml
