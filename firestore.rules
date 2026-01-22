@@ -1,0 +1,125 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // helper: allow timestamp or missing (for serverTimestamp usage)
+    function isTimestampOrMissing(map, key) {
+      return (!map.keys().hasAny([key]) || map[key] is timestamp);
+    }
+
+    // USERS: only owner can read/write their user doc
+    match /users/{userId} {
+      allow create: if isOwner(userId) && validUser(request.resource.data);
+      allow read:   if isOwner(userId);
+      allow update: if isOwner(userId) && validUser(request.resource.data);
+      allow delete: if isOwner(userId);
+
+      function validUser(data) {
+        // require email; allow other fields to be optional; createdAt may be missing if serverTimestamp used
+        return data.keys().hasAll(['email'])
+          && (!data.keys().hasAny(['email']) || data.email is string)
+          && (!data.keys().hasAny(['displayName']) || data.displayName is string)
+          && (!data.keys().hasAny(['photoURL']) || data.photoURL is string)
+          && (!data.keys().hasAny(['bio']) || data.bio is string)
+          && isTimestampOrMissing(data, 'createdAt');
+      }
+    }
+
+    // POSTS: anyone can read, only authenticated users can create; only post owner can modify/delete
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+                    && request.auth.uid == request.resource.data.userId
+                    && validPost(request.resource.data);
+      // UPDATE: validate changes and ensure owner
+      allow update: if isSignedIn()
+                    && resource.data.userId == request.auth.uid
+                    && validPostUpdate(request.resource.data, resource.data);
+      // DELETE: only owner (don't validate request.resource because it is null on delete)
+      allow delete: if isSignedIn()
+                    && resource.data.userId == request.auth.uid;
+
+      function validPost(data) {
+        return data.keys().hasAll(['userId','imageUrl','thumbnailUrl','caption'])
+          && data.userId is string
+          && data.imageUrl is string
+          && data.thumbnailUrl is string
+          && data.caption is string
+          // likes/commentCount and createdAt can be provided or omitted on create
+          && ( !data.keys().hasAny(['likes']) || data.likes is number )
+          && ( !data.keys().hasAny(['commentCount']) || data.commentCount is number )
+          && isTimestampOrMissing(data, 'createdAt');
+      }
+
+      function validPostUpdate(newData, oldData) {
+        // newData is request.resource.data (may be partial on update)
+        return ( !newData.keys().hasAny(['userId']) || (newData.userId == oldData.userId) )
+          && ( !newData.keys().hasAny(['likes']) || (newData.likes is number) )
+          && ( !newData.keys().hasAny(['commentCount']) || (newData.commentCount is number) );
+      }
+    }
+
+    // COMMENTS: anyone can read; only authenticated users can create; only comment owner can delete
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+                    && request.auth.uid == request.resource.data.userId
+                    && validComment(request.resource.data);
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      function validComment(data) {
+        return data.keys().hasAll(['postId','userId','text'])
+          && data.postId is string
+          && data.userId is string
+          && data.text is string
+          && isTimestampOrMissing(data, 'createdAt');
+      }
+    }
+
+    // LIKES: anyone can read; only owner can create/delete their like
+    match /likes/{likeId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+                    && request.auth.uid == request.resource.data.userId
+                    && validLike(request.resource.data);
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      function validLike(data) {
+        return data.keys().hasAll(['postId','userId'])
+          && data.postId is string
+          && data.userId is string
+          && isTimestampOrMissing(data, 'createdAt');
+      }
+    }
+
+    // MESSAGES: only participants can read; sender must be authenticated and match senderId to create
+    match /messages/{messageId} {
+      allow create: if isSignedIn()
+                    && request.auth.uid == request.resource.data.senderId
+                    && validMessage(request.resource.data);
+      allow read: if isSignedIn()
+                  && (resource.data.senderId == request.auth.uid || resource.data.receiverId == request.auth.uid);
+      allow update: if isSignedIn()
+                    && (resource.data.senderId == request.auth.uid || resource.data.receiverId == request.auth.uid);
+      allow delete: if isSignedIn()
+                    && (resource.data.senderId == request.auth.uid || resource.data.receiverId == request.auth.uid);
+
+      function validMessage(data) {
+        return data.keys().hasAll(['senderId','receiverId','text'])
+          && data.senderId is string
+          && data.receiverId is string
+          && data.text is string
+          && isTimestampOrMissing(data, 'createdAt')
+          && ( !data.keys().hasAny(['read']) || data.read is bool );
+      }
+    }
+
+  }
+}
