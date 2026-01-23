@@ -211,6 +211,66 @@ If you see:
 - User profiles
 - Like and comment on photos
 
+====================================================
+
+# Snaplet PJATK – Firebase Setup
+
+Projekt wykorzystuje **Firebase** jako backend do:
+- uwierzytelniania użytkowników (Firebase Authentication),
+- przechowywania danych (Cloud Firestore).
+
+Konfiguracja Firebase została wykonana zgodnie z dobrymi praktykami bezpieczeństwa – dane konfiguracyjne nie są przechowywane bezpośrednio w kodzie ani w repozytorium.
+
+---
+
+## 🔥 Firebase Configuration
+
+Aplikacja korzysta z **Firebase Web SDK**. Dane dostępowe ładowane są z pliku `.env`, który jest wstrzykiwany do aplikacji przez Webpack (`dotenv-webpack`).
+
+### Używane usługi Firebase:
+- ✅ Firebase Authentication (Email / Password)
+- ✅ Cloud Firestore
+- ✅ Firebase Web App
+
+---
+
+## ⚙️ Konfiguracja lokalna
+
+### 1️⃣ Przygotowanie pliku `.env`
+1. Skopiuj plik:
+.env.example
+i zmień jego nazwę na:
+.env
+2. Uzupełnij wartości na podstawie:
+Firebase Console → Project settings (⚙️) → Your apps → Web → SDK setup and configuration
+
+Przykład:
+```env
+FIREBASE_API_KEY=...
+FIREBASE_AUTH_DOMAIN=...
+FIREBASE_PROJECT_ID=...
+FIREBASE_STORAGE_BUCKET=...
+FIREBASE_MESSAGING_SENDER_ID=...
+FIREBASE_APP_ID=...
+```
+
+⚠️ Plik .env jest prywatny i nie jest commitowany do repozytorium.
+
+Instalacja zależności:
+npm install
+
+Uruchomienie wersji web (development)
+
+npm run web
+``
+Aplikacja uruchomi się lokalnie przy użyciu webpack-dev-server (localhost).
+
+Bezpieczeństwo
+
+Dane konfiguracyjne Firebase nie są przechowywane w repozytorium.
+Plik .env jest ignorowany przez .gitignore.
+Bezpieczeństwo dostępu do danych zapewniają reguły Firebase Authentication oraz Cloud Firestore.
+====================================================
 ## License
 
 Private - PJATK Project
