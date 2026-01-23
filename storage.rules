@@ -1,0 +1,47 @@
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // --- helper: sprawdź czy zalogowany
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // --- helper: sprawdź czy userId w ścieżce = uid zalogowanego
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- helper: tylko obrazki i max 10MB
+    function isValidImage() {
+      return request.resource != null
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // ========= PUBLIC READ =========
+    // Publiczny odczyt dla wszystkiego w users/** (zgodnie z wymaganiem "Public read access for all images")
+    // Jeśli w przyszłości chcecie ograniczyć, zawęzimy to do konkretnych folderów.
+    match /users/{userId}/{allPaths=**} {
+      allow read: if true;
+    }
+
+    // ========= WRITE RULES =========
+    // PROFILE: users/{userId}/profile/{fileName}
+    match /users/{userId}/profile/{fileName} {
+      allow write: if isOwner(userId) && isValidImage();
+    }
+
+    // POSTS: users/{userId}/posts/{postId}/{fileName}
+    match /users/{userId}/posts/{postId}/{fileName} {
+      allow write: if isOwner(userId) && isValidImage();
+    }
+
+    // (Opcjonalnie) Zablokuj wszystko inne
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
