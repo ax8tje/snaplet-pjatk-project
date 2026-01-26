@@ -271,6 +271,22 @@ Dane konfiguracyjne Firebase nie są przechowywane w repozytorium.
 Plik .env jest ignorowany przez .gitignore.
 Bezpieczeństwo dostępu do danych zapewniają reguły Firebase Authentication oraz Cloud Firestore.
 ====================================================
+
+## Authentication Service
+
+Projekt posiada warstwę serwisową do obsługi autoryzacji użytkowników,
+opartą o Firebase Authentication.
+
+Plik: `src/services/authService.js`
+
+Obsługiwane funkcje:
+- Rejestracja użytkownika
+- Logowanie / wylogowanie
+- Reset hasła
+- Aktualizacja profilu
+- Nasłuchiwanie zmian stanu autoryzacji
+
+====================================================
 ## License
 
 Private - PJATK Project
