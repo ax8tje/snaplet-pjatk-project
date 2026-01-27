@@ -411,33 +411,42 @@
         .settings-header {
             display: flex;
             align-items: center;
-            padding: 20px;
+            justify-content: center;
+            padding: 16px 20px;
             border-bottom: 1px solid rgba(0,0,0,0.1);
             position: relative;
+            min-height: 60px;
         }
 
         .back-btn {
-            width: 40px;
-            height: 40px;
-            background: white;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            background: rgba(0,0,0,0.05);
             border: none;
-            border-radius: 20px;
-            font-size: 32px;
+            border-radius: 22px;
+            font-size: 24px;
             line-height: 1;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #000;
+            color: #3A2B20;
+            z-index: 10;
+        }
+
+        .back-btn:active {
+            background: rgba(0,0,0,0.1);
         }
 
         .settings-title {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
             font-size: 18px;
             font-weight: 600;
             color: #000;
+            margin: 0;
         }
 
         .search-container {
@@ -488,6 +497,140 @@
         .settings-arrow {
             font-size: 24px;
             color: #999;
+        }
+
+        /* PROFILE SCREEN STYLES */
+        .profile-screen {
+            padding: 0;
+            background: #FDF5DD;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            position: relative;
+            min-height: 60px;
+        }
+
+        .profile-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #000;
+            margin: 0;
+        }
+
+        .profile-user-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 40px;
+            background: #D3D0C6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-username {
+            font-size: 20px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 16px;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 32px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A2B20;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #808080;
+            margin-top: 4px;
+        }
+
+        .profile-photos-section {
+            padding: 20px;
+        }
+
+        .profile-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 16px;
+        }
+
+        .profile-photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .profile-photo-item {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #D3D0C6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .profile-photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-timeline {
+            padding: 0 20px 100px;
+        }
+
+        .timeline-month {
+            margin-bottom: 20px;
+        }
+
+        .timeline-month-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .timeline-photos {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
         }
 
         /* BOTTOM NAV STYLES */
