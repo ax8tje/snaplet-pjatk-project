@@ -18,7 +18,7 @@ const SettingsScreen = () => {
     <div className="screen settings-screen">
       {/* Header */}
       <div className="settings-header">
-        <button className="back-btn" onClick={() => navigate(-1)}>×</button>
+        <button className="back-btn" onClick={() => navigate(-1)}>&larr;</button>
         <h1 className="settings-title">Settings</h1>
       </div>
 
