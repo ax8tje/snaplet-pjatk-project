@@ -57,9 +57,12 @@ module.exports = {
   devServer: {
     static: {
       directory: path.join(__dirname, 'public'),
+      publicPath: '/snaplet-pjatk-project/',
     },
     compress: true,
     port: 8080,
-    historyApiFallback: true,
+    historyApiFallback: {
+      index: '/snaplet-pjatk-project/index.html',
+    },
   },
 };
