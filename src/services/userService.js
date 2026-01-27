@@ -1,92 +1,116 @@
-// src/services/userService.js
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  onSnapshot,
+} from "firebase/firestore";
+import { db } from "../firebase";
 
 /**
- * User Profile Schema:
- * {
- *   userId: string,
- *   email: string,
- *   displayName: string,
- *   photoUrl: string,
- *   bio: string,
- *   createdAt: timestamp,
- *   points: number
- * }
+ * @typedef {Object} UserProfile
+ * @property {string} userId
+ * @property {string} email
+ * @property {string} displayName
+ * @property {string} photoURL
+ * @property {string} bio
+ * @property {number} createdAt
+ * @property {number} postCount
  */
 
-const { db } = require('../firebase'); // lub Twój import w projekcie
+const USERS_COLLECTION = "users";
 
-// Funkcja tworzenia użytkownika
-async function createUser(userId, data) {
-  try {
-    await db.collection('users').doc(userId).set({
-      ...data,
-      createdAt: new Date().toISOString(),
-    });
-
-    return { success: true };
-  } catch (err) {
-    console.error('createUser error:', err);
-    throw new Error('USER_CREATE_FAILED');
+/**
+ * Create user profile
+ */
+export async function createUserProfile(userId, data) {
+  if (!userId) {
+    throw new Error("userId is required");
   }
+
+  const userRef = doc(db, USERS_COLLECTION, userId);
+
+  const profile = {
+    userId,
+    email: data.email || "",
+    displayName: data.displayName || "",
+    photoURL: data.photoURL || "",
+    bio: data.bio || "",
+    createdAt: Date.now(),
+    postCount: 0,
+  };
+
+  await setDoc(userRef, profile);
+  return profile;
 }
 
-// Pobieranie profilu
-async function getUserProfile(userId) {
-  try {
-    const doc = await db.collection('users').doc(userId).get();
-    if (!doc.exists) return null;
-    return doc.data();
-  } catch (err) {
-    console.error('getUserProfile error:', err);
-    throw new Error('USER_FETCH_FAILED');
+/**
+ * Get user profile
+ */
+export async function getUserProfile(userId) {
+  const userRef = doc(db, USERS_COLLECTION, userId);
+  const snap = await getDoc(userRef);
+
+  if (!snap.exists()) {
+    throw new Error("User not found");
   }
+
+  return snap.data();
 }
 
-// Aktualizacja
-async function updateUserProfile(userId, data) {
-  try {
-    await db.collection('users').doc(userId).update(data);
-    return { success: true };
-  } catch (err) {
-    console.error('updateUserProfile error:', err);
-    throw new Error('USER_UPDATE_FAILED');
-  }
+/**
+ * Update user profile
+ */
+export async function updateUserProfile(userId, data) {
+  const userRef = doc(db, USERS_COLLECTION, userId);
+
+  await updateDoc(userRef, data);
+
+  const updated = await getUserProfile(userId);
+  return updated;
 }
 
-// Wyszukiwanie (np. po nazwie lub mailu)
-async function searchUsers(query) {
-  try {
-    const snapshot = await db
-      .collection('users')
-      .where('displayName', '>=', query)
-      .where('displayName', '<=', query + '\uf8ff')
-      .get();
+/**
+ * Get user posts (basic implementation)
+ */
+export async function getUserPosts(userId) {
+  const postsRef = collection(db, "posts");
+  const q = query(postsRef, where("userId", "==", userId));
 
-    return snapshot.docs.map(doc => doc.data());
-  } catch (err) {
-    console.error('searchUsers error:', err);
-    throw new Error('USER_SEARCH_FAILED');
-  }
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => doc.data());
 }
 
-// Subskrypcja (live updates)
-function subscribeToUser(userId, callback) {
-  try {
-    return db.collection('users')
-      .doc(userId)
-      .onSnapshot(
-        (doc) => callback(doc.data()),
-        (err) => console.error('subscribeToUser error:', err)
-      );
-  } catch (err) {
-    throw new Error('USER_SUBSCRIBE_FAILED');
-  }
+/**
+ * Search users by displayName
+ */
+export async function searchUsers(queryText) {
+  const usersRef = collection(db, USERS_COLLECTION);
+  const q = query(
+    usersRef,
+    where("displayName", ">=", queryText),
+    where("displayName", "<=", queryText + "\uf8ff")
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => doc.data());
 }
 
-module.exports = {
-  createUser,
-  getUserProfile,
-  updateUserProfile,
-  searchUsers,
-  subscribeToUser
-};
+/**
+ * Subscribe to user profile changes
+ */
+export function subscribeToUser(userId, callback) {
+  const userRef = doc(db, USERS_COLLECTION, userId);
+
+  const unsubscribe = onSnapshot(userRef, snap => {
+    if (snap.exists()) {
+      callback(snap.data());
+    }
+  });
+
+  return unsubscribe;
+}
