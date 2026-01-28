@@ -11,7 +11,7 @@ import {
   doc
 } from "firebase/firestore";
 
-import { db } from "../firebase";
+import { db } from "../config/firebase";
 
 /**
  * Send message between users
