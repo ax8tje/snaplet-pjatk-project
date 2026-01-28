@@ -1,6 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const Dotenv = require("dotenv-webpack");
 const appDirectory = path.resolve(__dirname);
 
@@ -52,7 +52,13 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(appDirectory, 'public/index.html'),
-    }),new Dotenv(),
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'public/figma', to: 'figma' },
+      ],
+    }),
+    new Dotenv(),
   ],
   devServer: {
     static: {
