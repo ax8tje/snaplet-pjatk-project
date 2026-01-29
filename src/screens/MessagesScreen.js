@@ -110,13 +110,17 @@ const MessagesScreen = () => {
   }
 
   return (
-    <div className="screen messages-screen" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ backgroundColor: '#F5E6D3', minHeight: '100vh', display: 'flex', flexDirection: 'column', paddingBottom: '70px' }}>
       {/* Header */}
       <div style={{
-        padding: '16px',
-        borderBottom: '1px solid #eee'
+        padding: '16px 20px',
+        backgroundColor: '#F5E6D3',
+        borderBottom: '1px solid #E0D5C7',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
       }}>
-        <h1 style={{ margin: '0 0 16px', fontSize: '24px', fontWeight: '600' }}>Messages</h1>
+        <h1 style={{ margin: '0 0 16px', fontSize: '24px', fontWeight: '700', color: '#3A2B20' }}>💬 Messages</h1>
 
         {/* Search bar */}
         <div style={{
