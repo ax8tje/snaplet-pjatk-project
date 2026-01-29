@@ -72,10 +72,7 @@ export const LoginScreen: React.FC = () => {
       >
         {/* Logo */}
         <View style={styles.logoContainer}>
-          <View style={styles.logo}>
-            <Image source={placeholderLogo} style={styles.logoImage} resizeMode="contain" />
-            <Text style={styles.logoText}>Snaplet</Text>
-          </View>
+          <Image source={placeholderLogo} style={styles.logoImage} resizeMode="contain" />
         </View>
 
         {/* Title */}
@@ -177,20 +174,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 32,
   },
-  logo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   logoImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
-  },
-  logoText: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#000000',
-    marginLeft: 12,
+    width: 120,
+    height: 120,
+    borderRadius: 16,
   },
   title: {
     fontSize: 32,
