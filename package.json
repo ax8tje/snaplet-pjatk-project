@@ -57,6 +57,7 @@
     "@babel/core": "^7.23.6",
     "@babel/preset-env": "^7.28.6",
     "@babel/preset-react": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.3",
     "@babel/runtime": "^7.23.6",
     "@firebase/rules-unit-testing": "^5.0.0",
     "@react-native/babel-preset": "0.74.0",
