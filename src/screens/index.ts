@@ -7,6 +7,7 @@ export { RegisterScreen } from './RegisterScreen';
 export { HomeScreen } from './HomeScreen';
 export { ProfileScreen } from './ProfileScreen';
 export { MessagesScreen } from './MessagesScreen';
+export { default as ChatScreen } from './ChatScreen';
 export { CameraScreen } from './CameraScreen';
 export { PostDetailScreen } from './PostDetailScreen';
 

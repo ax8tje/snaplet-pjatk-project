@@ -9,6 +9,7 @@ import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import MessagesScreen from './src/screens/MessagesScreen';
+import ChatScreen from './src/screens/ChatScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import CameraScreen from './src/screens/CameraScreen';
 import PostDetailScreen from './src/screens/PostDetailScreen';
@@ -93,6 +94,7 @@ const App = () => {
         <Route path="/home" element={<ProtectedRoute><HomeScreen /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><SettingsScreen /></ProtectedRoute>} />
         <Route path="/messages" element={<ProtectedRoute><MessagesScreen /></ProtectedRoute>} />
+        <Route path="/chat/:userId" element={<ProtectedRoute><ChatScreen /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
         <Route path="/camera" element={<ProtectedRoute><CameraScreen /></ProtectedRoute>} />
         <Route path="/post/:id" element={<ProtectedRoute><PostDetailScreen /></ProtectedRoute>} />
