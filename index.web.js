@@ -69,7 +69,7 @@ const App = () => {
   }, [appReady, isLoading]);
 
   return (
-    <Router basename="/snaplet-pjatk-project">
+    <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/welcome" element={<WelcomeScreen />} />

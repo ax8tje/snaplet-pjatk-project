@@ -9,7 +9,7 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.resolve(appDirectory, 'dist'),
-    publicPath: '/snaplet-pjatk-project/',
+    publicPath: '/',
   },
   resolve: {
     extensions: ['.web.tsx', '.web.ts', '.tsx', '.ts', '.web.js', '.js'],
@@ -63,12 +63,10 @@ module.exports = {
   devServer: {
     static: {
       directory: path.join(__dirname, 'public'),
-      publicPath: '/snaplet-pjatk-project/',
+      publicPath: '/',
     },
     compress: true,
     port: 8080,
-    historyApiFallback: {
-      index: '/snaplet-pjatk-project/index.html',
-    },
+    historyApiFallback: true,
   },
 };
