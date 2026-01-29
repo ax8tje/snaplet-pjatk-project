@@ -10,6 +10,17 @@ React Native photo sharing application built with TypeScript.
 - **Navigation**: React Navigation (Stack & Bottom Tabs)
 - **Backend Services**: Firebase (Auth, Firestore, Storage)
 - **Camera**: React Native Vision Camera
+- **Web Support**: React Native Web + Webpack
+
+## Features
+
+- User authentication (Firebase Auth)
+- Photo capture with camera
+- Photo upload to cloud storage (Firebase Storage)
+- Photo feed with real-time updates
+- User profiles
+- Like and comment on photos
+- Direct messaging between users
 
 ## Project Structure
 
@@ -22,11 +33,13 @@ snaplet-pjatk/
 │   ├── navigation/    # Navigation configuration
 │   ├── store/         # Zustand state management
 │   ├── types/         # TypeScript type definitions
+│   ├── config/        # App configuration
+│   ├── mocks/         # Test mocks
 │   └── utils/         # Utility functions & helpers
 ├── App.tsx            # Application entry point
 ├── package.json
 ├── tsconfig.json
-└── .eslintrc.js
+└── firebase.json
 ```
 
 ## Setup Instructions
@@ -55,9 +68,7 @@ npm install
 cd ios && pod install && cd ..
 ```
 
-### Configuration
-
-#### Firebase Setup
+### Firebase Configuration
 
 1. Create a Firebase project at https://console.firebase.google.com
 2. Add Android and iOS apps to your Firebase project
@@ -65,7 +76,22 @@ cd ios && pod install && cd ..
    - Android: `google-services.json` → `android/app/`
    - iOS: `GoogleService-Info.plist` → `ios/`
 
-#### Camera Permissions
+#### Web Configuration
+
+1. Copy `.env.example` to `.env`
+2. Fill in your Firebase credentials from Firebase Console → Project settings → Your apps → Web → SDK setup:
+```env
+FIREBASE_API_KEY=...
+FIREBASE_AUTH_DOMAIN=...
+FIREBASE_PROJECT_ID=...
+FIREBASE_STORAGE_BUCKET=...
+FIREBASE_MESSAGING_SENDER_ID=...
+FIREBASE_APP_ID=...
+```
+
+Note: The `.env` file is private and should not be committed to the repository.
+
+### Camera Permissions
 
 Add camera permissions to your app:
 
@@ -93,6 +119,9 @@ npm run android
 
 # Run on iOS
 npm run ios
+
+# Run web version
+npm run web
 ```
 
 ### Code Quality
@@ -108,17 +137,34 @@ npm run format
 npm run type-check
 ```
 
+### Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run Firestore rules tests
+npm run test:rules
+
+# Run service tests
+npm run test:services
+```
+
 ## Scripts
 
-- `npm start` - Start Metro bundler
-- `npm run android` - Run on Android device/emulator
-- `npm run ios` - Run on iOS simulator
-- `npm run ios:clean` - Clean iOS Pods and reinstall (fixes build issues)
-- `npm run ios:pod-install` - Reinstall iOS Pods
-- `npm run lint` - Run ESLint
-- `npm run format` - Format code with Prettier
-- `npm run type-check` - Run TypeScript type checking
-- `npm test` - Run tests
+| Script | Description |
+|--------|-------------|
+| `npm start` | Start Metro bundler |
+| `npm run android` | Run on Android device/emulator |
+| `npm run ios` | Run on iOS simulator |
+| `npm run web` | Run web version (development) |
+| `npm run ios:clean` | Clean iOS Pods and reinstall |
+| `npm run ios:pod-install` | Reinstall iOS Pods |
+| `npm run lint` | Run ESLint |
+| `npm run format` | Format code with Prettier |
+| `npm run type-check` | Run TypeScript type checking |
+| `npm test` | Run tests |
+| `npm run deploy` | Build and deploy to Firebase Hosting |
 
 ## Troubleshooting
 
@@ -155,14 +201,8 @@ This API is provided only for React Native frameworks and not intended for gener
 
 **Solution:** The project includes a `patch-package` patch that automatically fixes these issues. The patch will be applied when you run `npm install`.
 
-**What the patch does:**
-- Adds file-level suppression for internal framework API usage
-- Configures kotlinOptions with proper JVM target and opt-in flags
-- Forces React Native 0.74.0 version to prevent version mismatches
-
 If build still fails after `npm install`:
 ```bash
-# Clean and rebuild
 cd android
 ./gradlew clean
 cd ..
@@ -171,10 +211,7 @@ npm run android
 
 ### iOS Build Issues
 
-If you encounter Hermes build script errors like:
-```
-PhaseScriptExecution [CP-User] [Hermes] Replace Hermes for the right configuration
-```
+If you encounter Hermes build script errors:
 
 **Solution:**
 1. Clean and reinstall pods:
@@ -191,102 +228,14 @@ pod install
 cd ..
 ```
 
-**Note:** Hermes engine is currently disabled in this project to prevent build errors. The app uses JavaScriptCore instead.
+**Note:** Hermes engine is currently disabled in this project.
 
 ### App Registration Error
 
-If you see:
-```
-"SnapletTemp" has not been registered
-```
+If you see `"SnapletTemp" has not been registered`:
 
 **Solution:** This was fixed by updating `MainActivity.kt` to use the correct app name `"SnapletPjatk"` matching `app.json`.
 
-## Features (Planned)
-
-- User authentication (Firebase Auth)
-- Photo capture with camera
-- Photo upload to cloud storage
-- Photo feed with real-time updates
-- User profiles
-- Like and comment on photos
-
-====================================================
-
-# Snaplet PJATK – Firebase Setup
-
-Projekt wykorzystuje **Firebase** jako backend do:
-- uwierzytelniania użytkowników (Firebase Authentication),
-- przechowywania danych (Cloud Firestore).
-
-Konfiguracja Firebase została wykonana zgodnie z dobrymi praktykami bezpieczeństwa – dane konfiguracyjne nie są przechowywane bezpośrednio w kodzie ani w repozytorium.
-
----
-
-## 🔥 Firebase Configuration
-
-Aplikacja korzysta z **Firebase Web SDK**. Dane dostępowe ładowane są z pliku `.env`, który jest wstrzykiwany do aplikacji przez Webpack (`dotenv-webpack`).
-
-### Używane usługi Firebase:
-- ✅ Firebase Authentication (Email / Password)
-- ✅ Cloud Firestore
-- ✅ Firebase Web App
-
----
-
-## ⚙️ Konfiguracja lokalna
-
-### 1️⃣ Przygotowanie pliku `.env`
-1. Skopiuj plik:
-.env.example
-i zmień jego nazwę na:
-.env
-2. Uzupełnij wartości na podstawie:
-Firebase Console → Project settings (⚙️) → Your apps → Web → SDK setup and configuration
-
-Przykład:
-```env
-FIREBASE_API_KEY=...
-FIREBASE_AUTH_DOMAIN=...
-FIREBASE_PROJECT_ID=...
-FIREBASE_STORAGE_BUCKET=...
-FIREBASE_MESSAGING_SENDER_ID=...
-FIREBASE_APP_ID=...
-```
-
-⚠️ Plik .env jest prywatny i nie jest commitowany do repozytorium.
-
-Instalacja zależności:
-npm install
-
-Uruchomienie wersji web (development)
-
-npm run web
-``
-Aplikacja uruchomi się lokalnie przy użyciu webpack-dev-server (localhost).
-
-Bezpieczeństwo
-
-Dane konfiguracyjne Firebase nie są przechowywane w repozytorium.
-Plik .env jest ignorowany przez .gitignore.
-Bezpieczeństwo dostępu do danych zapewniają reguły Firebase Authentication oraz Cloud Firestore.
-====================================================
-
-## Authentication Service
-
-Projekt posiada warstwę serwisową do obsługi autoryzacji użytkowników,
-opartą o Firebase Authentication.
-
-Plik: `src/services/authService.js`
-
-Obsługiwane funkcje:
-- Rejestracja użytkownika
-- Logowanie / wylogowanie
-- Reset hasła
-- Aktualizacja profilu
-- Nasłuchiwanie zmian stanu autoryzacji
-
-====================================================
 ## License
 
 Private - PJATK Project
