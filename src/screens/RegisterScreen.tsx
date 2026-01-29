@@ -9,11 +9,14 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { useUserStore } from '../store/userStore';
 import { useNavigationCompat } from '../utils/navigation';
+
+const placeholderLogo = require('../../assets/placeholder.png');
 
 export const RegisterScreen: React.FC = () => {
   const navigation = useNavigationCompat();
@@ -72,9 +75,7 @@ export const RegisterScreen: React.FC = () => {
         {/* Logo */}
         <View style={styles.logoContainer}>
           <View style={styles.logo}>
-            <View style={styles.logoIcon}>
-              <View style={styles.playIcon} />
-            </View>
+            <Image source={placeholderLogo} style={styles.logoImage} resizeMode="contain" />
             <Text style={styles.logoText}>Snaplet</Text>
           </View>
         </View>
@@ -180,12 +181,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5E6D3',
+    minHeight: '100%',
   },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 60,
     paddingBottom: 40,
+    backgroundColor: '#F5E6D3',
+    minHeight: '100%',
   },
   logoContainer: {
     alignItems: 'center',
@@ -195,25 +199,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  logoIcon: {
+  logoImage: {
     width: 48,
     height: 48,
     borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#000000',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  playIcon: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 12,
-    borderTopWidth: 8,
-    borderBottomWidth: 8,
-    borderLeftColor: '#000000',
-    borderTopColor: 'transparent',
-    borderBottomColor: 'transparent',
-    marginLeft: 4,
   },
   logoText: {
     fontSize: 28,
