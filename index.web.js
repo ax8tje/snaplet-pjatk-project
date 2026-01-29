@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // Import screens
@@ -43,13 +43,13 @@ const removeLoadingScreen = () => {
 };
 
 // Render app
-ReactDOM.render(
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-  document.getElementById('root'),
-  () => {
-    // Called after React has successfully mounted
-    removeLoadingScreen();
-  }
+  </React.StrictMode>
 );
+
+// Remove loading screen after React mounts
+removeLoadingScreen();

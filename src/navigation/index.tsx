@@ -1,16 +1,29 @@
-import React, {useState} from 'react';
+import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {View, ActivityIndicator, StyleSheet} from 'react-native';
 import {RootStackParamList} from '../types/navigation';
 import {AuthNavigator} from './AuthNavigator';
 import {MainTabNavigator} from './MainTabNavigator';
+import {useUserStore} from '../store/userStore';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const RootNavigator = () => {
-  // For demo purposes, you can toggle between 'auth' and 'main'
-  // In a real app, this would be managed by authentication state
-  const [isAuthenticated] = useState(false);
+  const {isAuthenticated, isLoading, initialize} = useUserStore();
+
+  useEffect(() => {
+    const unsubscribe = initialize();
+    return () => unsubscribe();
+  }, [initialize]);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#000000" />
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer>
@@ -24,3 +37,12 @@ export const RootNavigator = () => {
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5E6D3',
+  },
+});
