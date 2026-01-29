@@ -17,7 +17,7 @@
     "start": "react-native start",
     "start:reset": "react-native start --reset-cache",
     "web": "webpack serve --mode development --open",
-    "web:build": "NODE_ENV=production webpack --mode production",
+    "web:build": "cross-env NODE_ENV=production webpack --mode production",
     "web:serve": "npx serve dist",
     "test": "jest",
     "test:rules": "mocha --exit tests/firestore.rules.test.js",
@@ -27,7 +27,9 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "type-check": "tsc --noEmit",
     "postinstall": "patch-package",
-    "build:web": "webpack --mode production"
+    "build:web": "webpack --mode production",
+    "deploy": "npm run web:build && firebase deploy --only hosting",
+    "deploy:all": "npm run web:build && firebase deploy"
   },
   "dependencies": {
     "@react-native-firebase/app": "^19.0.1",
@@ -51,6 +53,7 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "@babel/core": "^7.23.6",
     "@babel/preset-env": "^7.28.6",
     "@babel/preset-react": "^7.28.5",
