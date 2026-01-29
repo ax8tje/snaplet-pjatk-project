@@ -193,9 +193,9 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   logoImage: {
-    width: 160,
-    height: 160,
-    borderRadius: 20,
+    width: 250,
+    height: 250,
+    borderRadius: 30,
   },
   title: {
     fontSize: 32,
