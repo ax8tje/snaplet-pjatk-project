@@ -10,17 +10,13 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
-import { AuthStackParamList } from '../types/navigation';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { useUserStore } from '../store/userStore';
-
-type RegisterScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
+import { useNavigationCompat } from '../utils/navigation';
 
 export const RegisterScreen: React.FC = () => {
-  const navigation = useNavigation<RegisterScreenNavigationProp>();
+  const navigation = useNavigationCompat();
   const { register, isLoading, error, clearError } = useUserStore();
 
   const [displayName, setDisplayName] = useState('');
