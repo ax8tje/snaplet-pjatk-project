@@ -25,7 +25,7 @@ const removeLoadingScreen = () => {
   }
 };
 
-// Protected Route component
+// Protected Route component - redirects to login if not authenticated
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useUserStore();
 
@@ -35,6 +35,21 @@ const ProtectedRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
+// Auth Route component - redirects to home if already authenticated
+const AuthRoute = ({ children }) => {
+  const { isAuthenticated, isLoading } = useUserStore();
+
+  if (isLoading) {
+    return null; // Keep showing the HTML loading screen
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/home" replace />;
   }
 
   return children;
@@ -72,9 +87,9 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/welcome" element={<WelcomeScreen />} />
-        <Route path="/login" element={<LoginScreen />} />
-        <Route path="/register" element={<RegisterScreen />} />
+        <Route path="/welcome" element={<AuthRoute><WelcomeScreen /></AuthRoute>} />
+        <Route path="/login" element={<AuthRoute><LoginScreen /></AuthRoute>} />
+        <Route path="/register" element={<AuthRoute><RegisterScreen /></AuthRoute>} />
         <Route path="/home" element={<ProtectedRoute><HomeScreen /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><SettingsScreen /></ProtectedRoute>} />
         <Route path="/messages" element={<ProtectedRoute><MessagesScreen /></ProtectedRoute>} />
