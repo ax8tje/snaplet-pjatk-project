@@ -183,8 +183,11 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
 
   initialize: () => {
+    let authResolved = false;
+
     const currentUser = getCurrentUser();
     if (currentUser) {
+      authResolved = true;
       const user: AuthUser = {
         uid: currentUser.uid,
         email: currentUser.email,
@@ -196,6 +199,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     }
 
     const unsubscribeAuth = onAuthStateChange(async (firebaseUser) => {
+      authResolved = true;
       if (firebaseUser) {
         const user: AuthUser = {
           uid: firebaseUser.uid,
@@ -222,6 +226,14 @@ export const useUserStore = create<UserState>((set, get) => ({
         });
       }
     });
+
+    // Fallback: if auth state doesn't resolve within 2 seconds, stop loading
+    // This handles cases where Firebase isn't properly configured
+    setTimeout(() => {
+      if (!authResolved) {
+        set({ isLoading: false, isAuthenticated: false });
+      }
+    }, 2000);
 
     return unsubscribeAuth;
   },
