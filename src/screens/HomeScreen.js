@@ -100,15 +100,12 @@ const HomeScreen = () => {
   };
 
   return (
-    <div className="screen home-screen" onScroll={handleScroll} style={{ overflowY: 'auto', height: '100vh' }}>
-      {/* Header with settings */}
-      <div className="home-header">
-        <h1 style={{ fontSize: '20px', fontWeight: '600', margin: 0 }}>Snaplet</h1>
-        <button className="settings-btn" onClick={() => navigate('/settings')}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="3" stroke="#3A2B20" strokeWidth="2"/>
-            <path d="M12 5V3M12 21V19M19 12H21M3 12H5M17.6 17.6L19 19M5 5L6.4 6.4M6.4 17.6L5 19M19 5L17.6 6.4" stroke="#3A2B20" strokeWidth="2"/>
-          </svg>
+    <div style={screenStyles.container} onScroll={handleScroll}>
+      {/* Header */}
+      <div style={screenStyles.header}>
+        <h1 style={screenStyles.title}>Snaplet</h1>
+        <button style={screenStyles.settingsBtn} onClick={() => navigate('/settings')}>
+          ⚙️
         </button>
       </div>
 
@@ -126,7 +123,7 @@ const HomeScreen = () => {
             opacity: refreshing ? 0.6 : 1,
           }}
         >
-          {refreshing ? 'Refreshing...' : 'Refresh Feed'}
+          {refreshing ? 'Refreshing...' : '🔄 Refresh Feed'}
         </button>
       </div>
 
@@ -360,6 +357,9 @@ const HomeScreen = () => {
         +
       </div>
 
+      {/* Spacer for bottom nav */}
+      <div style={{ height: '80px' }} />
+
       <BottomNav active="home" />
 
       <style>{`
@@ -370,6 +370,39 @@ const HomeScreen = () => {
       `}</style>
     </div>
   );
+};
+
+const screenStyles = {
+  container: {
+    backgroundColor: '#F5E6D3',
+    minHeight: '100vh',
+    overflowY: 'auto',
+    paddingBottom: '20px',
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '16px 20px',
+    backgroundColor: '#F5E6D3',
+    borderBottom: '1px solid #E0D5C7',
+    position: 'sticky',
+    top: 0,
+    zIndex: 100,
+  },
+  title: {
+    fontSize: '24px',
+    fontWeight: '700',
+    margin: 0,
+    color: '#3A2B20',
+  },
+  settingsBtn: {
+    background: 'none',
+    border: 'none',
+    fontSize: '24px',
+    cursor: 'pointer',
+    padding: '4px',
+  },
 };
 
 export default HomeScreen;

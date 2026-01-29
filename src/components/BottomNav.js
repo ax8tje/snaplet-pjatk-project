@@ -1,35 +1,88 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const BottomNav = ({ active }) => {
+const navItems = [
+  { path: '/home', emoji: '🏠', label: 'Home' },
+  { path: '/messages', emoji: '💬', label: 'Messages' },
+  { path: '/camera', emoji: '📷', label: 'Camera' },
+  { path: '/profile', emoji: '👤', label: 'Profile' },
+  { path: '/settings', emoji: '⚙️', label: 'Settings' },
+];
+
+const BottomNav = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
-    <div className="frame-6-54" style={{position: 'absolute', bottom: 0}}>
-      <div className="user-user-01" onClick={() => navigate('/profile')} style={{cursor: 'pointer'}}>
-        <img src="/snaplet-pjatk-project/figma/images/vector-56.svg" className="vector-56" alt="profile" />
-      </div>
-      <div className="user-users" onClick={() => navigate('/messages')} style={{cursor: 'pointer'}}>
-        <img src="/snaplet-pjatk-project/figma/images/vector-58.svg" className="vector-58" alt="messages" />
-      </div>
-      <img
-        src="/snaplet-pjatk-project/figma/images/rectangle-59.png"
-        className="rectangle-59"
-        alt="home"
-        onClick={() => navigate('/home')}
-        style={{cursor: 'pointer'}}
-      />
-      <div className="node-60" onClick={() => navigate('/settings')} style={{cursor: 'pointer'}}>
-        <img src="/snaplet-pjatk-project/figma/images/vector-61.svg" className="vector-61" alt="settings" />
-      </div>
-      <div className="calendar-logo-62">
-        <div className="rectangle-97-63"></div>
-        <div className="rectangle-100-64"></div>
-        <div className="rectangle-99-65"></div>
-        <div className="rectangle-98-66"></div>
-      </div>
-    </div>
+    <nav style={styles.container}>
+      {navItems.map((item) => {
+        const isActive = location.pathname === item.path;
+        return (
+          <button
+            key={item.path}
+            onClick={() => navigate(item.path)}
+            style={{
+              ...styles.navItem,
+              ...(isActive ? styles.navItemActive : {}),
+            }}
+          >
+            <span style={styles.emoji}>{item.emoji}</span>
+            <span style={{
+              ...styles.label,
+              ...(isActive ? styles.labelActive : {}),
+            }}>
+              {item.label}
+            </span>
+          </button>
+        );
+      })}
+    </nav>
   );
+};
+
+const styles = {
+  container: {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    display: 'flex',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderTop: '1px solid #E0E0E0',
+    padding: '8px 0 12px 0',
+    zIndex: 1000,
+  },
+  navItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '4px 12px',
+    borderRadius: '8px',
+    transition: 'background-color 0.2s',
+    minWidth: '60px',
+  },
+  navItemActive: {
+    backgroundColor: '#F5E6D3',
+  },
+  emoji: {
+    fontSize: '24px',
+    marginBottom: '2px',
+  },
+  label: {
+    fontSize: '11px',
+    color: '#666666',
+    fontWeight: '500',
+  },
+  labelActive: {
+    color: '#000000',
+    fontWeight: '600',
+  },
 };
 
 export default BottomNav;

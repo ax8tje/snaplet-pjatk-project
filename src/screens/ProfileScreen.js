@@ -178,16 +178,20 @@ const ProfileScreen = () => {
   const groupedPosts = groupPostsByMonth(userPosts);
 
   return (
-    <div className="screen profile-screen" style={{ overflowY: 'auto', height: '100vh', paddingBottom: '80px' }}>
+    <div style={{ backgroundColor: '#F5E6D3', minHeight: '100vh', overflowY: 'auto', paddingBottom: '80px' }}>
       {/* Header */}
-      <div className="profile-header" style={{
+      <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '16px',
-        borderBottom: '1px solid #eee'
+        padding: '16px 20px',
+        backgroundColor: '#F5E6D3',
+        borderBottom: '1px solid #E0D5C7',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
       }}>
-        <h1 className="profile-title" style={{ margin: 0, fontSize: '20px' }}>Profile</h1>
+        <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#3A2B20' }}>👤 Profile</h1>
         <button
           onClick={handleLogout}
           style={{
