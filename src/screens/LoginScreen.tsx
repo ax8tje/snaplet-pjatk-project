@@ -10,17 +10,13 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
-import { AuthStackParamList } from '../types/navigation';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { useUserStore } from '../store/userStore';
-
-type LoginScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
+import { useNavigationCompat } from '../utils/navigation';
 
 export const LoginScreen: React.FC = () => {
-  const navigation = useNavigation<LoginScreenNavigationProp>();
+  const navigation = useNavigationCompat();
   const { login, isLoading, error, clearError } = useUserStore();
 
   const [email, setEmail] = useState('');

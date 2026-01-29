@@ -5,15 +5,11 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
-import { AuthStackParamList } from '../types/navigation';
 import { Button } from '../components/Button';
-
-type WelcomeScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Welcome'>;
+import { useNavigationCompat } from '../utils/navigation';
 
 export const WelcomeScreen: React.FC = () => {
-  const navigation = useNavigation<WelcomeScreenNavigationProp>();
+  const navigation = useNavigationCompat();
 
   return (
     <View style={styles.container}>

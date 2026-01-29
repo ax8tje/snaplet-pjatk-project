@@ -184,6 +184,15 @@ export const useUserStore = create<UserState>((set, get) => ({
 
   initialize: () => {
     let authResolved = false;
+    let unsubscribeProfile: (() => void) | null = null;
+
+    // Helper to clean up profile subscription
+    const cleanupProfileSubscription = () => {
+      if (unsubscribeProfile) {
+        unsubscribeProfile();
+        unsubscribeProfile = null;
+      }
+    };
 
     const currentUser = getCurrentUser();
     if (currentUser) {
@@ -195,11 +204,22 @@ export const useUserStore = create<UserState>((set, get) => ({
         photoURL: currentUser.photoURL,
       };
       set({ user, isAuthenticated: true, isLoading: false });
-      get().fetchProfile(currentUser.uid);
+
+      // Set up profile subscription for current user
+      unsubscribeProfile = subscribeToUser(
+        currentUser.uid,
+        (profile: UserProfile) => {
+          set({ profile });
+        }
+      );
     }
 
-    const unsubscribeAuth = onAuthStateChange(async (firebaseUser) => {
+    const unsubscribeAuth = onAuthStateChange((firebaseUser) => {
       authResolved = true;
+
+      // Clean up previous profile subscription before setting up new one
+      cleanupProfileSubscription();
+
       if (firebaseUser) {
         const user: AuthUser = {
           uid: firebaseUser.uid,
@@ -209,14 +229,13 @@ export const useUserStore = create<UserState>((set, get) => ({
         };
         set({ user, isAuthenticated: true, isLoading: false });
 
-        const unsubscribeProfile = subscribeToUser(
+        // Set up new profile subscription
+        unsubscribeProfile = subscribeToUser(
           firebaseUser.uid,
           (profile: UserProfile) => {
             set({ profile });
           }
         );
-
-        return () => unsubscribeProfile();
       } else {
         set({
           user: null,
@@ -235,6 +254,10 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
     }, 2000);
 
-    return unsubscribeAuth;
+    // Return cleanup function that unsubscribes from both auth and profile
+    return () => {
+      cleanupProfileSubscription();
+      unsubscribeAuth();
+    };
   },
 }));
