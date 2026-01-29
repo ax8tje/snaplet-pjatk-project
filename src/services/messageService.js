@@ -8,7 +8,8 @@ import {
   orderBy,
   onSnapshot,
   updateDoc,
-  doc
+  doc,
+  getDocs
 } from "firebase/firestore";
 
 import { db } from "../config/firebase";
@@ -58,28 +59,51 @@ export function getConversation(userId1, userId2) {
 }
 
 /**
- * Get all conversations for user
+ * Get all conversations for user (both sent and received messages)
  */
-export function getConversations(userId) {
-  const q = query(
-    collection(db, "messages"),
-    where("senderId", "==", userId),
-    orderBy("createdAt", "asc")
-  );
-
-  return new Promise((resolve, reject) => {
-    onSnapshot(
-      q,
-      snapshot => {
-        const messages = snapshot.docs.map(d => ({
-          messageId: d.id,
-          ...d.data()
-        }));
-        resolve(messages);
-      },
-      error => reject(error)
+export async function getConversations(userId) {
+  try {
+    // Query messages where user is sender
+    const sentQuery = query(
+      collection(db, "messages"),
+      where("senderId", "==", userId)
     );
-  });
+
+    // Query messages where user is receiver
+    const receivedQuery = query(
+      collection(db, "messages"),
+      where("receiverId", "==", userId)
+    );
+
+    // Execute both queries
+    const [sentSnapshot, receivedSnapshot] = await Promise.all([
+      getDocs(sentQuery),
+      getDocs(receivedQuery)
+    ]);
+
+    // Combine results and remove duplicates by messageId
+    const messagesMap = new Map();
+
+    sentSnapshot.docs.forEach(d => {
+      messagesMap.set(d.id, { messageId: d.id, ...d.data() });
+    });
+
+    receivedSnapshot.docs.forEach(d => {
+      messagesMap.set(d.id, { messageId: d.id, ...d.data() });
+    });
+
+    // Convert to array and sort by createdAt
+    const messages = Array.from(messagesMap.values()).sort((a, b) => {
+      const timeA = a.createdAt?.seconds || 0;
+      const timeB = b.createdAt?.seconds || 0;
+      return timeA - timeB;
+    });
+
+    return messages;
+  } catch (error) {
+    console.error("getConversations error:", error);
+    throw new Error("Failed to get conversations");
+  }
 }
 
 /**
@@ -116,20 +140,68 @@ export function subscribeToConversation(userId1, userId2, callback) {
 }
 
 /**
- * Realtime subscription for all user conversations
+ * Realtime subscription for all user conversations (both sent and received)
  */
 export function subscribeToConversations(userId, callback) {
-  const q = query(
+  // Query messages where user is sender
+  const sentQuery = query(
     collection(db, "messages"),
-    where("receiverId", "==", userId),
-    orderBy("createdAt", "asc")
+    where("senderId", "==", userId)
   );
 
-  return onSnapshot(q, snapshot => {
-    const messages = snapshot.docs.map(d => ({
+  // Query messages where user is receiver
+  const receivedQuery = query(
+    collection(db, "messages"),
+    where("receiverId", "==", userId)
+  );
+
+  // Store messages from both queries
+  let sentMessages = [];
+  let receivedMessages = [];
+
+  const combineAndCallback = () => {
+    // Combine results and remove duplicates by messageId
+    const messagesMap = new Map();
+
+    sentMessages.forEach(msg => {
+      messagesMap.set(msg.messageId, msg);
+    });
+
+    receivedMessages.forEach(msg => {
+      messagesMap.set(msg.messageId, msg);
+    });
+
+    // Convert to array and sort by createdAt
+    const messages = Array.from(messagesMap.values()).sort((a, b) => {
+      const timeA = a.createdAt?.seconds || 0;
+      const timeB = b.createdAt?.seconds || 0;
+      return timeA - timeB;
+    });
+
+    callback(messages);
+  };
+
+  // Subscribe to sent messages
+  const unsubscribeSent = onSnapshot(sentQuery, snapshot => {
+    sentMessages = snapshot.docs.map(d => ({
       messageId: d.id,
       ...d.data()
     }));
-    callback(messages);
+    combineAndCallback();
   });
+
+  // Subscribe to received messages
+  const unsubscribeReceived = onSnapshot(receivedQuery, snapshot => {
+    receivedMessages = snapshot.docs.map(d => ({
+      messageId: d.id,
+      ...d.data()
+    }));
+    combineAndCallback();
+  });
+
+  // Return cleanup function that unsubscribes from both
+  return () => {
+    unsubscribeSent();
+    unsubscribeReceived();
+  };
 }

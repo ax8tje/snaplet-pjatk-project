@@ -174,8 +174,10 @@ export const uploadPhoto = (
       const randomStr = Math.random().toString(36).substring(2, 8);
       const extension = file.name?.split(".").pop() || "jpg";
       const fileName = `${timestamp}_${randomStr}.${extension}`;
+      const postId = `${timestamp}_${randomStr}`;
 
-      const fullPath = `${path}/${userId}/${fileName}`;
+      // Path must match storage.rules: users/{userId}/posts/{postId}/{fileName}
+      const fullPath = `users/${userId}/${path}/${postId}/${fileName}`;
       const storageRef = ref(storage, fullPath);
 
       uploadTask = uploadBytesResumable(storageRef, fileToUpload);
@@ -216,7 +218,8 @@ export const uploadPhoto = (
               if (generateThumb) {
                 try {
                   const thumbnail = await generateThumbnail(file);
-                  const thumbPath = `${path}/${userId}/thumbnails/${fileName}`;
+                  // Thumbnail path must also match storage rules
+                  const thumbPath = `users/${userId}/${path}/${postId}/thumb_${fileName}`;
                   const thumbRef = ref(storage, thumbPath);
 
                   await uploadBytesResumable(thumbRef, thumbnail);
