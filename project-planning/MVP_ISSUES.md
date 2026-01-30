@@ -2,18 +2,48 @@
 
 > Wygenerowano: 2026-01-30
 > Projekt: Web App (nie mobile)
+> Zespół: 4 osoby z AI assistance
 
 ---
 
 ## Podsumowanie
 
-| Priorytet | Liczba issues | Szacowany czas |
-|:----------|:-------------:|:--------------:|
-| KRYTYCZNE | 9 | 8-12 dni |
-| WYSOKIE | 2 | 0.5 dnia |
-| SREDNIE | 4 | 3-4 dni |
-| NISKIE | 2 | 1 dzień |
-| **RAZEM** | **17** | **12-17 dni** |
+| Priorytet | Liczba issues | Czas (1 os.) | Czas (4 os. + AI) |
+|:----------|:-------------:|:------------:|:-----------------:|
+| KRYTYCZNE | 9 | 8-12 dni | 2-3 dni |
+| WYSOKIE | 2 | 0.5 dnia | 2-3h |
+| ŚREDNIE | 4 | 3-4 dni | 1 dzień |
+| NISKIE | 2 | 1 dzień | 0.5 dnia |
+| **RAZEM** | **17** | **12-17 dni** | **3-4 dni** |
+
+### Szacunki dla różnych scenariuszy
+| Zespół | Czas |
+|:-------|:-----|
+| 1 osoba, bez AI | 12-17 dni |
+| 1 osoba, z AI | 7-10 dni |
+| 4 osoby, bez AI | 5-7 dni |
+| **4 osoby, z AI** | **3-4 dni** |
+
+---
+
+## Podział pracy dla 4 osób (z AI)
+
+```
+OSOBA A (Video Recording)     OSOBA B (Video Generation)
+─────────────────────────     ─────────────────────────
+#2 MediaRecorder (4-6h)       #12 COOP/COEP (1-2h)
+#5 UI podglądu (3-4h)         #7 ffmpeg.wasm (6-8h)
+#14 Testy browser (4h)        #8 UI generowania (4-6h)
+                              #9 Eksport (2-3h)
+
+OSOBA C (Calendar + Data)     OSOBA D (Auth + Polish)
+─────────────────────────     ─────────────────────────
+#4 Struktura Firestore (3-4h) #11 Google Sign-In (2-3h)
+#3 Kalendarz UI (4-6h)        #15 Responsywność (4h)
+#13 Offline sync (4-6h)       #16 PWA (3-4h)
+                              #17 Cleanup (2-3h)
+                              Code review
+```
 
 ---
 
@@ -30,12 +60,13 @@ Implementacja systemu nagrywania 2-sekundowych klipów wideo przypisanych do kon
 - Zapis w kalendarzu użytkownika
 - Podgląd, usunięcie, ponowne nagranie klipu z danego dnia
 
-**Szacowany czas:** 4-5 dni
+**Szacowany czas:** 1 dzień (4 osoby + AI)
 
 ---
 
 ### Issue #2: Implementacja nagrywania wideo (MediaRecorder API)
 **Labels:** `priority: critical`, `type: feature`, `area: video`, `mvp`
+**Assignee:** Osoba A
 
 Przepisanie `CameraScreen.js` z robienia zdjęć na nagrywanie wideo.
 
@@ -50,12 +81,13 @@ Przepisanie `CameraScreen.js` z robienia zdjęć na nagrywanie wideo.
 
 **Pliki:** `src/screens/CameraScreen.js`, `src/services/storageService.js`
 
-**Szacowany czas:** 1-2 dni
+**Szacowany czas:** 4-6h (z AI)
 
 ---
 
 ### Issue #3: Widok kalendarza z oznaczonymi nagraniami
 **Labels:** `priority: critical`, `type: feature`, `area: calendar`, `mvp`
+**Assignee:** Osoba C
 
 Nowy ekran z kalendarzem pokazującym dni w których użytkownik nagrał klipy.
 
@@ -82,12 +114,14 @@ Nowy ekran z kalendarzem pokazującym dni w których użytkownik nagrał klipy.
 ● = dzień z nagraniem
 ```
 
-**Szacowany czas:** 1-2 dni
+**Szacowany czas:** 4-6h (z AI)
 
 ---
 
 ### Issue #4: Struktura danych Firestore dla klipów wideo
 **Labels:** `priority: critical`, `type: infrastructure`, `area: storage`, `mvp`
+**Assignee:** Osoba C
+**Blokuje:** #2, #3, #5
 
 Nowa kolekcja w Firestore do przechowywania metadanych klipów wideo.
 
@@ -117,12 +151,13 @@ users/{userId}/monthly/{month}/compiled.mp4
 
 **Nowy serwis:** `src/services/clipService.js`
 
-**Szacowany czas:** 1 dzień
+**Szacowany czas:** 3-4h (z AI)
 
 ---
 
 ### Issue #5: UI podglądu, usuwania i ponownego nagrywania klipu
 **Labels:** `priority: critical`, `type: feature`, `area: video`, `mvp`
+**Assignee:** Osoba A
 
 Interfejs do zarządzania nagranym klipem z konkretnego dnia.
 
@@ -147,7 +182,7 @@ Interfejs do zarządzania nagranym klipem z konkretnego dnia.
 └─────────────────────────────────┘
 ```
 
-**Szacowany czas:** 1 dzień
+**Szacowany czas:** 3-4h (z AI)
 
 ---
 
@@ -166,12 +201,14 @@ System automatycznego łączenia wszystkich klipów z miesiąca w jeden film.
 
 **Rekomendacja:** ffmpeg.wasm (client-side)
 
-**Szacowany czas:** 3-5 dni
+**Szacowany czas:** 1.5 dnia (4 osoby + AI)
 
 ---
 
 ### Issue #7: Integracja ffmpeg.wasm do łączenia klipów
 **Labels:** `priority: critical`, `type: feature`, `area: video`, `mvp`
+**Assignee:** Osoba B
+**Zależy od:** #12
 
 Implementacja client-side video processing przy użyciu ffmpeg.wasm.
 
@@ -201,12 +238,13 @@ export async function generateMonthlyVideo(clips, onProgress) {
 }
 ```
 
-**Szacowany czas:** 2-3 dni
+**Szacowany czas:** 6-8h (z AI)
 
 ---
 
 ### Issue #8: UI generowania miesięcznego filmu
 **Labels:** `priority: critical`, `type: feature`, `area: video`, `mvp`
+**Assignee:** Osoba B
 
 Interfejs użytkownika do generowania i podglądu miesięcznego filmu.
 
@@ -235,12 +273,13 @@ Interfejs użytkownika do generowania i podglądu miesięcznego filmu.
 └─────────────────────────────────┘
 ```
 
-**Szacowany czas:** 1-2 dni
+**Szacowany czas:** 4-6h (z AI)
 
 ---
 
 ### Issue #9: Eksport i udostępnianie wygenerowanego filmu
 **Labels:** `priority: critical`, `type: feature`, `area: video`, `mvp`
+**Assignee:** Osoba B
 
 Funkcjonalność pobierania i udostępniania wygenerowanego filmu.
 
@@ -250,7 +289,7 @@ Funkcjonalność pobierania i udostępniania wygenerowanego filmu.
 - [ ] Opcja "Zapisz w chmurze"
 - [ ] Generowanie nazwy pliku
 
-**Szacowany czas:** 0.5 dnia
+**Szacowany czas:** 2-3h (z AI)
 
 ---
 
@@ -267,12 +306,13 @@ Rozszerzenie istniejącej autentykacji o logowanie przez Google.
 - ✅ Password reset
 - ❌ Google Sign-In
 
-**Szacowany czas:** 0.5 dnia
+**Szacowany czas:** 2-3h (z AI)
 
 ---
 
 ### Issue #11: Implementacja Google Sign-In
 **Labels:** `priority: high`, `type: feature`, `area: auth`, `mvp`
+**Assignee:** Osoba D
 
 Dodanie możliwości logowania przez konto Google.
 
@@ -293,7 +333,7 @@ export async function signInWithGoogle() {
 }
 ```
 
-**Szacowany czas:** 2-4 godziny
+**Szacowany czas:** 2-3h (z AI)
 
 ---
 
@@ -301,6 +341,8 @@ export async function signInWithGoogle() {
 
 ### Issue #12: Konfiguracja COOP/COEP headers dla ffmpeg.wasm
 **Labels:** `priority: critical`, `type: infrastructure`, `mvp`
+**Assignee:** Osoba B
+**Blokuje:** #7
 
 ffmpeg.wasm wymaga `SharedArrayBuffer` który wymaga odpowiednich headerów.
 
@@ -321,12 +363,13 @@ ffmpeg.wasm wymaga `SharedArrayBuffer` który wymaga odpowiednich headerów.
 }
 ```
 
-**Szacowany czas:** 2-4 godziny
+**Szacowany czas:** 1-2h (z AI)
 
 ---
 
 ### Issue #13: Synchronizacja offline (Service Workers)
 **Labels:** `priority: medium`, `type: feature`, `area: storage`, `mvp`
+**Assignee:** Osoba C
 
 Implementacja podstawowej synchronizacji offline.
 
@@ -338,7 +381,7 @@ Implementacja podstawowej synchronizacji offline.
 
 **Priorytet:** ŚREDNI - można uprościć dla MVP
 
-**Szacowany czas:** 1-2 dni (pełne) lub 2-4h (basic)
+**Szacowany czas:** 4-6h (z AI) lub 1-2h (basic)
 
 ---
 
@@ -346,6 +389,7 @@ Implementacja podstawowej synchronizacji offline.
 
 ### Issue #14: Testy cross-browser
 **Labels:** `priority: medium`, `type: enhancement`, `mvp`
+**Assignee:** Osoba A
 
 Weryfikacja działania na wszystkich przeglądarkach.
 
@@ -362,12 +406,13 @@ Weryfikacja działania na wszystkich przeglądarkach.
 - [ ] Generowanie filmu (ffmpeg.wasm)
 - [ ] Pobieranie filmu
 
-**Szacowany czas:** 1 dzień
+**Szacowany czas:** 4h (z AI do generowania test cases)
 
 ---
 
 ### Issue #15: Responsywność mobile web
 **Labels:** `priority: medium`, `type: enhancement`, `mvp`
+**Assignee:** Osoba D
 
 Optymalizacja UI dla urządzeń mobilnych.
 
@@ -378,12 +423,13 @@ Optymalizacja UI dla urządzeń mobilnych.
 @media (min-width: 769px) { /* Desktop */ }
 ```
 
-**Szacowany czas:** 1 dzień
+**Szacowany czas:** 4h (z AI)
 
 ---
 
 ### Issue #16: PWA - instalacja aplikacji na telefon
 **Labels:** `priority: medium`, `type: enhancement`
+**Assignee:** Osoba D
 
 Konfiguracja Progressive Web App.
 
@@ -393,7 +439,7 @@ Konfiguracja Progressive Web App.
 - [ ] Service Worker
 - [ ] "Add to Home Screen"
 
-**Szacowany czas:** 0.5 dnia
+**Szacowany czas:** 3-4h (z AI)
 
 ---
 
@@ -401,6 +447,7 @@ Konfiguracja Progressive Web App.
 
 ### Issue #17: Usunięcie/refaktor kodu do zdjęć
 **Labels:** `priority: low`, `type: enhancement`
+**Assignee:** Osoba D
 
 Cleanup starego kodu związanego ze zdjęciami.
 
@@ -409,13 +456,13 @@ Cleanup starego kodu związanego ze zdjęciami.
 - [ ] Czy zachowujemy messaging?
 - [ ] Czy zachowujemy feed?
 
-**Szacowany czas:** 0.5 dnia
+**Szacowany czas:** 2-3h (z AI)
 
 ---
 
 ## Milestone: MVP v1.0
 
-**Due date:** 2026-03-15
+**Due date:** 2026-02-03 (za 4 dni)
 
 **Opis:** Minimum Viable Product - nagrywanie 2s klipów + generowanie miesięcznego filmu
 
@@ -423,26 +470,18 @@ Cleanup starego kodu związanego ze zdjęciami.
 
 ---
 
-## Rekomendowana kolejność implementacji
+## Timeline dla 4 osób z AI
 
-```
-Tydzień 1:
-├── #2 MediaRecorder API (1-2 dni)
-├── #4 Struktura danych (1 dzień)
-├── #3 Kalendarz (1-2 dni)
-└── #5 UI podglądu (1 dzień)
+| Dzień | Osoba A | Osoba B | Osoba C | Osoba D |
+|:-----:|:--------|:--------|:--------|:--------|
+| **1 rano** | - | #12 COOP/COEP | #4 Struktura danych | #11 Google Sign-In |
+| **1 popoł** | #2 MediaRecorder | #7 ffmpeg start | #3 Kalendarz | #15 Responsywność |
+| **2 rano** | #2 dokończenie | #7 ffmpeg | #3 dokończenie | #16 PWA |
+| **2 popoł** | #5 UI podglądu | #8 UI generowania | #13 Offline | #17 Cleanup |
+| **3 rano** | #14 Testy | #9 Eksport | #13 dokończenie | Code review |
+| **3 popoł** | **INTEGRACJA** | **INTEGRACJA** | **INTEGRACJA** | **INTEGRACJA** |
+| **4** | **BUGFIXY + TESTY E2E** | **BUGFIXY** | **BUGFIXY** | **DEPLOY** |
 
-Tydzień 2:
-├── #12 COOP/COEP headers (0.5 dnia)
-├── #7 ffmpeg.wasm (2-3 dni)
-├── #8 UI generowania filmu (1 dzień)
-└── #9 Eksport (0.5 dnia)
+---
 
-Tydzień 3:
-├── #11 Google Sign-In (0.5 dnia)
-├── #14 Testy cross-browser (1 dzień)
-├── #15 Responsywność (1 dzień)
-└── Buffer na poprawki (2 dni)
-```
-
-**Całkowity czas do MVP: ~12-17 dni roboczych (2.5-3.5 tygodnia)**
+## Całkowity czas do MVP: 3-4 dni robocze

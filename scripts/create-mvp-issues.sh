@@ -61,7 +61,8 @@ Implementacja systemu nagrywania 2-sekundowych klipów wideo przypisanych do kon
 - [ ] Użytkownik może podejrzeć, usunąć i ponownie nagrać klip
 
 ## Szacowany czas
-4-5 dni roboczych
+- 1 osoba: 4-5 dni
+- 4 osoby + AI: 1 dzień
 EOF
 )"
 
@@ -1051,7 +1052,7 @@ gh api repos/$REPO/milestones \
   --method POST \
   --field title="MVP v1.0" \
   --field description="Minimum Viable Product - nagrywanie 2s klipów + generowanie miesięcznego filmu" \
-  --field due_on="2026-03-15T00:00:00Z" \
+  --field due_on="2026-02-05T00:00:00Z" \
   2>/dev/null || echo "  (milestone może już istnieć)"
 
 echo ""
@@ -1059,14 +1060,26 @@ echo "============================================="
 echo "✅ WSZYSTKIE ISSUES UTWORZONE!"
 echo "============================================="
 echo ""
+echo "📊 SZACOWANY CZAS DO MVP:"
+echo "┌────────────────────────┬───────────┐"
+echo "│ 1 osoba, bez AI        │ 12-17 dni │"
+echo "│ 1 osoba, z AI          │ 7-10 dni  │"
+echo "│ 4 osoby, bez AI        │ 5-7 dni   │"
+echo "│ 4 osoby, z AI          │ 3-4 dni   │"
+echo "└────────────────────────┴───────────┘"
+echo ""
 echo "Następne kroki:"
 echo "1. Otwórz: https://github.com/$REPO/issues"
 echo "2. Przypisz issues do milestone 'MVP v1.0'"
-echo "3. Przypisz issues do odpowiednich osób"
+echo "3. Przypisz issues do odpowiednich osób:"
+echo "   - Osoba A: #2, #5, #14 (Video Recording)"
+echo "   - Osoba B: #7, #8, #9, #12 (Video Generation)"
+echo "   - Osoba C: #3, #4, #13 (Calendar + Data)"
+echo "   - Osoba D: #11, #15, #16, #17 (Auth + Polish)"
 echo "4. Ustaw kolejność w Project board"
 echo ""
 echo "Podsumowanie utworzonych issues:"
 echo "- 3 EPIC issues (główne funkcjonalności)"
-echo "- 12 task issues (konkretne zadania)"
+echo "- 14 task issues (konkretne zadania)"
 echo "- 1 milestone (MVP v1.0)"
 echo ""
