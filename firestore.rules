@@ -24,7 +24,7 @@ service cloud.firestore {
       function validUser(data) {
         // require email; allow other fields to be optional; createdAt may be missing if serverTimestamp used
         return data.keys().hasAll(['email'])
-          && (!data.keys().hasAny(['email']) || data.email is string)
+          && data.email is string
           && (!data.keys().hasAny(['displayName']) || data.displayName is string)
           && (!data.keys().hasAny(['photoURL']) || data.photoURL is string)
           && (!data.keys().hasAny(['bio']) || data.bio is string)
@@ -121,5 +121,43 @@ service cloud.firestore {
       }
     }
 
-  }
+    // CLIPS: metadane klipów wideo (zgodnie z issue #155)
+    match /clips/{clipId} {
+      allow read: if isSignedIn() && request.auth.uid == resource.data.userId;
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId && validClip(request.resource.data);
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && validClipUpdate(request.resource.data, resource.data);
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      function validClip(data) {
+        return data.keys().hasAll(['id','userId','date','videoUrl','thumbnailUrl','month','status'])
+          && data.id is string
+          && data.userId is string
+          && data.date is string
+          && data.date.matches('^\\d{4}-\\d{2}-\\d{2}$') // YYYY-MM-DD
+          && data.videoUrl is string
+          && data.thumbnailUrl is string
+          && ( !data.keys().hasAny(['duration']) || data.duration is number )
+          && data.month is string
+          && data.month.matches('^\\d{4}-\\d{2}$') // YYYY-MM
+          && (data.status == 'ready' || data.status == 'processing' || data.status == 'error')
+          && isTimestampOrMissing(data, 'createdAt')
+          && isTimestampOrMissing(data, 'updatedAt');
+      }
+
+      function validClipUpdate(newData, oldData) {
+        // newData may be partial; ensure immutable/critical fields aren't changed and types remain valid
+        return ( !newData.keys().hasAny(['userId']) || (newData.userId == oldData.userId) )
+          && ( !newData.keys().hasAny(['date']) || (newData.date == oldData.date) )
+          && ( !newData.keys().hasAny(['month']) || (newData.month == oldData.month) )
+          && ( !newData.keys().hasAny(['id']) || (newData.id == oldData.id) )
+          && ( !newData.keys().hasAny(['duration']) || (newData.duration is number) )
+          && ( !newData.keys().hasAny(['status']) || (newData.status == 'ready' || newData.status == 'processing' || newData.status == 'error') )
+          && ( !newData.keys().hasAny(['videoUrl']) || (newData.videoUrl is string) )
+          && ( !newData.keys().hasAny(['thumbnailUrl']) || (newData.thumbnailUrl is string) )
+          && ( !newData.keys().hasAny(['createdAt']) || (newData.createdAt is timestamp) )
+          && ( !newData.keys().hasAny(['updatedAt']) || (newData.updatedAt is timestamp) );
+      }
+    }
+
+  } // end match /databases/{database}/documents
 }

@@ -20,15 +20,9 @@
     ]
   },
   "emulators": {
-    "firestore": {
-      "port": 8080
-    },
-    "hosting": {
-      "port": 5000
-    },
-    "ui": {
-      "enabled": true,
-      "port": 4000
-    }
+    "ui": { "host": "127.0.0.1", "port": 4001 },
+    "firestore": { "host": "127.0.0.1", "port": 8081 },
+    "hosting": { "host": "127.0.0.1", "port": 5001 },
+    "storage": { "host": "127.0.0.1", "port": 9199 }
   }
 }
