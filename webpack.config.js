@@ -56,6 +56,7 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         { from: 'public/figma', to: 'figma' },
+        { from: 'public/service-worker.js', to: 'service-worker.js' },
       ],
     }),
     new Dotenv(),

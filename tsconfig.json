@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "commonjs",
-    "lib": ["ES2021"],
+    "lib": ["ES2021", "DOM", "DOM.Iterable"],
     "allowJs": true,
     "jsx": "react-native",
     "noEmit": true,
