@@ -10,6 +10,7 @@ export { MessagesScreen } from './MessagesScreen';
 export { default as ChatScreen } from './ChatScreen';
 export { CameraScreen } from './CameraScreen';
 export { PostDetailScreen } from './PostDetailScreen';
+export { default as CalendarScreen } from './CalendarScreen';
 
 // Settings Screens
 export { SettingsScreen } from './SettingsScreen';

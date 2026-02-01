@@ -11,6 +11,7 @@ const routeToPath: Record<string, string> = {
   Settings: '/settings',
   Messages: '/messages',
   Camera: '/camera',
+  Calendar: '/calendar',
 };
 
 type NavigateFunction = (route: string, params?: Record<string, unknown>) => void;
