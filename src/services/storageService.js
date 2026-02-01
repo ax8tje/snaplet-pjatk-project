@@ -5,7 +5,7 @@ import {
   deleteObject,
 } from "firebase/storage";
 
-import { storage } from "../config/firebase";
+import { storage } from "../firebase";
 
 /**
  * @typedef {Object} UploadResult
