@@ -19,7 +19,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 
-import { db } from '../config/firebase';
+import { db } from '../firebase';
 import { incrementCommentCount, decrementCommentCount } from './postService';
 
 const COMMENTS_COLLECTION = 'comments';
