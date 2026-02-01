@@ -23,7 +23,7 @@ import {
   increment,
 } from 'firebase/firestore';
 
-import { db } from '../config/firebase';
+import { db } from '../firebase';
 import { uploadPhoto, deletePhoto } from './storageService';
 
 const POSTS_COLLECTION = 'posts';
