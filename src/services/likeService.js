@@ -19,7 +19,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 
-import { db } from '../config/firebase';
+import { db } from '../firebase';
 import { incrementLikeCount, decrementLikeCount } from './postService';
 
 const LIKES_COLLECTION = 'likes';

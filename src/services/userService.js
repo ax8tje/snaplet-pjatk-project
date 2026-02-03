@@ -9,7 +9,7 @@ import {
   getDocs,
   onSnapshot,
 } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { db } from "../firebase";
 
 /**
  * @typedef {Object} UserProfile
