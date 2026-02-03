@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCrossPlatformNavigation } from '../utils/navigation';
 import { useUserStore } from '../store/userStore';
 import { getClipsByMonth } from '../services/clipService';
@@ -6,6 +7,7 @@ import './CalendarScreen.css';
 
 export default function CalendarScreen() {
     const nav = useCrossPlatformNavigation();
+    const navigate = useNavigate();
     const currentUser = useUserStore((state) => state.user);
     const userId = currentUser?.uid || null;
 
@@ -172,6 +174,16 @@ export default function CalendarScreen() {
                     </div>
                     <button className="nav-btn" onClick={nextMonth} aria-label="next month">▶</button>
                 </div>
+
+                {/* Generate monthly video button */}
+                {Object.keys(clipsByDate).length > 0 && (
+                    <button
+                        className="generate-monthly-btn"
+                        onClick={() => navigate(`/monthly-video?month=${year}-${String(month).padStart(2, '0')}`)}
+                    >
+                        &#127909; Wygeneruj film ({Object.keys(clipsByDate).length} klipow)
+                    </button>
+                )}
 
                 <div
                     className="tiles-grid-fit"
