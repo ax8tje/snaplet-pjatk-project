@@ -15,6 +15,7 @@ import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { useUserStore } from '../store/userStore';
 import { useNavigationCompat } from '../utils/navigation';
+import { signInWithGoogle } from '../services/googleAuth';
 
 const placeholderLogo = require('../../assets/placeholder.png');
 
@@ -38,6 +39,14 @@ export const LoginScreen: React.FC = () => {
       Alert.alert('Login Failed', message);
     }
   };
+
+  const handleGoogleLogin = async () => {
+  try {
+    await signInWithGoogle();
+  } catch (err) {
+    Alert.alert('Google login failed');
+  }
+};
 
   const handleForgotPassword = () => {
     Alert.alert(
@@ -143,7 +152,11 @@ export const LoginScreen: React.FC = () => {
             <TouchableOpacity style={styles.socialBtn} disabled={isLoading}>
               <Text style={styles.socialIcon}>f</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialBtn} disabled={isLoading}>
+            <TouchableOpacity 
+              style={styles.socialBtn} 
+              disabled={isLoading}
+              onPress={handleGoogleLogin}
+            >
               <Text style={styles.socialIcon}>G</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.socialBtn} disabled={isLoading}>

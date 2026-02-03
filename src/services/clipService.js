@@ -78,6 +78,46 @@ export async function getUserClipDates(userId) {
     return snaps.docs.map(d => d.data().date);
 }
 
+/**
+ * Pobiera listę dat (YYYY-MM-DD) w danym roku/miesiącu, w których użytkownik ma klipy.
+ * Przyjmuje year (number) i month (number 1-12 lub string "01"-"12").
+ * Zwraca posortowaną tablicę unikalnych dat: ['2026-01-06', '2026-01-12']
+ */
+export async function getClipDatesForMonth(userId, year, month) {
+    if (!userId) return [];
+
+    // normalizuj month
+    const monthNumber = typeof month === 'string' ? Number(month) : month;
+    const monthStr = String(monthNumber).padStart(2, '0'); // '01'
+    const monthKey = `${year}-${monthStr}`; // 'YYYY-MM'
+
+    const clipsCol = collection(db, 'clips');
+
+    // Jeżeli w dokumentach istnieje pole 'month' (zgodnie z projektem), zapytanie po equality będzie najszybsze:
+    const q = query(clipsCol, where('userId', '==', userId), where('month', '==', monthKey), orderBy('date', 'asc'));
+
+    const snaps = await getDocs(q);
+
+    const dates = snaps.docs
+        .map(d => {
+            const data = d.data();
+            // preferowane pole 'date' jako string YYYY-MM-DD
+            if (data?.date) return data.date;
+            // fallback na createdAt timestamp
+            if (data?.createdAt?.toDate) return data.createdAt.toDate().toISOString().slice(0,10);
+            if (data?.createdAt && data.createdAt.seconds) {
+                // firestore timestamp-like object
+                return new Date(data.createdAt.seconds * 1000).toISOString().slice(0,10);
+            }
+            return null;
+        })
+        .filter(Boolean);
+
+    // unikalne i posortowane
+    const unique = Array.from(new Set(dates)).sort();
+    return unique;
+}
+
 export async function deleteClip(userId, date) {
     const clipId = `${userId}_${date}`;
     const clipRef = doc(db, 'clips', clipId);

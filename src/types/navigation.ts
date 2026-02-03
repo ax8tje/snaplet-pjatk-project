@@ -10,6 +10,7 @@ export type MainTabParamList = {
   Camera: undefined;
   Messages: undefined;
   Profile: undefined;
+  Calendar: undefined;
 };
 
 export type HomeStackParamList = {

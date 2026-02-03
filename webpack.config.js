@@ -16,10 +16,6 @@ module.exports = {
     alias: {
       'react-native$': 'react-native-web',
       'react-native-vision-camera': 'react-native-web',
-      '@react-native-firebase/app': path.resolve(__dirname, 'src/mocks/firebase.ts'),
-      '@react-native-firebase/auth': path.resolve(__dirname, 'src/mocks/firebase.ts'),
-      '@react-native-firebase/firestore': path.resolve(__dirname, 'src/mocks/firebase.ts'),
-      '@react-native-firebase/storage': path.resolve(__dirname, 'src/mocks/firebase.ts'),
     },
   },
   module: {

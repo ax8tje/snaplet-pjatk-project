@@ -1,30 +1,30 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "commonjs",
-    "lib": ["ES2021", "DOM", "DOM.Iterable"],
-    "allowJs": true,
-    "jsx": "react-native",
-    "noEmit": true,
-    "isolatedModules": true,
-    "strict": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {
-      "@screens/*": ["src/screens/*"],
-      "@components/*": ["src/components/*"],
-      "@services/*": ["src/services/*"],
-      "@navigation/*": ["src/navigation/*"],
-      "@store/*": ["src/store/*"],
-      "@types/*": ["src/types/*"],
-      "@utils/*": ["src/utils/*"]
-    }
-  },
+  "target": "esnext",
+  "module": "commonjs",
+  "lib": ["ES2021", "DOM"],
+  "allowJs": true,
+  "jsx": "react-native",
+  "noEmit": true,
+  "isolatedModules": true,
+  "strict": true,
+  "moduleResolution": "node",
+  "resolveJsonModule": true,
+  "allowSyntheticDefaultImports": true,
+  "esModuleInterop": true,
+  "skipLibCheck": true,
+  "forceConsistentCasingInFileNames": true,
+  "baseUrl": ".",
+  "paths": {
+    "@screens/*": ["src/screens/*"],
+    "@components/*": ["src/components/*"],
+    "@services/*": ["src/services/*"],
+    "@navigation/*": ["src/navigation/*"],
+    "@store/*": ["src/store/*"],
+    "@types/*": ["src/types/*"],
+    "@utils/*": ["src/utils/*"]
+  }
+},
   "include": ["src/**/*", "App.tsx"],
   "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js"]
 }

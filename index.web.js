@@ -15,6 +15,8 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import CameraScreen from './src/screens/CameraScreen';
 import PostDetailScreen from './src/screens/PostDetailScreen';
 import WelcomeScreen from './src/screens/WelcomeScreen';
+import CalendarScreen from './src/screens/CalendarScreen'; // calendar route
+import BottomNav from './src/components/BottomNav'; // bottom navigation (web)
 
 // Remove loading screen helper
 const removeLoadingScreen = () => {
@@ -47,7 +49,7 @@ const AuthRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useUserStore();
 
   if (isLoading) {
-    return null; // Keep showing the HTML loading screen
+    return null;
   }
 
   if (isAuthenticated) {
@@ -59,7 +61,7 @@ const AuthRoute = ({ children }) => {
 
 // Main App component with routing
 const App = () => {
-  const { initialize, isLoading } = useUserStore();
+  const { initialize, isLoading, isAuthenticated } = useUserStore();
   const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
@@ -70,38 +72,37 @@ const App = () => {
     const timeout = setTimeout(() => {
       setAppReady(true);
       removeLoadingScreen();
-    }, 100);
+    }, 250);
 
     return () => {
-      unsubscribe();
       clearTimeout(timeout);
+      if (typeof unsubscribe === 'function') unsubscribe();
     };
   }, [initialize]);
 
-  // Keep loading screen visible until app is ready
-  useEffect(() => {
-    if (appReady && !isLoading) {
-      removeLoadingScreen();
-    }
-  }, [appReady, isLoading]);
+  if (!appReady) return null;
 
   return (
-    <Router>
-      <OnlineStatus showWhenOnline={true} />
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/welcome" element={<AuthRoute><WelcomeScreen /></AuthRoute>} />
-        <Route path="/login" element={<AuthRoute><LoginScreen /></AuthRoute>} />
-        <Route path="/register" element={<AuthRoute><RegisterScreen /></AuthRoute>} />
-        <Route path="/home" element={<ProtectedRoute><HomeScreen /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><SettingsScreen /></ProtectedRoute>} />
-        <Route path="/messages" element={<ProtectedRoute><MessagesScreen /></ProtectedRoute>} />
-        <Route path="/chat/:userId" element={<ProtectedRoute><ChatScreen /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
-        <Route path="/camera" element={<ProtectedRoute><CameraScreen /></ProtectedRoute>} />
-        <Route path="/post/:id" element={<ProtectedRoute><PostDetailScreen /></ProtectedRoute>} />
-      </Routes>
-    </Router>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/login" element={<AuthRoute><LoginScreen /></AuthRoute>} />
+          <Route path="/register" element={<AuthRoute><RegisterScreen /></AuthRoute>} />
+
+          <Route path="/home" element={<ProtectedRoute><HomeScreen /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
+          <Route path="/camera" element={<ProtectedRoute><CameraScreen /></ProtectedRoute>} />
+          <Route path="/post/:id" element={<ProtectedRoute><PostDetailScreen /></ProtectedRoute>} />
+          <Route path="/messages" element={<ProtectedRoute><MessagesScreen /></ProtectedRoute>} />
+          <Route path="/chat/:id" element={<ProtectedRoute><ChatScreen /></ProtectedRoute>} />
+
+          <Route path="/settings" element={<ProtectedRoute><SettingsScreen /></ProtectedRoute>} />
+          <Route path="/calendar" element={<ProtectedRoute><CalendarScreen /></ProtectedRoute>} /> {/* calendar route */}
+        </Routes>
+
+        {/* Bottom navigation shown when authenticated (matches other screens) */}
+        {isAuthenticated && <BottomNav />}
+      </Router>
   );
 };
 
@@ -134,9 +135,9 @@ const container = document.getElementById('root');
 if (container) {
   const root = createRoot(container);
   root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
   );
 } else {
   console.error('Root element not found');
