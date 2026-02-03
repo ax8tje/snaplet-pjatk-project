@@ -195,7 +195,23 @@ export const useFeedStore = create<FeedState>((set, get) => ({
       if (postsOrError instanceof Error) {
         set({ error: postsOrError.message });
       } else {
-        set({ posts: postsOrError });
+        const { posts } = get();
+        const existingPosts = new Map(posts.map(p => [p.id, p]));
+        postsOrError.forEach(p => existingPosts.set(p.id, p));
+
+        const mergedPosts = Array.from(existingPosts.values())
+          .sort((a, b) => {
+            const toDate = (ts: any): Date => {
+              if (ts instanceof Date) return ts;
+              if (ts && typeof ts.seconds === 'number') {
+                return new Date(ts.seconds * 1000);
+              }
+              return new Date(0); // Should not happen with valid data
+            };
+            return toDate(b.createdAt).getTime() - toDate(a.createdAt).getTime();
+          });
+
+        set({ posts: mergedPosts });
       }
     }, limit);
 

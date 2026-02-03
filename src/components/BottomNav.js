@@ -5,6 +5,7 @@ const navItems = [
   { path: '/home', emoji: '🏠', label: 'Home' },
   { path: '/messages', emoji: '💬', label: 'Messages' },
   { path: '/camera', emoji: '📷', label: 'Camera' },
+  { path: '/calendar', emoji: '📅', label: 'Calendar' },
   { path: '/profile', emoji: '👤', label: 'Profile' },
   { path: '/settings', emoji: '⚙️', label: 'Settings' },
 ];

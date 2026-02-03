@@ -1,0 +1,224 @@
+:root{
+    --bg-dark: #3a2a23;
+    --cream: #fff6e6;
+    --muted: #7a6f69;
+    --future-fill: #AC7F5E; /* future-day color adjusted to mock */
+    --tile-shadow: rgba(0,0,0,0.18);
+    --today-bg: #fff9ee;       /* jasne tło dla bieżącego dnia */
+    --today-border: rgba(255,255,255,0.65);
+    --today-shadow: rgba(0,0,0,0.25);
+    --today-plus-bg: #6b6a63;  /* kolor tła plusa (możesz zmienić) */
+    --today-plus-color: var(--cream); /* kolor znaku + */
+}
+
+/* root */
+.calendar-root {
+    min-height: 100vh;
+    background: var(--bg-dark);
+    display: flex;
+    justify-content: center;
+    padding-bottom: 120px; /* bottom nav spacing */
+}
+
+/* inner panel */
+.calendar-inner {
+    width: 100%;
+    max-width: 420px;
+    padding: 18px;
+    box-sizing: border-box;
+}
+
+/* header */
+.calendar-header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom: 12px;
+}
+.nav-btn {
+    background: transparent;
+    border: none;
+    color: var(--cream);
+    font-size: 20px;
+    padding: 8px 10px;
+    cursor: pointer;
+}
+.month-label {
+    color: var(--cream);
+    font-weight: 600;
+    font-size: 18px;
+}
+
+/* grid container when we fit tiles exactly */
+.tiles-grid-fit {
+    display: grid;
+    justify-content: center;
+    /* gridTemplateColumns and gridAutoRows set inline from JS */
+}
+
+/* tile common */
+.tile {
+    border-radius: 10px;
+    background: var(--cream);
+    box-shadow: 0 6px 0 var(--tile-shadow);
+    border: none;
+    overflow: hidden;
+    position: relative;
+    display: block;
+}
+
+/* placeholder (leading blanks) */
+.tile-placeholder {
+    background: transparent;
+    box-shadow: none;
+    cursor: default;
+}
+
+/* day number */
+.tile-number {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    font-size: 12px;
+    color: #2b1f18;
+    font-weight: 700;
+    background: rgba(255,255,255,0.95);
+    padding: 3px 6px;
+    border-radius: 8px;
+    z-index: 5;
+}
+
+/* image / thumb */
+.tile-thumb { background: transparent; }
+.tile-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 6px 6px rgba(0,0,0,0.25);
+}
+
+/* empty interior */
+.tile-blank {
+    position: absolute;
+    inset: 8%;
+    background: rgb(255, 246, 230);
+    border-radius: 8px;
+}
+
+/* future tiles: fill with future color */
+.tile-future .tile-future-fill {
+    position: absolute;
+    inset: 8%;
+    background: var(--future-fill);
+    border-radius: 8px;
+}
+
+/* today indicator small */
+.tile-today {
+    outline: 3px solid rgba(255,255,255,0.04);
+}
+
+/* plus indicator for today */
+.tile-add-indicator {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: rgba(0,0,0,0.06);
+    color: #2b1f18;
+    font-weight: 700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index: 6;
+}
+
+/* loading */
+.loading-overlay {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    color: var(--cream);
+    background: rgba(0,0,0,0.3);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+/* --- wyróżnienie bieżącego dnia --- */
+.tile-today {
+    /* podmieniamy tło tylko dla bieżącego dnia */
+    background: var(--today-bg);
+    /* lekka ramka i głębszy cień, aby był wyraźny */
+    box-shadow: 0 8px 0 var(--today-shadow);
+    border: 2px solid var(--today-border);
+    /* jeśli chcesz delikatne powiększenie: */
+    transform: translateY(-2px);
+}
+
+/* Jeśli tile-today ma wewnętrzny element .tile-blank lub image, upewnij się
+   że wewnętrzny element nie przykrywa tła: */
+.tile-today .tile-blank,
+.tile-today .tile-image {
+    border-radius: 8px;
+    /* jeżeli chcesz, aby wewnętrzny 'blank' był trochę jaśniejszy: */
+    background: rgba(255,255,255,0.96);
+}
+
+/* Jeśli tile-today ma wewnętrzny element .tile-blank lub image, upewnij się
+   że wewnętrzny element nie przykrywa tła: */
+.tile-today .tile-blank,
+.tile-today .tile-image {
+    border-radius: 8px;
+    /* jeżeli chcesz, aby wewnętrzny 'blank' był trochę jaśniejszy: */
+    background: rgba(255,255,255,0.96);
+}
+
+/* --- powiększony, wyraźny plus dla bieżącego dnia --- */
+.tile-add-indicator {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 36px;     /* powiększone */
+    height: 36px;    /* powiększone */
+    border-radius: 8px;
+    background: var(--today-plus-bg);
+    color: var(--today-plus-color);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px; /* większy plus */
+    box-shadow: 0 3px 6px rgba(0,0,0,0.18);
+    z-index: 6;
+    transition: transform .08s ease;
+}
+
+/* subtelna animacja / efekt przy naciśnięciu */
+.tile-add-indicator:active {
+    transform: scale(0.96);
+}
+
+/* Jeśli chcesz, by plus był jeszcze bardziej widoczny tylko na tile-today,
+   możesz zastąpić powyższe reguły specyficzną regułą: */
+.tile-today .tile-add-indicator {
+    background: var(--today-plus-bg);
+    color: var(--today-plus-color);
+    width: 40px;
+    height: 40px;
+    font-size: 22px;
+    border-radius: 10px;
+}
+
+/* modal styles remain same as before */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index: 2000; }
+.modal { background: #fff; border-radius: 10px; padding: 12px; width: calc(100% - 40px); max-width: 720px; max-height: 90vh; overflow:auto; position: relative; }
+.modal-close { position: absolute; right: 8px; top: 8px; background: transparent; border: none; font-size: 18px; cursor: pointer; }
+.modal-video, .modal-image { width: 100%; max-height: 70vh; border-radius: 8px; background: #000; }
+.modal-meta { margin-top: 10px; color: #222; font-size: 13px; }
