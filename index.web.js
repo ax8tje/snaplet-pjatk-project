@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useUserStore } from './src/store/userStore';
+import { OnlineStatus } from './src/components/OnlineStatus';
 
 // Import screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -104,6 +105,30 @@ const App = () => {
       </Router>
   );
 };
+
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then((registration) => {
+        console.log('Service Worker registered successfully:', registration.scope);
+        
+        // Nasłuchuj aktualizacji
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('New Service Worker available. Refresh to update.');
+              // Możesz dodać notyfikację dla użytkownika
+            }
+          });
+        });
+      })
+      .catch((error) => {
+        console.error('Service Worker registration failed:', error);
+      });
+  });
+}
 
 // Render app with error handling
 const container = document.getElementById('root');
