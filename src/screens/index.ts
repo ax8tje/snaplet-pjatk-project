@@ -11,6 +11,7 @@ export { default as ChatScreen } from './ChatScreen';
 export { CameraScreen } from './CameraScreen';
 export { PostDetailScreen } from './PostDetailScreen';
 export { default as CalendarScreen } from './CalendarScreen';
+export { default as MonthlyVideoScreen } from './MonthlyVideoScreen';
 
 // Settings Screens
 export { SettingsScreen } from './SettingsScreen';

@@ -16,6 +16,7 @@ import CameraScreen from './src/screens/CameraScreen';
 import PostDetailScreen from './src/screens/PostDetailScreen';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import CalendarScreen from './src/screens/CalendarScreen'; // calendar route
+import MonthlyVideoScreen from './src/screens/MonthlyVideoScreen'; // monthly video generation
 import BottomNav from './src/components/BottomNav'; // bottom navigation (web)
 
 // Remove loading screen helper
@@ -98,6 +99,7 @@ const App = () => {
 
           <Route path="/settings" element={<ProtectedRoute><SettingsScreen /></ProtectedRoute>} />
           <Route path="/calendar" element={<ProtectedRoute><CalendarScreen /></ProtectedRoute>} /> {/* calendar route */}
+          <Route path="/monthly-video" element={<ProtectedRoute><MonthlyVideoScreen /></ProtectedRoute>} />
         </Routes>
 
         {/* Bottom navigation shown when authenticated (matches other screens) */}

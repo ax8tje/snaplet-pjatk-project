@@ -49,6 +49,26 @@
     font-size: 18px;
 }
 
+/* generate monthly video button */
+.generate-monthly-btn {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    background: #AC7F5E;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: opacity 0.2s;
+}
+.generate-monthly-btn:hover {
+    opacity: 0.85;
+}
+
 /* grid container when we fit tiles exactly */
 .tiles-grid-fit {
     display: grid;
