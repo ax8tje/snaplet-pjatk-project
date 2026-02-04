@@ -15,6 +15,7 @@ import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { useUserStore } from '../store/userStore';
 import { useNavigationCompat } from '../utils/navigation';
+import { signInWithGoogle } from '../services/googleAuth';
 
 const placeholderLogo = require('../../assets/placeholder.png');
 
@@ -49,6 +50,14 @@ export const RegisterScreen: React.FC = () => {
       return false;
     }
     return true;
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      Alert.alert('Google login failed');
+    }
   };
 
   const handleRegister = async () => {
@@ -161,7 +170,11 @@ export const RegisterScreen: React.FC = () => {
             <TouchableOpacity style={styles.socialBtn} disabled={isLoading}>
               <Text style={styles.socialIcon}>f</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialBtn} disabled={isLoading}>
+            <TouchableOpacity
+              style={styles.socialBtn}
+              disabled={isLoading}
+              onPress={handleGoogleLogin}
+            >
               <Text style={styles.socialIcon}>G</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.socialBtn} disabled={isLoading}>
