@@ -185,6 +185,7 @@ export const useUserStore = create<UserState>((set, get) => ({
   initialize: () => {
     let authResolved = false;
     let unsubscribeProfile: (() => void) | null = null;
+    let unsubscribeAuth: (() => void) | null = null;
 
     // Helper to clean up profile subscription
     const cleanupProfileSubscription = () => {
@@ -214,7 +215,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       );
     }
 
-    const unsubscribeAuth = onAuthStateChange((firebaseUser) => {
+    unsubscribeAuth = onAuthStateChange((firebaseUser) => {
       authResolved = true;
 
       // Clean up previous profile subscription before setting up new one
@@ -246,18 +247,17 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
     });
 
-    // Fallback: if auth state doesn't resolve within 2 seconds, stop loading
-    // This handles cases where Firebase isn't properly configured
+    // Fallback: if auth state doesn't resolve within 3s, stop loading
     setTimeout(() => {
       if (!authResolved) {
         set({ isLoading: false, isAuthenticated: false });
       }
-    }, 2000);
+    }, 3000);
 
     // Return cleanup function that unsubscribes from both auth and profile
     return () => {
       cleanupProfileSubscription();
-      unsubscribeAuth();
+      if (unsubscribeAuth) unsubscribeAuth();
     };
   },
 }));
