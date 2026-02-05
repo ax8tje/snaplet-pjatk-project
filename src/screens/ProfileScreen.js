@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import BottomNav from '../components/BottomNav';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useUserStore } from '../store/userStore';
 import { useFeedStore } from '../store/feedStore';
 import { uploadPhoto } from '../services/storageService';
+import { getUserProfile } from '../services/userService';
+import { getFriendshipStatus, sendFriendRequest, removeFriend, cancelFriendRequest, acceptFriendRequest } from '../services/friendService';
+import { getClipsByMonth, getUserClipDates } from '../services/clipService';
 
 const ProfileScreen = () => {
   const navigate = useNavigate();
-  const { user, profile, isAuthenticated, isLoading: userLoading, logout, updateProfile, fetchProfile, error, clearError } = useUserStore();
+  const { userId: paramUserId } = useParams(); // Get userId from URL params if viewing other user
+  const { user, profile: currentUserProfile, isAuthenticated, isLoading: userLoading, logout, updateProfile, fetchProfile, error, clearError } = useUserStore();
   const { userPosts, isLoading: postsLoading, fetchUserPosts } = useFeedStore();
+
+  // Determine if viewing own profile or another user's
+  const isOwnProfile = !paramUserId || paramUserId === user?.uid;
+  const viewingUserId = paramUserId || user?.uid;
 
   // Local state
   const [isEditing, setIsEditing] = useState(false);
@@ -16,14 +23,77 @@ const ProfileScreen = () => {
   const [editBio, setEditBio] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
+  const [otherUserProfile, setOtherUserProfile] = useState(null);
+  const [loadingOtherProfile, setLoadingOtherProfile] = useState(false);
+
+  // Tab state
+  const [activeTab, setActiveTab] = useState('posts'); // 'posts' or 'snaplets'
+
+  // Friend state
+  const [friendStatus, setFriendStatus] = useState('none'); // 'none', 'friends', 'pending_sent', 'pending_received'
+  const [friendLoading, setFriendLoading] = useState(false);
+
+  // Snaplets (clips) state
+  const [userClips, setUserClips] = useState([]);
+  const [clipsLoading, setClipsLoading] = useState(false);
+
+  // Profile to display (own or other user's)
+  const profile = isOwnProfile ? currentUserProfile : otherUserProfile;
 
   // Fetch user data on mount
   useEffect(() => {
-    if (user?.uid) {
+    if (isOwnProfile && user?.uid) {
       fetchProfile(user.uid);
       fetchUserPosts(user.uid);
+    } else if (!isOwnProfile && paramUserId) {
+      // Fetch other user's profile
+      setLoadingOtherProfile(true);
+      getUserProfile(paramUserId)
+        .then(setOtherUserProfile)
+        .catch(() => setOtherUserProfile(null))
+        .finally(() => setLoadingOtherProfile(false));
+      fetchUserPosts(paramUserId);
     }
-  }, [user?.uid]);
+  }, [user?.uid, paramUserId, isOwnProfile]);
+
+  // Fetch friend status for other user's profile
+  useEffect(() => {
+    if (!isOwnProfile && user?.uid && paramUserId) {
+      getFriendshipStatus(user.uid, paramUserId)
+        .then(setFriendStatus)
+        .catch(() => setFriendStatus('none'));
+    }
+  }, [isOwnProfile, user?.uid, paramUserId]);
+
+  // Fetch user clips (snaplets)
+  useEffect(() => {
+    const fetchClips = async () => {
+      if (!viewingUserId) return;
+      setClipsLoading(true);
+      try {
+        // Get all clip dates for this user, then fetch clips
+        const clipDates = await getUserClipDates(viewingUserId);
+        if (clipDates.length > 0) {
+          // Get unique months
+          const months = [...new Set(clipDates.map(date => date.slice(0, 7)))];
+          let allClips = [];
+          for (const month of months) {
+            const monthClips = await getClipsByMonth(viewingUserId, month);
+            allClips = [...allClips, ...monthClips];
+          }
+          // Sort by date descending
+          allClips.sort((a, b) => b.date.localeCompare(a.date));
+          setUserClips(allClips);
+        }
+      } catch (err) {
+        console.error('Error fetching clips:', err);
+      } finally {
+        setClipsLoading(false);
+      }
+    };
+
+    fetchClips();
+  }, [viewingUserId]);
 
   // Set edit values when profile loads
   useEffect(() => {
@@ -40,6 +110,60 @@ const ProfileScreen = () => {
       navigate('/login');
     } catch (err) {
       console.error('Logout error:', err);
+    }
+  };
+
+  // Handle friend actions
+  const handleAddFriend = async () => {
+    if (!user?.uid || !paramUserId || friendLoading) return;
+    setFriendLoading(true);
+    try {
+      const result = await sendFriendRequest(user.uid, paramUserId);
+      setFriendStatus(result.status === 'accepted' ? 'friends' : 'pending_sent');
+    } catch (err) {
+      console.error('Add friend error:', err);
+    } finally {
+      setFriendLoading(false);
+    }
+  };
+
+  const handleRemoveFriend = async () => {
+    if (!user?.uid || !paramUserId || friendLoading) return;
+    setFriendLoading(true);
+    try {
+      await removeFriend(user.uid, paramUserId);
+      setFriendStatus('none');
+    } catch (err) {
+      console.error('Remove friend error:', err);
+    } finally {
+      setFriendLoading(false);
+    }
+  };
+
+  const handleCancelRequest = async () => {
+    if (!user?.uid || !paramUserId || friendLoading) return;
+    setFriendLoading(true);
+    try {
+      await cancelFriendRequest(user.uid, paramUserId);
+      setFriendStatus('none');
+    } catch (err) {
+      console.error('Cancel request error:', err);
+    } finally {
+      setFriendLoading(false);
+    }
+  };
+
+  const handleAcceptRequest = async () => {
+    if (!user?.uid || !paramUserId || friendLoading) return;
+    setFriendLoading(true);
+    try {
+      const requestId = `${paramUserId}_${user.uid}`;
+      await acceptFriendRequest(requestId, user.uid, paramUserId);
+      setFriendStatus('friends');
+    } catch (err) {
+      console.error('Accept request error:', err);
+    } finally {
+      setFriendLoading(false);
     }
   };
 
@@ -170,7 +294,51 @@ const ProfileScreen = () => {
             Go to Login
           </button>
         </div>
-        <BottomNav active="profile" />
+      </div>
+    );
+  }
+
+  // Loading other user's profile
+  if (loadingOtherProfile) {
+    return (
+      <div style={{ backgroundColor: '#F5E6D3', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="loading-spinner" style={{
+          width: '40px',
+          height: '40px',
+          border: '3px solid #f3f3f3',
+          borderTop: '3px solid #3A2B20',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}></div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  // Other user not found
+  if (!isOwnProfile && !otherUserProfile) {
+    return (
+      <div style={{ backgroundColor: '#F5E6D3', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ fontSize: '18px', marginBottom: '20px', color: '#666' }}>User not found</p>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            padding: '12px 24px',
+            backgroundColor: '#3A2B20',
+            color: '#FDF5DD',
+            border: 'none',
+            borderRadius: '24px',
+            cursor: 'pointer',
+            fontSize: '16px'
+          }}
+        >
+          Go Back
+        </button>
       </div>
     );
   }
@@ -191,21 +359,45 @@ const ProfileScreen = () => {
         top: 0,
         zIndex: 100,
       }}>
-        <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#3A2B20' }}>👤 Profile</h1>
-        <button
-          onClick={handleLogout}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: 'transparent',
-            color: '#cc0000',
-            border: '1px solid #cc0000',
-            borderRadius: '20px',
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
-        >
-          Logout
-        </button>
+        {!isOwnProfile ? (
+          <>
+            <button
+              onClick={() => navigate(-1)}
+              style={{
+                backgroundColor: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '8px',
+                marginRight: '8px'
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#3A2B20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#3A2B20', flex: 1 }}>
+              {profile?.displayName || 'User'}
+            </h1>
+          </>
+        ) : (
+          <>
+            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#3A2B20' }}>👤 Profile</h1>
+            <button
+              onClick={handleLogout}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: 'transparent',
+                color: '#cc0000',
+                border: '1px solid #cc0000',
+                borderRadius: '20px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              Logout
+            </button>
+          </>
+        )}
       </div>
 
       {/* Error display */}
@@ -244,14 +436,14 @@ const ProfileScreen = () => {
         {/* Avatar */}
         <div
           className="profile-avatar"
-          onClick={handlePhotoUpload}
+          onClick={isOwnProfile ? handlePhotoUpload : undefined}
           style={{
             width: '100px',
             height: '100px',
             borderRadius: '50%',
             overflow: 'hidden',
             backgroundColor: '#ddd',
-            cursor: 'pointer',
+            cursor: isOwnProfile ? 'pointer' : 'default',
             position: 'relative',
             marginBottom: '16px'
           }}
@@ -279,7 +471,7 @@ const ProfileScreen = () => {
           )}
 
           {/* Upload overlay */}
-          {isUploading && (
+          {isOwnProfile && isUploading && (
             <div style={{
               position: 'absolute',
               inset: 0,
@@ -300,8 +492,8 @@ const ProfileScreen = () => {
             </div>
           )}
 
-          {/* Edit icon */}
-          {!isUploading && (
+          {/* Edit icon - only for own profile */}
+          {isOwnProfile && !isUploading && (
             <div style={{
               position: 'absolute',
               bottom: '4px',
@@ -346,23 +538,119 @@ const ProfileScreen = () => {
             )}
 
             <p style={{ margin: '0 0 16px', fontSize: '14px', color: '#888' }}>
-              {profile?.email || user?.email}
+              {isOwnProfile ? (profile?.email || user?.email) : ''}
             </p>
 
-            <button
-              onClick={handleStartEdit}
-              style={{
-                padding: '8px 24px',
-                backgroundColor: '#FDF5DD',
-                color: '#3A2B20',
-                border: '1px solid #3A2B20',
-                borderRadius: '20px',
-                cursor: 'pointer',
-                fontSize: '14px'
-              }}
-            >
-              Edit Profile
-            </button>
+            {isOwnProfile ? (
+              <button
+                onClick={handleStartEdit}
+                style={{
+                  padding: '8px 24px',
+                  backgroundColor: '#FDF5DD',
+                  color: '#3A2B20',
+                  border: '1px solid #3A2B20',
+                  borderRadius: '20px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                Edit Profile
+              </button>
+            ) : (
+              /* Friend action buttons for other users */
+              <div style={{ display: 'flex', gap: '12px' }}>
+                {friendStatus === 'none' && (
+                  <button
+                    onClick={handleAddFriend}
+                    disabled={friendLoading}
+                    style={{
+                      padding: '8px 24px',
+                      backgroundColor: '#3A2B20',
+                      color: '#FDF5DD',
+                      border: 'none',
+                      borderRadius: '20px',
+                      cursor: friendLoading ? 'not-allowed' : 'pointer',
+                      fontSize: '14px',
+                      opacity: friendLoading ? 0.7 : 1
+                    }}
+                  >
+                    {friendLoading ? 'Loading...' : 'Add Friend'}
+                  </button>
+                )}
+                {friendStatus === 'pending_sent' && (
+                  <button
+                    onClick={handleCancelRequest}
+                    disabled={friendLoading}
+                    style={{
+                      padding: '8px 24px',
+                      backgroundColor: '#888',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '20px',
+                      cursor: friendLoading ? 'not-allowed' : 'pointer',
+                      fontSize: '14px',
+                      opacity: friendLoading ? 0.7 : 1
+                    }}
+                  >
+                    {friendLoading ? 'Loading...' : 'Cancel Request'}
+                  </button>
+                )}
+                {friendStatus === 'pending_received' && (
+                  <>
+                    <button
+                      onClick={handleAcceptRequest}
+                      disabled={friendLoading}
+                      style={{
+                        padding: '8px 24px',
+                        backgroundColor: '#27ae60',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '20px',
+                        cursor: friendLoading ? 'not-allowed' : 'pointer',
+                        fontSize: '14px',
+                        opacity: friendLoading ? 0.7 : 1
+                      }}
+                    >
+                      {friendLoading ? '...' : 'Accept'}
+                    </button>
+                    <button
+                      onClick={handleCancelRequest}
+                      disabled={friendLoading}
+                      style={{
+                        padding: '8px 24px',
+                        backgroundColor: '#e74c3c',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '20px',
+                        cursor: friendLoading ? 'not-allowed' : 'pointer',
+                        fontSize: '14px',
+                        opacity: friendLoading ? 0.7 : 1
+                      }}
+                    >
+                      {friendLoading ? '...' : 'Decline'}
+                    </button>
+                  </>
+                )}
+                {friendStatus === 'friends' && (
+                  <button
+                    onClick={handleRemoveFriend}
+                    disabled={friendLoading}
+                    style={{
+                      padding: '8px 24px',
+                      backgroundColor: '#e74c3c',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '20px',
+                      cursor: friendLoading ? 'not-allowed' : 'pointer',
+                      fontSize: '14px',
+                      opacity: friendLoading ? 0.7 : 1
+                    }}
+                  >
+                    {friendLoading ? 'Loading...' : 'Remove Friend'}
+                  </button>
+                )}
+              </div>
+            )}
           </>
         ) : (
           /* Edit mode */
@@ -446,6 +734,14 @@ const ProfileScreen = () => {
               {userPosts.length}
             </span>
             <span className="stat-label" style={{ fontSize: '14px', color: '#666' }}>
+              Posts
+            </span>
+          </div>
+          <div className="stat-item" style={{ textAlign: 'center' }}>
+            <span className="stat-value" style={{ fontSize: '24px', fontWeight: '600', display: 'block' }}>
+              {userClips.length}
+            </span>
+            <span className="stat-label" style={{ fontSize: '14px', color: '#666' }}>
               Snaplets
             </span>
           </div>
@@ -457,19 +753,50 @@ const ProfileScreen = () => {
               Friends
             </span>
           </div>
-          <div className="stat-item" style={{ textAlign: 'center' }}>
-            <span className="stat-value" style={{ fontSize: '24px', fontWeight: '600', display: 'block' }}>
-              {userPosts.reduce((sum, post) => sum + (post.likes || 0), 0)}
-            </span>
-            <span className="stat-label" style={{ fontSize: '14px', color: '#666' }}>
-              Likes
-            </span>
-          </div>
         </div>
       </div>
 
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        borderBottom: '1px solid #eee'
+      }}>
+        <button
+          onClick={() => setActiveTab('posts')}
+          style={{
+            flex: 1,
+            padding: '12px',
+            backgroundColor: 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'posts' ? '2px solid #3A2B20' : '2px solid transparent',
+            color: activeTab === 'posts' ? '#3A2B20' : '#888',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: activeTab === 'posts' ? '600' : '400'
+          }}
+        >
+          Posts
+        </button>
+        <button
+          onClick={() => setActiveTab('snaplets')}
+          style={{
+            flex: 1,
+            padding: '12px',
+            backgroundColor: 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'snaplets' ? '2px solid #3A2B20' : '2px solid transparent',
+            color: activeTab === 'snaplets' ? '#3A2B20' : '#888',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: activeTab === 'snaplets' ? '600' : '400'
+          }}
+        >
+          Snaplets
+        </button>
+      </div>
+
       {/* Loading state */}
-      {postsLoading && userPosts.length === 0 && (
+      {activeTab === 'posts' && postsLoading && userPosts.length === 0 && (
         <div style={{ padding: '40px', textAlign: 'center' }}>
           <div className="loading-spinner" style={{
             width: '32px',
@@ -484,112 +811,257 @@ const ProfileScreen = () => {
         </div>
       )}
 
-      {/* Empty posts state */}
-      {!postsLoading && userPosts.length === 0 && (
-        <div style={{
-          padding: '40px 20px',
-          textAlign: 'center',
-          color: '#666'
-        }}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style={{ marginBottom: '12px' }}>
-            <rect x="3" y="3" width="18" height="18" rx="2" stroke="#999" strokeWidth="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5" fill="#999"/>
-            <path d="M21 15l-5-5L5 21" stroke="#999" strokeWidth="2"/>
-          </svg>
-          <p style={{ fontSize: '16px', marginBottom: '8px' }}>No snaplets yet</p>
-          <p style={{ fontSize: '14px' }}>Share your first moment!</p>
-          <button
-            onClick={() => navigate('/camera')}
-            style={{
-              marginTop: '16px',
-              padding: '12px 24px',
-              backgroundColor: '#3A2B20',
-              color: '#FDF5DD',
-              border: 'none',
-              borderRadius: '24px',
-              cursor: 'pointer',
-              fontSize: '16px'
-            }}
-          >
-            Create Snaplet
-          </button>
-        </div>
+      {/* POSTS TAB CONTENT */}
+      {activeTab === 'posts' && (
+        <>
+          {/* Empty posts state */}
+          {!postsLoading && userPosts.length === 0 && (
+            <div style={{
+              padding: '40px 20px',
+              textAlign: 'center',
+              color: '#666'
+            }}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style={{ marginBottom: '12px' }}>
+                <rect x="3" y="3" width="18" height="18" rx="2" stroke="#999" strokeWidth="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5" fill="#999"/>
+                <path d="M21 15l-5-5L5 21" stroke="#999" strokeWidth="2"/>
+              </svg>
+              <p style={{ fontSize: '16px', marginBottom: '8px' }}>No posts yet</p>
+              <p style={{ fontSize: '14px' }}>Share your first photo!</p>
+              {isOwnProfile && (
+                <button
+                  onClick={() => navigate('/camera')}
+                  style={{
+                    marginTop: '16px',
+                    padding: '12px 24px',
+                    backgroundColor: '#3A2B20',
+                    color: '#FDF5DD',
+                    border: 'none',
+                    borderRadius: '24px',
+                    cursor: 'pointer',
+                    fontSize: '16px'
+                  }}
+                >
+                  Create Post
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Posts Grid */}
+          {userPosts.length > 0 && (
+            <div className="profile-timeline" style={{ padding: '16px' }}>
+              {groupedPosts.map((group, groupIndex) => (
+                <div key={groupIndex} className="timeline-month" style={{ marginBottom: '24px' }}>
+                  <h4 className="timeline-month-title" style={{
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#666',
+                    marginBottom: '12px',
+                    paddingLeft: '4px'
+                  }}>
+                    {group.label}
+                  </h4>
+                  <div className="profile-photo-grid" style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '4px'
+                  }}>
+                    {group.posts.map((post) => (
+                      <div
+                        key={post.id}
+                        className="profile-photo-item"
+                        onClick={() => handlePostClick(post.id)}
+                        style={{
+                          aspectRatio: '1',
+                          overflow: 'hidden',
+                          backgroundColor: '#f0f0f0',
+                          cursor: 'pointer',
+                          position: 'relative'
+                        }}
+                      >
+                        <img
+                          src={post.thumbnailUrl || post.imageUrl}
+                          alt="Post"
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover'
+                          }}
+                          loading="lazy"
+                        />
+                        {/* Hover overlay with stats */}
+                        <div style={{
+                          position: 'absolute',
+                          inset: 0,
+                          backgroundColor: 'rgba(0,0,0,0)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '16px',
+                          color: '#fff',
+                          fontSize: '14px',
+                          opacity: 0,
+                          transition: 'all 0.2s ease'
+                        }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                            e.currentTarget.style.opacity = '1';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0)';
+                            e.currentTarget.style.opacity = '0';
+                          }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                          </svg>
+                          <span>{post.likes || 0}</span>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
+                            <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"/>
+                          </svg>
+                          <span>{post.commentCount || 0}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
-      {/* Posts Timeline */}
-      {userPosts.length > 0 && (
-        <div className="profile-timeline" style={{ padding: '16px' }}>
-          {groupedPosts.map((group, groupIndex) => (
-            <div key={groupIndex} className="timeline-month" style={{ marginBottom: '24px' }}>
-              <h4 className="timeline-month-title" style={{
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#666',
-                marginBottom: '12px',
-                paddingLeft: '4px'
-              }}>
-                {group.label}
-              </h4>
-              <div className="profile-photo-grid" style={{
+      {/* SNAPLETS TAB CONTENT */}
+      {activeTab === 'snaplets' && (
+        <>
+          {/* Loading snaplets */}
+          {clipsLoading && (
+            <div style={{ padding: '40px', textAlign: 'center' }}>
+              <div className="loading-spinner" style={{
+                width: '32px',
+                height: '32px',
+                border: '2px solid #f3f3f3',
+                borderTop: '2px solid #3A2B20',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 16px'
+              }}></div>
+              <p style={{ color: '#888' }}>Loading snaplets...</p>
+            </div>
+          )}
+
+          {/* Empty snaplets state */}
+          {!clipsLoading && userClips.length === 0 && (
+            <div style={{
+              padding: '40px 20px',
+              textAlign: 'center',
+              color: '#666'
+            }}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style={{ marginBottom: '12px' }}>
+                <polygon points="5,3 19,12 5,21" stroke="#999" strokeWidth="2" fill="none"/>
+              </svg>
+              <p style={{ fontSize: '16px', marginBottom: '8px' }}>No snaplets yet</p>
+              <p style={{ fontSize: '14px' }}>Daily video clips will appear here</p>
+              {isOwnProfile && (
+                <button
+                  onClick={() => navigate('/calendar')}
+                  style={{
+                    marginTop: '16px',
+                    padding: '12px 24px',
+                    backgroundColor: '#3A2B20',
+                    color: '#FDF5DD',
+                    border: 'none',
+                    borderRadius: '24px',
+                    cursor: 'pointer',
+                    fontSize: '16px'
+                  }}
+                >
+                  Record Snaplet
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Snaplets Grid */}
+          {!clipsLoading && userClips.length > 0 && (
+            <div style={{ padding: '16px' }}>
+              <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(3, 1fr)',
                 gap: '4px'
               }}>
-                {group.posts.map((post) => (
+                {userClips.map((clip) => (
                   <div
-                    key={post.id}
-                    className="profile-photo-item"
-                    onClick={() => handlePostClick(post.id)}
+                    key={clip.id || clip.date}
                     style={{
                       aspectRatio: '1',
                       overflow: 'hidden',
-                      backgroundColor: '#f0f0f0',
+                      backgroundColor: '#000',
                       cursor: 'pointer',
                       position: 'relative'
                     }}
                   >
-                    <img
-                      src={post.thumbnailUrl || post.imageUrl}
-                      alt={`Snaplet`}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }}
-                      loading="lazy"
-                    />
-                    {/* Hover overlay with stats */}
+                    {clip.thumbnailUrl ? (
+                      <img
+                        src={clip.thumbnailUrl}
+                        alt={`Snaplet ${clip.date}`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <video
+                        src={clip.videoUrl}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                        muted
+                        playsInline
+                        onMouseEnter={(e) => e.target.play().catch(() => {})}
+                        onMouseLeave={(e) => { e.target.pause(); e.target.currentTime = 0; }}
+                      />
+                    )}
+                    {/* Date label */}
                     <div style={{
                       position: 'absolute',
-                      inset: 0,
-                      backgroundColor: 'rgba(0,0,0,0)',
+                      bottom: '4px',
+                      left: '4px',
+                      backgroundColor: 'rgba(0,0,0,0.6)',
+                      color: '#fff',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      fontSize: '10px'
+                    }}>
+                      {clip.date}
+                    </div>
+                    {/* Video indicator */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '4px',
+                      right: '4px',
+                      backgroundColor: 'rgba(0,0,0,0.6)',
+                      borderRadius: '4px',
+                      padding: '2px 6px',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '16px',
-                      color: '#fff',
-                      fontSize: '14px',
-                      opacity: 0,
-                      transition: 'all 0.2s ease'
-                    }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.5)';
-                        e.currentTarget.style.opacity = '1';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0)';
-                        e.currentTarget.style.opacity = '0';
-                      }}
-                    >
-                      <span>❤️ {post.likes || 0}</span>
-                      <span>💬 {post.commentCount || 0}</span>
+                      gap: '4px'
+                    }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="#fff">
+                        <polygon points="5,3 19,12 5,21" />
+                      </svg>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {/* Member since */}
@@ -604,8 +1076,6 @@ const ProfileScreen = () => {
           Member since {formatDate(profile.createdAt)}
         </div>
       )}
-
-      <BottomNav active="profile" />
 
       <style>{`
         @keyframes spin {

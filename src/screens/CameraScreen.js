@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useFeedStore } from '../store/feedStore';
 import { useUserStore } from '../store/userStore';
+import { saveClip, getClip } from '../services/clipService';
+import { createVideoPost } from '../services/postService';
 
 /**
  * Określa odpowiedni mimeType dla MediaRecorder w zależności od przeglądarki
@@ -38,7 +39,6 @@ const RECORDING_DURATION_MS = 2000; // 2 sekundy
 
 const CameraScreen = () => {
   const navigate = useNavigate();
-  const { addPost, isCreating, uploadProgress, error, clearError } = useFeedStore();
   const { user, isAuthenticated } = useUserStore();
 
   // State
@@ -47,9 +47,12 @@ const CameraScreen = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [countdown, setCountdown] = useState(null); // null = nie nagrywa, 2/1/0 = odliczanie
   const [recordedVideo, setRecordedVideo] = useState(null); // { url, blob }
-  const [caption, setCaption] = useState('');
   const [facingMode, setFacingMode] = useState('environment');
   const [cameraError, setCameraError] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+  const [alsoPostToFeed, setAlsoPostToFeed] = useState(false);
+  const [showOverwriteConfirm, setShowOverwriteConfirm] = useState(false);
 
   // Refs
   const videoRef = useRef(null);
@@ -78,10 +81,8 @@ const CameraScreen = () => {
       const constraints = {
         video: {
           facingMode: facingMode,
-          width: { ideal: 1080 },
-          height: { ideal: 1080 },
         },
-        audio: true, // Włączamy audio dla nagrywania wideo
+        audio: true,
       };
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -89,13 +90,21 @@ const CameraScreen = () => {
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        try {
+          await videoRef.current.play();
+        } catch (playErr) {
+          // AbortError happens when play() is interrupted by StrictMode remount - ignore it
+          if (playErr.name !== 'AbortError') {
+            throw playErr;
+          }
+          console.log('[Camera] Play interrupted (StrictMode), ignoring');
+        }
       }
 
       setHasPermission(true);
       setIsCameraActive(true);
     } catch (err) {
-      console.error('Camera access error:', err);
+      console.error('[Camera] Access error:', err.name, err.message, err);
       setHasPermission(false);
 
       if (err.name === 'NotAllowedError') {
@@ -106,6 +115,10 @@ const CameraScreen = () => {
         setCameraError('Kamera jest używana przez inną aplikację.');
       } else if (err.message.includes('MediaRecorder')) {
         setCameraError('Twoja przeglądarka nie obsługuje nagrywania wideo.');
+      } else if (err.name === 'AbortError') {
+        // Ignore AbortError - it's caused by StrictMode
+        console.log('[Camera] AbortError ignored');
+        setHasPermission(true);
       } else {
         setCameraError('Nie udało się uzyskać dostępu do kamery. Spróbuj ponownie.');
       }
@@ -172,15 +185,21 @@ const CameraScreen = () => {
       };
 
       mediaRecorder.onstop = () => {
-        const mimeType = getSupportedMimeType();
-        const blob = new Blob(chunksRef.current, { type: mimeType });
+        const recordedMimeType = getSupportedMimeType();
+        console.log('[Camera] Recording stopped, chunks:', chunksRef.current.length);
+        console.log('[Camera] MimeType:', recordedMimeType);
+
+        const blob = new Blob(chunksRef.current, { type: recordedMimeType });
+        console.log('[Camera] Blob size:', blob.size, 'type:', blob.type);
+
         const videoUrl = URL.createObjectURL(blob);
+        console.log('[Camera] Video URL:', videoUrl);
 
         setRecordedVideo({
           url: videoUrl,
           blob,
-          mimeType,
-          extension: getFileExtension(mimeType),
+          mimeType: recordedMimeType,
+          extension: getFileExtension(recordedMimeType),
         });
 
         setIsRecording(false);
@@ -239,11 +258,12 @@ const CameraScreen = () => {
       URL.revokeObjectURL(recordedVideo.url);
     }
     setRecordedVideo(null);
-    setCaption('');
     setCountdown(null);
-    clearError();
+    setSaveError(null);
+    setAlsoPostToFeed(false);
+    setShowOverwriteConfirm(false);
     startCamera();
-  }, [recordedVideo, clearError, startCamera]);
+  }, [recordedVideo, startCamera]);
 
   // Switch camera
   const handleSwitchCamera = useCallback(() => {
@@ -252,27 +272,147 @@ const CameraScreen = () => {
     }
   }, [isRecording]);
 
-  // Upload and create post
-  const handlePost = async () => {
+  // Generate thumbnail from the preview video element
+  const generateThumbnail = () => {
+    return new Promise((resolve) => {
+      console.log('[Camera] Generating thumbnail from preview video');
+
+      const video = previewVideoRef.current;
+      if (!video || video.videoWidth === 0) {
+        console.warn('[Camera] Preview video not ready');
+        resolve(null);
+        return;
+      }
+
+      try {
+        const canvas = document.createElement('canvas');
+        // Square thumbnail, crop to center
+        const size = Math.min(video.videoWidth, video.videoHeight);
+        canvas.width = 200;
+        canvas.height = 200;
+        const ctx = canvas.getContext('2d');
+
+        // Calculate crop offset to center
+        const offsetX = (video.videoWidth - size) / 2;
+        const offsetY = (video.videoHeight - size) / 2;
+
+        console.log('[Camera] Video dimensions:', video.videoWidth, 'x', video.videoHeight, 'cropping from:', offsetX, offsetY);
+
+        ctx.drawImage(video, offsetX, offsetY, size, size, 0, 0, 200, 200);
+
+        canvas.toBlob((blob) => {
+          console.log('[Camera] Thumbnail blob created:', blob ? blob.size + ' bytes' : 'null');
+          resolve(blob);
+        }, 'image/jpeg', 0.8);
+      } catch (err) {
+        console.error('[Camera] Canvas error:', err);
+        resolve(null);
+      }
+    });
+  };
+
+  // Check if clip exists and save
+  const handleSaveClip = async () => {
     if (!recordedVideo?.blob || !user) return;
 
     try {
-      clearError();
-      await addPost(user.uid, recordedVideo.blob, caption, {
-        isVideo: true,
-        mimeType: recordedVideo.mimeType,
-        extension: recordedVideo.extension,
-      });
+      setSaveError(null);
+
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0];
+
+      // Check if clip already exists for today
+      const existingClip = await getClip(user.uid, dateStr);
+      if (existingClip) {
+        // Show confirmation modal
+        setShowOverwriteConfirm(true);
+        return;
+      }
+
+      // No existing clip, save directly
+      await doSaveClip();
+    } catch (err) {
+      console.error('Clip check error:', err);
+      // If check fails, try to save anyway
+      await doSaveClip();
+    }
+  };
+
+  // Actual save logic
+  const doSaveClip = async () => {
+    if (!recordedVideo?.blob || !user) return;
+
+    try {
+      setIsSaving(true);
+      setSaveError(null);
+      setShowOverwriteConfirm(false);
+
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0];
+
+      console.log('[Camera] Generating thumbnail...');
+      // Generate thumbnail from the preview video element
+      const thumbnailBlob = await generateThumbnail();
+      console.log('[Camera] Thumbnail result:', thumbnailBlob ? `${thumbnailBlob.size} bytes` : 'null');
+
+      console.log('[Camera] Saving clip to:', dateStr);
+      await saveClip(user.uid, dateStr, recordedVideo.blob, thumbnailBlob);
+      console.log('[Camera] Clip saved successfully');
+
+      // Also create a post if toggle is enabled
+      if (alsoPostToFeed) {
+        console.log('[Camera] Creating video post...');
+        await createVideoPost(user.uid, recordedVideo.blob, '', null, {
+          mimeType: recordedVideo.mimeType,
+          extension: recordedVideo.extension,
+        });
+        console.log('[Camera] Video post created successfully');
+      }
 
       // Clean up
       if (recordedVideo?.url) {
         URL.revokeObjectURL(recordedVideo.url);
       }
 
-      // Navigate to home
-      navigate('/home');
+      // Navigate to calendar after saving clip
+      navigate('/calendar');
+    } catch (err) {
+      console.error('Clip save error:', err);
+      setSaveError('Nie udało się zapisać klipu. Spróbuj ponownie.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Post only (without saving to calendar)
+  const handlePostOnly = async () => {
+    if (!recordedVideo?.blob || !user) return;
+
+    try {
+      setIsSaving(true);
+      setSaveError(null);
+
+      console.log('[Camera] Creating video post only...');
+      await createVideoPost(user.uid, recordedVideo.blob, '', null, {
+        mimeType: recordedVideo.mimeType,
+        extension: recordedVideo.extension,
+      });
+      console.log('[Camera] Video post created successfully');
+
+      // Clean up
+      if (recordedVideo?.url) {
+        URL.revokeObjectURL(recordedVideo.url);
+      }
+
+      // Navigate to home/feed after posting
+      navigate('/');
     } catch (err) {
       console.error('Post creation error:', err);
+      setSaveError('Nie udało się dodać posta. Spróbuj ponownie.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -324,83 +464,151 @@ const CameraScreen = () => {
 
   // Review recorded video
   if (recordedVideo) {
+    console.log('[Camera] Rendering preview, URL:', recordedVideo.url);
     return (
       <div style={styles.container}>
         {/* Header */}
         <div style={styles.reviewHeader}>
           <button
             onClick={handleRetake}
-            disabled={isCreating}
+            disabled={isSaving}
             style={{
               ...styles.headerButton,
-              opacity: isCreating ? 0.5 : 1,
-              cursor: isCreating ? 'not-allowed' : 'pointer',
+              opacity: isSaving ? 0.5 : 1,
+              cursor: isSaving ? 'not-allowed' : 'pointer',
             }}
           >
             Nagraj ponownie
           </button>
           <h2 style={styles.headerTitle}>Podgląd</h2>
-          <button
-            onClick={handlePost}
-            disabled={isCreating}
-            style={{
-              ...styles.postButton,
-              opacity: isCreating ? 0.7 : 1,
-              cursor: isCreating ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {isCreating ? 'Wysyłanie...' : 'Zapisz'}
-          </button>
+          <div style={{ width: '100px' }} /> {/* Spacer for centering */}
         </div>
 
         {/* Preview Video */}
         <div style={styles.previewContainer}>
           <video
+            key={recordedVideo.url}
             ref={previewVideoRef}
             src={recordedVideo.url}
             controls
             loop
-            autoPlay
             playsInline
+            preload="auto"
             style={styles.previewVideo}
+            onError={(e) => console.error('[Camera] Preview video error:', e.target.error)}
+            onLoadedMetadata={(e) => {
+              console.log('[Camera] Preview metadata loaded, duration:', e.target.duration);
+            }}
+            onLoadedData={() => {
+              console.log('[Camera] Preview video loaded');
+            }}
           />
         </div>
 
-        {/* Upload Progress */}
-        {isCreating && uploadProgress > 0 && (
+        {/* Action buttons */}
+        <div style={styles.actionButtonsContainer}>
+          {/* Save to calendar option */}
+          <div style={styles.actionOption}>
+            <button
+              onClick={handleSaveClip}
+              disabled={isSaving}
+              style={{
+                ...styles.actionButton,
+                ...styles.calendarButton,
+                opacity: isSaving ? 0.7 : 1,
+                cursor: isSaving ? 'not-allowed' : 'pointer',
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginRight: '8px' }}>
+                <rect x="3" y="4" width="18" height="18" rx="2" stroke="#3A2B20" strokeWidth="2"/>
+                <path d="M16 2v4M8 2v4M3 10h18" stroke="#3A2B20" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              {isSaving ? 'Zapisywanie...' : 'Zapisz do kalendarza'}
+            </button>
+            <label style={styles.toggleLabel}>
+              <input
+                type="checkbox"
+                checked={alsoPostToFeed}
+                onChange={(e) => setAlsoPostToFeed(e.target.checked)}
+                disabled={isSaving}
+                style={styles.toggleCheckbox}
+              />
+              <span style={{
+                ...styles.toggleSwitch,
+                backgroundColor: alsoPostToFeed ? '#4CAF50' : '#444',
+              }}>
+                <span style={{
+                  ...styles.toggleKnob,
+                  transform: alsoPostToFeed ? 'translateX(16px)' : 'translateX(0)',
+                }} />
+              </span>
+              <span style={styles.toggleText}>+ dodaj jako post</span>
+            </label>
+          </div>
+
+          <div style={styles.orDivider}>
+            <span style={styles.orText}>lub</span>
+          </div>
+
+          {/* Post only option */}
+          <button
+            onClick={handlePostOnly}
+            disabled={isSaving}
+            style={{
+              ...styles.actionButton,
+              ...styles.postOnlyButton,
+              opacity: isSaving ? 0.7 : 1,
+              cursor: isSaving ? 'not-allowed' : 'pointer',
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginRight: '8px' }}>
+              <rect x="3" y="3" width="18" height="18" rx="2" stroke="#fff" strokeWidth="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5" fill="#fff"/>
+              <path d="M21 15l-5-5L5 21" stroke="#fff" strokeWidth="2"/>
+            </svg>
+            Dodaj tylko jako post
+          </button>
+        </div>
+
+        {/* Saving indicator */}
+        {isSaving && (
           <div style={styles.progressContainer}>
-            <div style={styles.progressBar}>
-              <div style={{
-                ...styles.progressFill,
-                width: `${uploadProgress}%`,
-              }}></div>
-            </div>
             <p style={styles.progressText}>
-              Wysyłanie... {Math.round(uploadProgress)}%
+              Zapisywanie...
             </p>
           </div>
         )}
 
-        {/* Caption Input */}
-        <div style={styles.captionContainer}>
-          <input
-            type="text"
-            placeholder="Dodaj opis..."
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            disabled={isCreating}
-            maxLength={280}
-            style={styles.captionInput}
-          />
-          <p style={styles.captionCounter}>
-            {caption.length}/280
-          </p>
-        </div>
-
         {/* Error Display */}
-        {error && (
+        {saveError && (
           <div style={styles.errorBanner}>
-            {error}
+            {saveError}
+          </div>
+        )}
+
+        {/* Overwrite Confirmation Modal */}
+        {showOverwriteConfirm && (
+          <div style={styles.modalOverlay}>
+            <div style={styles.modalContent}>
+              <h3 style={styles.modalTitle}>Nadpisać istniejący klip?</h3>
+              <p style={styles.modalText}>
+                Masz już nagrany klip na dzisiaj. Czy chcesz go zastąpić nowym?
+              </p>
+              <div style={styles.modalButtons}>
+                <button
+                  onClick={() => setShowOverwriteConfirm(false)}
+                  style={styles.modalCancelButton}
+                >
+                  Anuluj
+                </button>
+                <button
+                  onClick={doSaveClip}
+                  style={styles.modalConfirmButton}
+                >
+                  Nadpisz
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -413,7 +621,7 @@ const CameraScreen = () => {
       {/* Header */}
       <div style={styles.cameraHeader}>
         <button
-          onClick={() => navigate('/home')}
+          onClick={() => navigate(-1)}
           style={styles.iconButton}
           disabled={isRecording}
         >
@@ -629,11 +837,16 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    backgroundColor: '#000',
+    aspectRatio: '1/1',
+    maxWidth: '100vw',
+    margin: '0 auto',
   },
   previewVideo: {
-    maxWidth: '100%',
-    maxHeight: '100%',
-    objectFit: 'contain',
+    width: '100%',
+    height: '100%',
+    maxHeight: '70vh',
+    objectFit: 'cover',
   },
   progressContainer: {
     padding: '16px',
@@ -860,6 +1073,142 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  toggleLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'pointer',
+    gap: '8px',
+    marginTop: '8px',
+  },
+  toggleCheckbox: {
+    display: 'none',
+  },
+  toggleSwitch: {
+    width: '36px',
+    height: '20px',
+    backgroundColor: '#444',
+    borderRadius: '10px',
+    position: 'relative',
+    transition: 'background-color 0.2s ease',
+    flexShrink: 0,
+  },
+  toggleKnob: {
+    width: '16px',
+    height: '16px',
+    backgroundColor: '#fff',
+    borderRadius: '50%',
+    position: 'absolute',
+    top: '2px',
+    left: '2px',
+    transition: 'transform 0.2s ease',
+  },
+  toggleText: {
+    color: '#aaa',
+    fontSize: '12px',
+  },
+  actionButtonsContainer: {
+    padding: '16px',
+    backgroundColor: 'rgba(0,0,0,0.9)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  actionOption: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  actionButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '14px 24px',
+    borderRadius: '24px',
+    fontSize: '15px',
+    fontWeight: '600',
+    border: 'none',
+    cursor: 'pointer',
+    width: '100%',
+    maxWidth: '300px',
+  },
+  calendarButton: {
+    backgroundColor: '#FDF5DD',
+    color: '#3A2B20',
+  },
+  postOnlyButton: {
+    backgroundColor: 'transparent',
+    color: '#fff',
+    border: '2px solid #fff',
+  },
+  orDivider: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '4px 0',
+  },
+  orText: {
+    color: '#666',
+    fontSize: '12px',
+    textTransform: 'uppercase',
+  },
+  modalOverlay: {
+    position: 'fixed',
+    inset: 0,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    padding: '20px',
+  },
+  modalContent: {
+    backgroundColor: '#1a1a1a',
+    borderRadius: '16px',
+    padding: '24px',
+    maxWidth: '320px',
+    width: '100%',
+    textAlign: 'center',
+  },
+  modalTitle: {
+    color: '#fff',
+    fontSize: '18px',
+    fontWeight: '600',
+    margin: '0 0 12px 0',
+  },
+  modalText: {
+    color: '#aaa',
+    fontSize: '14px',
+    margin: '0 0 24px 0',
+    lineHeight: '1.5',
+  },
+  modalButtons: {
+    display: 'flex',
+    gap: '12px',
+    justifyContent: 'center',
+  },
+  modalCancelButton: {
+    flex: 1,
+    padding: '12px 16px',
+    backgroundColor: 'transparent',
+    color: '#fff',
+    border: '1px solid #444',
+    borderRadius: '24px',
+    fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
+  },
+  modalConfirmButton: {
+    flex: 1,
+    padding: '12px 16px',
+    backgroundColor: '#e74c3c',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '24px',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
   },
 };
 

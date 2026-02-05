@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useUserStore } from './src/store/userStore';
 import { OnlineStatus } from './src/components/OnlineStatus';
 
@@ -34,15 +34,30 @@ const removeLoadingScreen = () => {
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useUserStore();
 
+  console.log('[ProtectedRoute] isLoading:', isLoading, 'isAuthenticated:', isAuthenticated);
+
   if (isLoading) {
     return null; // Keep showing the HTML loading screen
   }
 
   if (!isAuthenticated) {
+    console.log('[ProtectedRoute] Redirecting to /login');
     return <Navigate to="/login" replace />;
   }
 
   return children;
+};
+
+// Wrapper for BottomNav - hides on camera screen
+const BottomNavWrapper = ({ isAuthenticated }) => {
+  const location = useLocation();
+  const hiddenRoutes = ['/camera', '/monthly-video'];
+
+  if (!isAuthenticated || hiddenRoutes.includes(location.pathname)) {
+    return null;
+  }
+
+  return <BottomNav />;
 };
 
 // Auth Route component - redirects to home if already authenticated
@@ -66,20 +81,24 @@ const App = () => {
   const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
+    console.log('[APP] useEffect running, calling initialize()');
     // Initialize auth state
     const unsubscribe = initialize();
 
     // Mark app as ready after a short delay to ensure state is settled
     const timeout = setTimeout(() => {
+      console.log('[APP] Setting appReady=true');
       setAppReady(true);
       removeLoadingScreen();
     }, 250);
 
+    // Don't unsubscribe on StrictMode remount - only on actual unmount
+    // The initialize function handles its own cleanup internally
     return () => {
+      console.log('[APP] useEffect cleanup');
       clearTimeout(timeout);
-      if (typeof unsubscribe === 'function') unsubscribe();
     };
-  }, [initialize]);
+  }, []);
 
   if (!appReady) return null;
 
@@ -93,7 +112,8 @@ const App = () => {
           <Route path="/home" element={<ProtectedRoute><HomeScreen /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
           <Route path="/camera" element={<ProtectedRoute><CameraScreen /></ProtectedRoute>} />
-          <Route path="/post/:id" element={<ProtectedRoute><PostDetailScreen /></ProtectedRoute>} />
+          <Route path="/post/:postId" element={<ProtectedRoute><PostDetailScreen /></ProtectedRoute>} />
+          <Route path="/user/:userId" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
           <Route path="/messages" element={<ProtectedRoute><MessagesScreen /></ProtectedRoute>} />
           <Route path="/chat/:id" element={<ProtectedRoute><ChatScreen /></ProtectedRoute>} />
 
@@ -102,8 +122,8 @@ const App = () => {
           <Route path="/monthly-video" element={<ProtectedRoute><MonthlyVideoScreen /></ProtectedRoute>} />
         </Routes>
 
-        {/* Bottom navigation shown when authenticated (matches other screens) */}
-        {isAuthenticated && <BottomNav />}
+        {/* Bottom navigation shown when authenticated, hidden on camera */}
+        <BottomNavWrapper isAuthenticated={isAuthenticated} />
       </Router>
   );
 };

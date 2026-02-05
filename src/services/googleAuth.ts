@@ -26,7 +26,17 @@ const ensureUserProfile = async (user: {
 };
 
 export const signInWithGoogle = async () => {
-  const result = await signInWithPopup(auth, provider);
-  await ensureUserProfile(result.user);
-  return result.user;
+  console.log('[GoogleAuth] Starting signInWithPopup...');
+  try {
+    const result = await signInWithPopup(auth, provider);
+    console.log('[GoogleAuth] signInWithPopup successful, user:', result.user.email);
+    await ensureUserProfile(result.user);
+    console.log('[GoogleAuth] User profile ensured');
+    return result.user;
+  } catch (error: any) {
+    console.error('[GoogleAuth] signInWithPopup error:', error);
+    console.error('[GoogleAuth] Error code:', error?.code);
+    console.error('[GoogleAuth] Error message:', error?.message);
+    throw error;
+  }
 };

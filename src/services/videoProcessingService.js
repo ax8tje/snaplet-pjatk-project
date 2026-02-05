@@ -1,10 +1,28 @@
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { getClipsByMonth } from './clipService';
 
 let ffmpegInstance = null;
 let ffmpegLoading = false;
 let ffmpegReady = false;
+let FFmpegModule = null;
+
+/**
+ * Dynamicznie laduje modul @ffmpeg/ffmpeg i @ffmpeg/util
+ */
+async function loadFFmpegModule() {
+    if (FFmpegModule) return FFmpegModule;
+
+    const [ffmpegPkg, utilPkg] = await Promise.all([
+        import('@ffmpeg/ffmpeg'),
+        import('@ffmpeg/util'),
+    ]);
+
+    FFmpegModule = {
+        FFmpeg: ffmpegPkg.FFmpeg,
+        toBlobURL: utilPkg.toBlobURL,
+    };
+
+    return FFmpegModule;
+}
 
 /**
  * Zwraca singleton instancji FFmpeg, ladujac ja jesli to konieczne.
@@ -24,6 +42,7 @@ async function getFFmpeg(onLog) {
     ffmpegLoading = true;
 
     try {
+        const { FFmpeg, toBlobURL } = await loadFFmpegModule();
         const ffmpeg = new FFmpeg();
 
         if (onLog) {

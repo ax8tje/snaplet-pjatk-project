@@ -41,12 +41,16 @@ export const LoginScreen: React.FC = () => {
   };
 
   const handleGoogleLogin = async () => {
-  try {
-    await signInWithGoogle();
-  } catch (err) {
-    Alert.alert('Google login failed');
-  }
-};
+    try {
+      console.log('[LoginScreen] Starting Google login...');
+      await signInWithGoogle();
+      console.log('[LoginScreen] Google login successful');
+    } catch (err: any) {
+      console.error('[LoginScreen] Google login error:', err);
+      const errorMessage = err?.message || err?.code || 'Unknown error';
+      Alert.alert('Google login failed', errorMessage);
+    }
+  };
 
   const handleForgotPassword = () => {
     Alert.alert(

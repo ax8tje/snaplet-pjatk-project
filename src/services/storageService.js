@@ -270,7 +270,10 @@ export const uploadPhoto = (
       const fullPath = `users/${userId}/${path}/${postId}/${fileName}`;
       const storageRef = ref(storage, fullPath);
 
-      uploadTask = uploadBytesResumable(storageRef, fileToUpload);
+      // Must set contentType for Firebase Storage rules validation
+      // After compression, blob may not have type set, so always use image/jpeg for compressed images
+      const contentType = compress ? 'image/jpeg' : (fileToUpload.type || file.type || 'image/jpeg');
+      uploadTask = uploadBytesResumable(storageRef, fileToUpload, { contentType });
 
       return new Promise((resolve, reject) => {
         uploadTask.on(
@@ -312,7 +315,7 @@ export const uploadPhoto = (
                   const thumbPath = `users/${userId}/${path}/${postId}/thumb_${fileName}`;
                   const thumbRef = ref(storage, thumbPath);
 
-                  await uploadBytesResumable(thumbRef, thumbnail);
+                  await uploadBytesResumable(thumbRef, thumbnail, { contentType: 'image/jpeg' });
                   result.thumbnailURL = await firebaseGetDownloadURL(thumbRef);
                   result.thumbnailPath = thumbPath;
                 } catch (thumbError) {

@@ -21,6 +21,13 @@ service firebase.storage {
         && request.resource.contentType.matches('image/.*');
     }
 
+    // --- helper: obrazki lub wideo i max 50MB
+    function isValidMedia() {
+      return request.resource != null
+        && request.resource.size < 50 * 1024 * 1024
+        && (request.resource.contentType.matches('image/.*') || request.resource.contentType.matches('video/.*'));
+    }
+
     // ========= PUBLIC READ =========
     // Publiczny odczyt dla wszystkiego w users/** (zgodnie z wymaganiem "Public read access for all images")
     // Jeśli w przyszłości chcecie ograniczyć, zawęzimy to do konkretnych folderów.
@@ -36,7 +43,12 @@ service firebase.storage {
 
     // POSTS: users/{userId}/posts/{postId}/{fileName}
     match /users/{userId}/posts/{postId}/{fileName} {
-      allow write: if isOwner(userId) && isValidImage();
+      allow write: if isOwner(userId) && isValidMedia();
+    }
+
+    // CLIPS: users/{userId}/clips/{date}/{fileName}
+    match /users/{userId}/clips/{date}/{fileName} {
+      allow write: if isOwner(userId) && isValidMedia();
     }
 
     // (Opcjonalnie) Zablokuj wszystko inne

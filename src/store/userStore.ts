@@ -187,6 +187,8 @@ export const useUserStore = create<UserState>((set, get) => ({
     let unsubscribeProfile: (() => void) | null = null;
     let unsubscribeAuth: (() => void) | null = null;
 
+    console.log('[AUTH] initialize() called');
+
     // Helper to clean up profile subscription
     const cleanupProfileSubscription = () => {
       if (unsubscribeProfile) {
@@ -196,6 +198,8 @@ export const useUserStore = create<UserState>((set, get) => ({
     };
 
     const currentUser = getCurrentUser();
+    console.log('[AUTH] getCurrentUser():', currentUser?.uid || 'null');
+
     if (currentUser) {
       authResolved = true;
       const user: AuthUser = {
@@ -216,6 +220,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     }
 
     unsubscribeAuth = onAuthStateChange((firebaseUser) => {
+      console.log('[AUTH] onAuthStateChange fired:', firebaseUser?.uid || 'null');
       authResolved = true;
 
       // Clean up previous profile subscription before setting up new one
@@ -228,6 +233,7 @@ export const useUserStore = create<UserState>((set, get) => ({
           displayName: firebaseUser.displayName,
           photoURL: firebaseUser.photoURL,
         };
+        console.log('[AUTH] Setting isAuthenticated: true');
         set({ user, isAuthenticated: true, isLoading: false });
 
         // Set up new profile subscription
@@ -238,6 +244,7 @@ export const useUserStore = create<UserState>((set, get) => ({
           }
         );
       } else {
+        console.log('[AUTH] Setting isAuthenticated: false (no user)');
         set({
           user: null,
           profile: null,

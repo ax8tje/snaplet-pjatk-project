@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BottomNav from '../components/BottomNav';
 import { useMessageStore } from '../store/messageStore';
 import { useUserStore } from '../store/userStore';
 
@@ -104,7 +103,6 @@ const MessagesScreen = () => {
             Go to Login
           </button>
         </div>
-        <BottomNav active="messages" />
       </div>
     );
   }
@@ -405,8 +403,6 @@ const MessagesScreen = () => {
           <path d="M12 8V14M9 11H15" stroke="#FDF5DD" strokeWidth="2" strokeLinecap="round"/>
         </svg>
       </div>
-
-      <BottomNav active="messages" />
 
       <style>{`
         @keyframes spin {
