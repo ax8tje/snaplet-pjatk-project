@@ -1,4 +1,5 @@
 import { getClipsByMonth } from './clipService';
+import { getStorage, ref, getBytes } from 'firebase/storage';
 
 let ffmpegInstance = null;
 let ffmpegLoading = false;
@@ -69,11 +70,44 @@ async function getFFmpeg(onLog) {
 }
 
 /**
- * Pobiera blob z URL (obsluguje Firebase Storage URLs z CORS).
- * @param {string} url
+ * Wyodrebnia sciezke Storage z Firebase Storage URL.
+ * @param {string} url - Firebase Storage download URL
+ * @returns {string|null} - sciezka w Storage lub null
+ */
+function extractStoragePath(url) {
+    try {
+        // Format: https://firebasestorage.googleapis.com/v0/b/BUCKET/o/PATH?alt=media&token=...
+        const match = url.match(/\/o\/([^?]+)/);
+        if (match && match[1]) {
+            return decodeURIComponent(match[1]);
+        }
+    } catch (e) {
+        console.warn('Nie udalo sie wyodrebnic sciezki z URL:', e);
+    }
+    return null;
+}
+
+/**
+ * Pobiera blob z Firebase Storage (obsluguje CORS przez SDK).
+ * @param {string} url - Firebase Storage download URL
  * @returns {Promise<Uint8Array>}
  */
 async function fetchClipData(url) {
+    const storagePath = extractStoragePath(url);
+
+    if (storagePath) {
+        // Uzyj Firebase SDK - omija problemy z CORS
+        try {
+            const storage = getStorage();
+            const fileRef = ref(storage, storagePath);
+            const arrayBuffer = await getBytes(fileRef);
+            return new Uint8Array(arrayBuffer);
+        } catch (sdkError) {
+            console.warn('Firebase SDK fetch failed, trying direct fetch:', sdkError);
+        }
+    }
+
+    // Fallback do zwyklego fetch
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Blad pobierania klipu: ${response.status}`);
     const arrayBuffer = await response.arrayBuffer();
