@@ -318,9 +318,12 @@ const CameraScreen = () => {
     try {
       setSaveError(null);
 
-      // Get today's date in YYYY-MM-DD format
+      // Get today's date in YYYY-MM-DD format (local time, not UTC)
       const today = new Date();
-      const dateStr = today.toISOString().split('T')[0];
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
 
       // Check if clip already exists for today
       const existingClip = await getClip(user.uid, dateStr);
@@ -348,9 +351,12 @@ const CameraScreen = () => {
       setSaveError(null);
       setShowOverwriteConfirm(false);
 
-      // Get today's date in YYYY-MM-DD format
+      // Get today's date in YYYY-MM-DD format (local time, not UTC)
       const today = new Date();
-      const dateStr = today.toISOString().split('T')[0];
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
 
       console.log('[Camera] Generating thumbnail...');
       // Generate thumbnail from the preview video element
