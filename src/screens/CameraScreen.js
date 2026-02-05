@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../store/userStore';
-import { saveClip } from '../services/clipService';
+import { saveClip, getClip } from '../services/clipService';
 import { createVideoPost } from '../services/postService';
 
 /**
@@ -52,6 +52,7 @@ const CameraScreen = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [alsoPostToFeed, setAlsoPostToFeed] = useState(false);
+  const [showOverwriteConfirm, setShowOverwriteConfirm] = useState(false);
 
   // Refs
   const videoRef = useRef(null);
@@ -260,6 +261,7 @@ const CameraScreen = () => {
     setCountdown(null);
     setSaveError(null);
     setAlsoPostToFeed(false);
+    setShowOverwriteConfirm(false);
     startCamera();
   }, [recordedVideo, startCamera]);
 
@@ -309,13 +311,42 @@ const CameraScreen = () => {
     });
   };
 
-  // Save clip to calendar
+  // Check if clip exists and save
   const handleSaveClip = async () => {
+    if (!recordedVideo?.blob || !user) return;
+
+    try {
+      setSaveError(null);
+
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0];
+
+      // Check if clip already exists for today
+      const existingClip = await getClip(user.uid, dateStr);
+      if (existingClip) {
+        // Show confirmation modal
+        setShowOverwriteConfirm(true);
+        return;
+      }
+
+      // No existing clip, save directly
+      await doSaveClip();
+    } catch (err) {
+      console.error('Clip check error:', err);
+      // If check fails, try to save anyway
+      await doSaveClip();
+    }
+  };
+
+  // Actual save logic
+  const doSaveClip = async () => {
     if (!recordedVideo?.blob || !user) return;
 
     try {
       setIsSaving(true);
       setSaveError(null);
+      setShowOverwriteConfirm(false);
 
       // Get today's date in YYYY-MM-DD format
       const today = new Date();
@@ -552,6 +583,32 @@ const CameraScreen = () => {
         {saveError && (
           <div style={styles.errorBanner}>
             {saveError}
+          </div>
+        )}
+
+        {/* Overwrite Confirmation Modal */}
+        {showOverwriteConfirm && (
+          <div style={styles.modalOverlay}>
+            <div style={styles.modalContent}>
+              <h3 style={styles.modalTitle}>Nadpisać istniejący klip?</h3>
+              <p style={styles.modalText}>
+                Masz już nagrany klip na dzisiaj. Czy chcesz go zastąpić nowym?
+              </p>
+              <div style={styles.modalButtons}>
+                <button
+                  onClick={() => setShowOverwriteConfirm(false)}
+                  style={styles.modalCancelButton}
+                >
+                  Anuluj
+                </button>
+                <button
+                  onClick={doSaveClip}
+                  style={styles.modalConfirmButton}
+                >
+                  Nadpisz
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -1095,6 +1152,63 @@ const styles = {
     color: '#666',
     fontSize: '12px',
     textTransform: 'uppercase',
+  },
+  modalOverlay: {
+    position: 'fixed',
+    inset: 0,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    padding: '20px',
+  },
+  modalContent: {
+    backgroundColor: '#1a1a1a',
+    borderRadius: '16px',
+    padding: '24px',
+    maxWidth: '320px',
+    width: '100%',
+    textAlign: 'center',
+  },
+  modalTitle: {
+    color: '#fff',
+    fontSize: '18px',
+    fontWeight: '600',
+    margin: '0 0 12px 0',
+  },
+  modalText: {
+    color: '#aaa',
+    fontSize: '14px',
+    margin: '0 0 24px 0',
+    lineHeight: '1.5',
+  },
+  modalButtons: {
+    display: 'flex',
+    gap: '12px',
+    justifyContent: 'center',
+  },
+  modalCancelButton: {
+    flex: 1,
+    padding: '12px 16px',
+    backgroundColor: 'transparent',
+    color: '#fff',
+    border: '1px solid #444',
+    borderRadius: '24px',
+    fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
+  },
+  modalConfirmButton: {
+    flex: 1,
+    padding: '12px 16px',
+    backgroundColor: '#e74c3c',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '24px',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
   },
 };
 
