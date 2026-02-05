@@ -827,7 +827,7 @@ const ProfileScreen = () => {
                 <path d="M21 15l-5-5L5 21" stroke="#999" strokeWidth="2"/>
               </svg>
               <p style={{ fontSize: '16px', marginBottom: '8px' }}>No posts yet</p>
-              <p style={{ fontSize: '14px' }}>Share your first photo!</p>
+              <p style={{ fontSize: '14px' }}>Stwórz swój pierwszy post!</p>
               {isOwnProfile && (
                 <button
                   onClick={() => navigate('/camera')}

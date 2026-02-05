@@ -41,6 +41,7 @@ const POSTS_COLLECTION = 'posts';
  */
 
 /**
+ * @deprecated Użyj createVideoPost() zamiast tego. Ta funkcja jest dla zdjęć i będzie usunięta.
  * Tworzy nowy post z uploadem zdjęcia
  * @param {string} userId - ID użytkownika tworzącego post
  * @param {File|Blob} imageFile - Plik zdjęcia do uploadu

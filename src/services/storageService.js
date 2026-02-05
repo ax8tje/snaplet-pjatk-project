@@ -218,7 +218,10 @@ export const generateVideoThumbnail = async (
 };
 
 /**
- * Przesyła zdjęcie do Firebase Storage z obsługą postępu
+ * Przesyła zdjęcie do Firebase Storage z obsługą postępu.
+ * UWAGA: Używaj tej funkcji tylko dla avatarów/zdjęć profilowych.
+ * Dla postów wideo użyj uploadVideo() lub uploadMedia().
+ *
  * @param {File|Blob} file - Plik do przesłania
  * @param {string} userId - ID użytkownika
  * @param {string} [path="photos"] - Ścieżka w storage (np. "photos", "avatars")
