@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCrossPlatformNavigation } from '../utils/navigation';
 import { useUserStore } from '../store/userStore';
-import { getClipsByMonth } from '../services/clipService';
+import { getClipsByMonth, deleteClip } from '../services/clipService';
 import './CalendarScreen.css';
 
 export default function CalendarScreen() {
@@ -22,6 +22,7 @@ export default function CalendarScreen() {
     const [now, setNow] = useState(new Date());
     const [selectedClip, setSelectedClip] = useState(null);
     const [tileSize, setTileSize] = useState(92); // default px
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Preferred layout settings (tweak these to tune)
     const PREFERRED_COLUMNS = 5; // mock default
@@ -151,13 +152,41 @@ export default function CalendarScreen() {
         const { day, iso } = item;
         const clip = clipsByDate[iso];
         const y=year,m=month,d=day;
-        if (clip) { setSelectedClip(clip); return; }
-        if (isToday(y,m,d)) { nav.navigate('Camera', { date: iso }); return; }
+        if (clip) { setSelectedClip({ ...clip, canReplace: isToday(y,m,d) }); return; }
+        if (isToday(y,m,d)) { navigate('/camera'); return; }
         if (isFuture(y,m,d)) { window.alert(`Clip can be added in: ${timeUntil(y,m,d)}`); return; }
-        window.alert(`No clip for ${iso} available.`);
+        // Past day without clip - do nothing or show message
     };
 
     const closeModal = () => setSelectedClip(null);
+
+    const handleDeleteClip = async () => {
+        if (!selectedClip || !userId) return;
+        if (!window.confirm('Czy na pewno chcesz usunąć ten klip?')) return;
+
+        setIsDeleting(true);
+        try {
+            await deleteClip(userId, selectedClip.date);
+            // Remove from local state
+            setClipsByDate(prev => {
+                const copy = { ...prev };
+                delete copy[selectedClip.date];
+                return copy;
+            });
+            setSelectedClip(null);
+        } catch (err) {
+            console.error('Failed to delete clip:', err);
+            window.alert('Nie udało się usunąć klipu');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const handleReplaceClip = () => {
+        if (!selectedClip) return;
+        setSelectedClip(null);
+        navigate('/camera');
+    };
     const prevMonth = () => { let ny=year, nm=month-1; if (nm<1){nm=12; ny-=1;} setYear(ny); setMonth(nm); };
     const nextMonth = () => { let ny=year, nm=month+1; if (nm>12){nm=1; ny+=1;} setYear(ny); setMonth(nm); };
 
@@ -200,22 +229,30 @@ export default function CalendarScreen() {
                         const clip = clipsByDate[iso];
                         const future = isFuture(year,month,day);
                         const todayFlag = isToday(year,month,day);
+                        const pastNoClip = !future && !todayFlag && !clip;
 
                         return (
                             <button
                                 key={item.key}
-                                className={`tile ${clip ? 'tile-thumb' : 'tile-empty'} ${future ? 'tile-future' : ''} ${todayFlag ? 'tile-today' : ''}`}
+                                className={`tile ${clip ? 'tile-thumb' : 'tile-empty'} ${future ? 'tile-future' : ''} ${todayFlag ? 'tile-today' : ''} ${pastNoClip ? 'tile-past-empty' : ''}`}
                                 onClick={() => onTileClick(item)}
                                 type="button"
                                 style={{ width: `${tileSize}px`, height: `${tileSize}px` }}
                             >
                                 <div className="tile-number">{day}</div>
                                 {clip ? (
-                                    clip.thumbnailUrl ? <img src={clip.thumbnailUrl} alt={`thumb-${iso}`} className="tile-image" /> : <div className="tile-blank" />
+                                    <>
+                                        {clip.thumbnailUrl ? (
+                                            <img src={clip.thumbnailUrl} alt={`thumb-${iso}`} className="tile-image" />
+                                        ) : (
+                                            <div className="tile-has-clip" />
+                                        )}
+                                        {todayFlag && <div className="tile-replace-indicator">&#8635;</div>}
+                                    </>
                                 ) : (
                                     <>
                                         {future ? <div className="tile-future-fill" /> : <div className="tile-blank" />}
-                                        {todayFlag && !clip && <div className="tile-add-indicator">+</div>}
+                                        {todayFlag && <div className="tile-add-indicator">+</div>}
                                     </>
                                 )}
                             </button>
@@ -230,15 +267,32 @@ export default function CalendarScreen() {
                         <div className="modal" onClick={e => e.stopPropagation()}>
                             <button className="modal-close" onClick={closeModal}>✕</button>
                             {selectedClip.videoUrl ? (
-                                <video controls className="modal-video" src={selectedClip.videoUrl} />
+                                <video controls autoPlay className="modal-video" src={selectedClip.videoUrl} />
                             ) : selectedClip.thumbnailUrl ? (
                                 <img className="modal-image" src={selectedClip.thumbnailUrl} alt="clip" />
                             ) : (
                                 <div className="modal-empty">No media</div>
                             )}
                             <div className="modal-meta">
-                                <div>Date: {selectedClip.date}</div>
-                                <div>Duration: {selectedClip.duration ?? '—'}</div>
+                                <div>Data: {selectedClip.date}</div>
+                            </div>
+                            <div className="modal-actions">
+                                {selectedClip.canReplace && (
+                                    <button
+                                        className="modal-btn modal-btn-replace"
+                                        onClick={handleReplaceClip}
+                                        disabled={isDeleting}
+                                    >
+                                        &#8635; Nagraj nowy
+                                    </button>
+                                )}
+                                <button
+                                    className="modal-btn modal-btn-delete"
+                                    onClick={handleDeleteClip}
+                                    disabled={isDeleting}
+                                >
+                                    {isDeleting ? 'Usuwanie...' : '🗑 Usuń klip'}
+                                </button>
                             </div>
                         </div>
                     </div>

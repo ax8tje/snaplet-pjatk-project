@@ -1,12 +1,105 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import BottomNav from '../components/BottomNav';
 import { useFeedStore } from '../store/feedStore';
 import { useUserStore } from '../store/userStore';
 import { getPost, subscribeToPost } from '../services/postService';
 import { getPostComments, createComment, deleteComment, subscribeToPostComments } from '../services/commentService';
 import { likePost, unlikePost, isPostLikedByUser, subscribeToPostLikes } from '../services/likeService';
 import { getUserProfile } from '../services/userService';
+
+// Component to handle media display with fallback from image to video
+const PostMediaDetail = ({ post }) => {
+  const [isVideo, setIsVideo] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+
+  const isVideoUrl = (url) => {
+    if (!url) return false;
+    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv'];
+    const lowerUrl = url.toLowerCase();
+    return videoExtensions.some(ext => lowerUrl.includes(ext));
+  };
+
+  const showAsVideo = isVideo || isVideoUrl(post.imageUrl) || isVideoUrl(post.videoUrl);
+
+  if (loadError && !isVideo) {
+    return (
+      <div style={{
+        width: '100%',
+        aspectRatio: '1',
+        backgroundColor: '#f0f0f0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#999'
+      }}>
+        Media failed to load
+      </div>
+    );
+  }
+
+  if (showAsVideo) {
+    return (
+      <div style={{
+        width: '100%',
+        aspectRatio: '1',
+        backgroundColor: '#000',
+        position: 'relative'
+      }}>
+        <video
+          src={post.videoUrl || post.imageUrl}
+          poster={post.thumbnailUrl !== post.imageUrl ? post.thumbnailUrl : undefined}
+          controls
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover'
+          }}
+          playsInline
+          onError={() => setLoadError(true)}
+        />
+        <div style={{
+          position: 'absolute',
+          top: '8px',
+          right: '8px',
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          borderRadius: '4px',
+          padding: '4px 8px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          pointerEvents: 'none'
+        }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#fff">
+            <polygon points="5,3 19,12 5,21" />
+          </svg>
+          <span style={{ color: '#fff', fontSize: '10px' }}>Video</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      width: '100%',
+      aspectRatio: '1',
+      backgroundColor: '#f0f0f0'
+    }}>
+      <img
+        src={post.imageUrl}
+        alt="Post"
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover'
+        }}
+        onError={() => {
+          console.log('[PostMediaDetail] Image failed, trying as video');
+          setIsVideo(true);
+        }}
+      />
+    </div>
+  );
+};
 
 const PostDetailScreen = () => {
   const navigate = useNavigate();
@@ -24,7 +117,6 @@ const PostDetailScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('for-you');
 
   // Fetch post data
   useEffect(() => {
@@ -91,36 +183,62 @@ const PostDetailScreen = () => {
   }, [postId, user?.uid]);
 
   // Handle like/unlike
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
+
   const handleLikeToggle = async () => {
-    if (!user?.uid || !postId) return;
+    if (!user?.uid || !postId || isLikeLoading) return;
+
+    setIsLikeLoading(true);
+    const wasLiked = isLiked;
+
+    // Optimistic update
+    setIsLiked(!wasLiked);
+    setLikeCount(prev => wasLiked ? Math.max(0, prev - 1) : prev + 1);
 
     try {
-      if (isLiked) {
+      if (wasLiked) {
         await unlikePost(postId, user.uid);
-        setIsLiked(false);
-        setLikeCount(prev => Math.max(0, prev - 1));
       } else {
         await likePost(postId, user.uid);
-        setIsLiked(true);
-        setLikeCount(prev => prev + 1);
       }
     } catch (err) {
       console.error('Like toggle error:', err);
+      // Revert on error
+      setIsLiked(wasLiked);
+      setLikeCount(prev => wasLiked ? prev + 1 : Math.max(0, prev - 1));
+    } finally {
+      setIsLikeLoading(false);
     }
   };
 
   // Handle add comment
   const handleAddComment = async (e) => {
     e.preventDefault();
-    if (!newComment.trim() || !user?.uid || !postId) return;
+    console.log('[PostDetail] handleAddComment called', { newComment, userId: user?.uid, postId });
+
+    if (!newComment.trim()) {
+      console.log('[PostDetail] Comment is empty');
+      return;
+    }
+    if (!user?.uid) {
+      console.log('[PostDetail] User not logged in');
+      setError('You must be logged in to comment');
+      return;
+    }
+    if (!postId) {
+      console.log('[PostDetail] No postId');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
+      console.log('[PostDetail] Creating comment...');
       await createComment(postId, user.uid, newComment.trim());
+      console.log('[PostDetail] Comment created successfully');
       setNewComment('');
     } catch (err) {
-      console.error('Add comment error:', err);
-      setError('Failed to add comment');
+      console.error('[PostDetail] Add comment error:', err);
+      setError(`Failed to add comment: ${err.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -243,12 +361,16 @@ const PostDetailScreen = () => {
           </svg>
         </button>
 
-        {/* Author info */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          flex: 1
-        }}>
+        {/* Author info - clickable to navigate to profile */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            flex: 1,
+            cursor: 'pointer'
+          }}
+          onClick={() => post?.userId && navigate(`/user/${post.userId}`)}
+        >
           <div style={{
             width: '40px',
             height: '40px',
@@ -280,7 +402,7 @@ const PostDetailScreen = () => {
             )}
           </div>
           <div>
-            <p style={{ margin: 0, fontWeight: '600', fontSize: '14px' }}>
+            <p style={{ margin: 0, fontWeight: '600', fontSize: '14px', color: '#3A2B20' }}>
               {postAuthor?.displayName || 'Unknown User'}
             </p>
             <p style={{ margin: 0, fontSize: '12px', color: '#888' }}>
@@ -290,51 +412,10 @@ const PostDetailScreen = () => {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{
-        display: 'flex',
-        borderBottom: '1px solid #eee'
-      }}>
-        {['friends', 'for-you'].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            style={{
-              flex: 1,
-              padding: '10px',
-              backgroundColor: activeTab === tab ? '#3A2B20' : 'transparent',
-              color: activeTab === tab ? '#FDF5DD' : '#333',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: activeTab === tab ? '600' : '400',
-              textTransform: 'capitalize',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            {tab === 'for-you' ? 'For you' : 'Friends'}
-          </button>
-        ))}
-      </div>
-
       {/* Scrollable content */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        {/* Post Image */}
-        <div style={{
-          width: '100%',
-          aspectRatio: '1',
-          backgroundColor: '#f0f0f0'
-        }}>
-          <img
-            src={post.imageUrl}
-            alt="Post"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover'
-            }}
-          />
-        </div>
+        {/* Post Media (Image or Video) */}
+        <PostMediaDetail post={post} />
 
         {/* Action buttons */}
         <div style={{
@@ -346,16 +427,16 @@ const PostDetailScreen = () => {
           {/* Like button */}
           <button
             onClick={handleLikeToggle}
-            disabled={!user}
+            disabled={!user || isLikeLoading}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
               backgroundColor: 'transparent',
               border: 'none',
-              cursor: user ? 'pointer' : 'not-allowed',
+              cursor: (user && !isLikeLoading) ? 'pointer' : 'not-allowed',
               padding: '8px',
-              opacity: user ? 1 : 0.5
+              opacity: (user && !isLikeLoading) ? 1 : 0.5
             }}
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill={isLiked ? '#e74c3c' : 'none'}>
@@ -449,15 +530,19 @@ const PostDetailScreen = () => {
                     display: 'flex',
                     gap: '12px'
                   }}>
-                    {/* Avatar */}
-                    <div style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '50%',
-                      overflow: 'hidden',
-                      backgroundColor: '#ddd',
-                      flexShrink: 0
-                    }}>
+                    {/* Avatar - clickable */}
+                    <div
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '50%',
+                        overflow: 'hidden',
+                        backgroundColor: '#ddd',
+                        flexShrink: 0,
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => navigate(`/user/${comment.userId}`)}
+                    >
                       {author.photoURL ? (
                         <img
                           src={author.photoURL}
@@ -489,7 +574,10 @@ const PostDetailScreen = () => {
                         alignItems: 'flex-start'
                       }}>
                         <div>
-                          <span style={{ fontWeight: '600', fontSize: '14px' }}>
+                          <span
+                            style={{ fontWeight: '600', fontSize: '14px', cursor: 'pointer', color: '#3A2B20' }}
+                            onClick={() => navigate(`/user/${comment.userId}`)}
+                          >
                             {author.displayName || 'Unknown'}
                           </span>
                           <span style={{ color: '#888', fontSize: '12px', marginLeft: '8px' }}>
@@ -610,8 +698,6 @@ const PostDetailScreen = () => {
           </button>
         </div>
       )}
-
-      <BottomNav active="home" />
 
       <style>{`
         @keyframes spin {

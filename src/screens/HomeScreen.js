@@ -1,9 +1,113 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import BottomNav from '../components/BottomNav';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useFeedStore } from '../store/feedStore';
 import { useUserStore } from '../store/userStore';
 import { getUserProfile } from '../services/userService';
+import { likePost, unlikePost, isPostLikedByUser } from '../services/likeService';
+
+// Component to handle media display with fallback from image to video
+const PostMedia = ({ post }) => {
+  const [isVideo, setIsVideo] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const mediaUrl = post.thumbnailUrl || post.imageUrl;
+
+  // Check if URL suggests it's a video
+  const isVideoUrl = (url) => {
+    if (!url) return false;
+    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv'];
+    const lowerUrl = url.toLowerCase();
+    return videoExtensions.some(ext => lowerUrl.includes(ext));
+  };
+
+  // If URL has video extension, show as video immediately
+  const showAsVideo = isVideo || isVideoUrl(post.imageUrl) || isVideoUrl(post.videoUrl);
+
+  if (loadError && !isVideo) {
+    // Image failed to load, show error
+    return (
+      <div style={{
+        width: '100%',
+        aspectRatio: '1',
+        backgroundColor: '#f0f0f0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#999'
+      }}>
+        Media failed to load
+      </div>
+    );
+  }
+
+  if (showAsVideo) {
+    return (
+      <div style={{
+        width: '100%',
+        aspectRatio: '1',
+        backgroundColor: '#000',
+        position: 'relative'
+      }}>
+        <video
+          src={post.videoUrl || post.imageUrl}
+          poster={post.thumbnailUrl !== post.imageUrl ? post.thumbnailUrl : undefined}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover'
+          }}
+          muted
+          loop
+          playsInline
+          onMouseEnter={(e) => e.target.play().catch(() => {})}
+          onMouseLeave={(e) => { e.target.pause(); e.target.currentTime = 0; }}
+          onError={() => setLoadError(true)}
+        />
+        {/* Video indicator */}
+        <div style={{
+          position: 'absolute',
+          top: '8px',
+          right: '8px',
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          borderRadius: '4px',
+          padding: '4px 8px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px'
+        }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#fff">
+            <polygon points="5,3 19,12 5,21" />
+          </svg>
+          <span style={{ color: '#fff', fontSize: '10px' }}>Video</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      width: '100%',
+      aspectRatio: '1',
+      backgroundColor: '#f0f0f0',
+      position: 'relative'
+    }}>
+      <img
+        src={mediaUrl}
+        alt="Post"
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover'
+        }}
+        loading="lazy"
+        onError={(e) => {
+          console.log('[PostMedia] Image failed, trying as video:', post.id);
+          // Image failed - might be a video with wrong extension
+          setIsVideo(true);
+        }}
+      />
+    </div>
+  );
+};
 
 const HomeScreen = () => {
   const navigate = useNavigate();
@@ -11,6 +115,9 @@ const HomeScreen = () => {
   const { user, isAuthenticated } = useUserStore();
   const [userProfiles, setUserProfiles] = useState({});
   const [refreshing, setRefreshing] = useState(false);
+  const [likedPosts, setLikedPosts] = useState({}); // { postId: boolean }
+  const [likingPosts, setLikingPosts] = useState({}); // { postId: boolean } - loading state
+  const [localLikeCounts, setLocalLikeCounts] = useState({}); // { postId: number } - optimistic counts
 
   // Fetch user profiles for posts
   const fetchUserProfiles = useCallback(async (postsData) => {
@@ -31,15 +138,50 @@ const HomeScreen = () => {
     setUserProfiles(profiles);
   }, [userProfiles]);
 
-  // Initial load and subscription
+  const location = useLocation();
+  const unsubscribeRef = useRef(null);
+  const lastLocationKeyRef = useRef(null);
+
+  // Debug logging
   useEffect(() => {
-    fetchFeed();
-    const unsubscribe = subscribeToFeed(20);
+    console.log('[HomeScreen] Posts changed:', posts.length, 'isLoading:', isLoading);
+  }, [posts, isLoading]);
+
+  // Fetch fresh data when entering/returning to the screen
+  useEffect(() => {
+    console.log('[HomeScreen] Location effect - key:', location.key, 'lastKey:', lastLocationKeyRef.current, 'isAuth:', isAuthenticated);
+    if (isAuthenticated && location.key !== lastLocationKeyRef.current) {
+      lastLocationKeyRef.current = location.key;
+      console.log('[HomeScreen] Calling fetchFeed()');
+      fetchFeed();
+    }
+  }, [isAuthenticated, location.key, fetchFeed]);
+
+  // Manage subscription separately - only once per auth session
+  useEffect(() => {
+    console.log('[HomeScreen] Subscription effect - isAuth:', isAuthenticated, 'hasUnsub:', !!unsubscribeRef.current);
+    if (!isAuthenticated) {
+      if (unsubscribeRef.current) {
+        console.log('[HomeScreen] Cleaning up subscription (logged out)');
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+      return;
+    }
+
+    if (!unsubscribeRef.current) {
+      console.log('[HomeScreen] Setting up subscription');
+      unsubscribeRef.current = subscribeToFeed(20);
+    }
 
     return () => {
-      if (unsubscribe) unsubscribe();
+      console.log('[HomeScreen] Cleanup - unmounting');
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
     };
-  }, []);
+  }, [isAuthenticated, subscribeToFeed]);
 
   // Fetch user profiles when posts change
   useEffect(() => {
@@ -47,6 +189,68 @@ const HomeScreen = () => {
       fetchUserProfiles(posts);
     }
   }, [posts]);
+
+  // Check which posts are liked by current user
+  useEffect(() => {
+    if (!user?.uid || posts.length === 0) return;
+
+    const checkLikedPosts = async () => {
+      const likedStatus = { ...likedPosts };
+      for (const post of posts) {
+        if (likedStatus[post.id] === undefined) {
+          try {
+            const isLiked = await isPostLikedByUser(post.id, user.uid);
+            likedStatus[post.id] = isLiked;
+          } catch (err) {
+            console.error('Error checking like status:', err);
+          }
+        }
+      }
+      setLikedPosts(likedStatus);
+    };
+
+    checkLikedPosts();
+  }, [posts, user?.uid]);
+
+  // Handle like toggle for a post
+  const handleLikeToggle = async (postId, currentLikes, e) => {
+    e.stopPropagation(); // Prevent navigating to post detail
+    if (!user?.uid || likingPosts[postId]) return;
+
+    const wasLiked = likedPosts[postId];
+    const currentCount = localLikeCounts[postId] ?? currentLikes;
+
+    // Set loading state
+    setLikingPosts(prev => ({ ...prev, [postId]: true }));
+
+    // Optimistic update
+    setLikedPosts(prev => ({ ...prev, [postId]: !wasLiked }));
+    setLocalLikeCounts(prev => ({
+      ...prev,
+      [postId]: wasLiked ? Math.max(0, currentCount - 1) : currentCount + 1
+    }));
+
+    try {
+      if (wasLiked) {
+        await unlikePost(postId, user.uid);
+      } else {
+        await likePost(postId, user.uid);
+      }
+    } catch (err) {
+      console.error('Like toggle error:', err);
+      // Revert on error
+      setLikedPosts(prev => ({ ...prev, [postId]: wasLiked }));
+      setLocalLikeCounts(prev => ({ ...prev, [postId]: currentCount }));
+    } finally {
+      setLikingPosts(prev => ({ ...prev, [postId]: false }));
+    }
+  };
+
+  // Navigate to post comments
+  const handleCommentClick = (postId, e) => {
+    e.stopPropagation();
+    navigate(`/post/${postId}`);
+  };
 
   // Pull to refresh
   const handleRefresh = async () => {
@@ -74,6 +278,12 @@ const HomeScreen = () => {
   // Navigate to post detail
   const handlePostClick = (postId) => {
     navigate(`/post/${postId}`);
+  };
+
+  // Navigate to user profile
+  const handleUserClick = (userId, e) => {
+    e.stopPropagation(); // Prevent triggering post click
+    navigate(`/user/${userId}`);
   };
 
   // Format time ago
@@ -215,12 +425,16 @@ const HomeScreen = () => {
                 }}
               >
                 {/* Post Header */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '12px',
-                  borderBottom: '1px solid #f0f0f0'
-                }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '12px',
+                    borderBottom: '1px solid #f0f0f0',
+                    cursor: 'pointer'
+                  }}
+                  onClick={(e) => handleUserClick(post.userId, e)}
+                >
                   <div style={{
                     width: '40px',
                     height: '40px',
@@ -252,7 +466,7 @@ const HomeScreen = () => {
                     )}
                   </div>
                   <div>
-                    <p style={{ margin: 0, fontWeight: '600', fontSize: '14px' }}>
+                    <p style={{ margin: 0, fontWeight: '600', fontSize: '14px', color: '#3A2B20' }}>
                       {profile.displayName || 'Unknown User'}
                     </p>
                     <p style={{ margin: 0, fontSize: '12px', color: '#888' }}>
@@ -261,38 +475,72 @@ const HomeScreen = () => {
                   </div>
                 </div>
 
-                {/* Post Image */}
-                <div style={{
-                  width: '100%',
-                  aspectRatio: '1',
-                  backgroundColor: '#f0f0f0'
-                }}>
-                  <img
-                    src={post.thumbnailUrl || post.imageUrl}
-                    alt="Post"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover'
-                    }}
-                    loading="lazy"
-                  />
-                </div>
+                {/* Post Media (Image or Video) */}
+                <PostMedia post={post} />
 
                 {/* Post Footer */}
                 <div style={{ padding: '12px' }}>
-                  {/* Stats */}
+                  {/* Action buttons */}
                   <div style={{
                     display: 'flex',
                     gap: '16px',
                     marginBottom: post.caption ? '8px' : 0
                   }}>
-                    <span style={{ fontSize: '14px', color: '#666' }}>
-                      ❤️ {post.likes || 0}
-                    </span>
-                    <span style={{ fontSize: '14px', color: '#666' }}>
-                      💬 {post.commentCount || 0}
-                    </span>
+                    {/* Like button */}
+                    <button
+                      onClick={(e) => handleLikeToggle(post.id, post.likes || 0, e)}
+                      disabled={!user || likingPosts[post.id]}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        cursor: (user && !likingPosts[post.id]) ? 'pointer' : 'not-allowed',
+                        padding: '4px',
+                        opacity: (user && !likingPosts[post.id]) ? 1 : 0.5
+                      }}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill={likedPosts[post.id] ? '#e74c3c' : 'none'}>
+                        <path
+                          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                          stroke={likedPosts[post.id] ? '#e74c3c' : '#666'}
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <span style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
+                        {localLikeCounts[post.id] ?? (post.likes || 0)}
+                      </span>
+                    </button>
+
+                    {/* Comment button */}
+                    <button
+                      onClick={(e) => handleCommentClick(post.id, e)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '4px'
+                      }}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"
+                          stroke="#666"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <span style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
+                        {post.commentCount || 0}
+                      </span>
+                    </button>
                   </div>
 
                   {/* Caption */}
@@ -359,8 +607,6 @@ const HomeScreen = () => {
 
       {/* Spacer for bottom nav */}
       <div style={{ height: '80px' }} />
-
-      <BottomNav active="home" />
 
       <style>{`
         @keyframes spin {

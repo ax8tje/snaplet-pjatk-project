@@ -24,7 +24,7 @@ import {
 } from 'firebase/firestore';
 
 import { db } from '../firebase';
-import { uploadPhoto, deletePhoto } from './storageService';
+import { uploadPhoto, uploadVideo, deletePhoto } from './storageService';
 
 const POSTS_COLLECTION = 'posts';
 
@@ -91,6 +91,66 @@ export const createPost = async (userId, imageFile, caption = '', onProgress = n
   } catch (error) {
     console.error('createPost error:', error);
     throw new Error(`Failed to create post: ${error.message}`);
+  }
+};
+
+/**
+ * Tworzy nowy post wideo z uploadem pliku
+ * @param {string} userId - ID użytkownika tworzącego post
+ * @param {File|Blob} videoFile - Plik wideo do uploadu
+ * @param {string} [caption=''] - Opis posta
+ * @param {function} [onProgress] - Callback z postępem uploadu (0-100)
+ * @param {Object} [options] - Dodatkowe opcje
+ * @param {string} [options.mimeType] - MIME type wideo
+ * @param {string} [options.extension] - Rozszerzenie pliku
+ * @returns {Promise<Post>} Utworzony post
+ * @throws {Error} Gdy tworzenie posta się nie powiedzie
+ */
+export const createVideoPost = async (userId, videoFile, caption = '', onProgress = null, options = {}) => {
+  try {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+
+    if (!videoFile) {
+      throw new Error('Video file is required');
+    }
+
+    // Upload wideo z generowaniem miniaturki
+    const uploadTask = uploadVideo(videoFile, userId, 'posts', onProgress, {
+      generateThumb: true,
+      mimeType: options.mimeType,
+      extension: options.extension,
+    });
+
+    const uploadResult = await uploadTask.promise;
+
+    // Tworzenie dokumentu posta
+    const postData = {
+      userId,
+      imageUrl: uploadResult.downloadURL,
+      thumbnailUrl: uploadResult.thumbnailURL || uploadResult.downloadURL,
+      imagePath: uploadResult.fullPath,
+      thumbnailPath: uploadResult.thumbnailPath || null,
+      caption: caption.trim(),
+      likes: 0,
+      commentCount: 0,
+      isVideo: true,
+      mimeType: uploadResult.mimeType,
+      createdAt: serverTimestamp(),
+    };
+
+    const postsRef = collection(db, POSTS_COLLECTION);
+    const docRef = await addDoc(postsRef, postData);
+
+    return {
+      id: docRef.id,
+      ...postData,
+      createdAt: new Date(), // Zwracamy lokalny czas dla immediate UI update
+    };
+  } catch (error) {
+    console.error('createVideoPost error:', error);
+    throw new Error(`Failed to create video post: ${error.message}`);
   }
 };
 
@@ -234,17 +294,20 @@ export const getFeedPosts = async (postsLimit = 10, lastDoc = null) => {
     const posts = [];
     let newLastDoc = null;
 
-    snapshot.forEach((docSnap, index) => {
-      if (index < postsLimit) {
-        posts.push({
-          id: docSnap.id,
-          ...docSnap.data(),
-        });
-        newLastDoc = docSnap;
-      }
-    });
+    // snapshot.docs is an array, we requested postsLimit + 1 to check hasMore
+    const docs = snapshot.docs;
+    const hasMore = docs.length > postsLimit;
 
-    const hasMore = snapshot.docs.length > postsLimit;
+    // Only take up to postsLimit documents
+    const docsToProcess = docs.slice(0, postsLimit);
+
+    docsToProcess.forEach((docSnap) => {
+      posts.push({
+        id: docSnap.id,
+        ...docSnap.data(),
+      });
+      newLastDoc = docSnap;
+    });
 
     return {
       posts,

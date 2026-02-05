@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import BottomNav from '../components/BottomNav';
 import { useUserStore } from '../store/userStore';
 
 const SettingsScreen = () => {
@@ -67,8 +66,6 @@ const SettingsScreen = () => {
 
       {/* Spacer for bottom nav */}
       <div style={{ height: '80px' }} />
-
-      <BottomNav active="settings" />
     </div>
   );
 };
