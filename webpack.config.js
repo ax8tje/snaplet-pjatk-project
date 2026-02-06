@@ -53,6 +53,7 @@ module.exports = {
       patterns: [
         { from: 'public/figma', to: 'figma' },
         { from: 'public/service-worker.js', to: 'service-worker.js' },
+        { from: 'public/video-processor.html', to: 'video-processor.html' },
       ],
     }),
     new Dotenv(),
@@ -72,9 +73,7 @@ module.exports = {
         warnings: false,
       },
     },
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'credentialless',
-    },
+    // No COOP/COEP headers - Google popup auth works
+    // SharedArrayBuffer may still work in some browsers or we'll need server-side processing
   },
 };
