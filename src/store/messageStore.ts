@@ -35,6 +35,7 @@ interface MessageState {
   messages: Message[];
   isLoading: boolean;
   error: string | null;
+  totalUnreadCount: number;
 
   // Actions
   setConversations: (conversations: Conversation[]) => void;
@@ -64,9 +65,11 @@ export const useMessageStore = create<MessageState>((set, get) => ({
   messages: [],
   isLoading: false,
   error: null,
+  totalUnreadCount: 0,
 
   setConversations: (conversations: Conversation[]) => {
-    set({ conversations });
+    const totalUnreadCount = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
+    set({ conversations, totalUnreadCount });
   },
 
   setCurrentConversation: (messages: Message[]) => {
@@ -138,7 +141,8 @@ export const useMessageStore = create<MessageState>((set, get) => ({
         return timeB - timeA;
       });
 
-      set({ conversations, messages });
+      const totalUnreadCount = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
+      set({ conversations, messages, totalUnreadCount });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to fetch conversations";
       set({ error: message });

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useMessageStore } from '../store/messageStore';
 import { useUserStore } from '../store/userStore';
 import { getUserProfile } from '../services/userService';
@@ -12,6 +12,7 @@ import {
 
 const MessagesScreen = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, isAuthenticated } = useUserStore();
   const {
     conversations,
@@ -22,7 +23,7 @@ const MessagesScreen = () => {
     clearError
   } = useMessageStore();
 
-  const [activeTab, setActiveTab] = useState('friends');
+  const [activeTab, setActiveTab] = useState(location.state?.fromTab || 'friends');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Friends state
@@ -159,7 +160,7 @@ const MessagesScreen = () => {
   };
 
   const handleChatClick = (userId, displayName) => {
-    navigate(`/chat/${userId}`, { state: { displayName } });
+    navigate(`/chat/${userId}`, { state: { displayName, fromTab: activeTab } });
   };
 
   if (!isAuthenticated || !user) {
@@ -342,7 +343,7 @@ const MessagesScreen = () => {
             filteredFriends.map((friend) => (
               <div
                 key={friend.uid}
-                onClick={() => navigate(`/chat/${friend.uid}`, { state: { displayName: friend.displayName } })}
+                onClick={() => navigate(`/chat/${friend.uid}`, { state: { displayName: friend.displayName, fromTab: activeTab } })}
                 style={{
                   display: 'flex',
                   alignItems: 'center',

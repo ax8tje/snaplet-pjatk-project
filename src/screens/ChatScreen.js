@@ -15,6 +15,7 @@ const ChatScreen = () => {
     error,
     sendMessage,
     subscribeToChat,
+    markAsRead,
     clearError
   } = useMessageStore();
 
@@ -43,6 +44,15 @@ const ChatScreen = () => {
       };
     }
   }, [user?.uid, partnerId, isFriend, subscribeToChat]);
+
+  // Mark unread messages as read
+  useEffect(() => {
+    if (!user?.uid || !currentConversation.length) return;
+    const unread = currentConversation.filter(
+      (msg) => !msg.read && msg.receiverId === user.uid && !msg.messageId.startsWith('temp_')
+    );
+    unread.forEach((msg) => markAsRead(msg.messageId));
+  }, [currentConversation, user?.uid, markAsRead]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -175,7 +185,7 @@ const ChatScreen = () => {
         zIndex: 100
       }}>
         <button
-          onClick={() => navigate('/messages')}
+          onClick={() => navigate('/messages', { state: { fromTab: location.state?.fromTab } })}
           style={{
             background: 'none',
             border: 'none',
@@ -281,13 +291,26 @@ const ChatScreen = () => {
               }}>
                 <p style={{ margin: 0, wordBreak: 'break-word' }}>{msg.text}</p>
                 <span style={{
-                  display: 'block',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  gap: '4px',
                   fontSize: '11px',
                   marginTop: '4px',
                   opacity: 0.7,
-                  textAlign: 'right'
                 }}>
                   {formatTime(msg.createdAt)}
+                  {isOwnMessage && (
+                    <span style={{
+                      fontSize: '13px',
+                      color: msg.read ? '#34B7F1' : 'inherit',
+                      fontWeight: '600',
+                      letterSpacing: '-2px',
+                      marginLeft: '2px',
+                    }}>
+                      {msg.read ? '✓✓' : '✓'}
+                    </span>
+                  )}
                 </span>
               </div>
             </div>

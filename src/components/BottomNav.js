@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useMessageStore } from '../store/messageStore';
 
 const navItems = [
   { path: '/home', emoji: '🏠', label: 'Home' },
@@ -13,11 +14,13 @@ const navItems = [
 const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const totalUnreadCount = useMessageStore((s) => s.totalUnreadCount);
 
   return (
     <nav style={styles.container}>
       {navItems.map((item) => {
         const isActive = location.pathname === item.path;
+        const showBadge = item.path === '/messages' && totalUnreadCount > 0;
         return (
           <button
             key={item.path}
@@ -27,7 +30,14 @@ const BottomNav = () => {
               ...(isActive ? styles.navItemActive : {}),
             }}
           >
-            <span style={styles.emoji}>{item.emoji}</span>
+            <span style={{ ...styles.emoji, position: 'relative' }}>
+              {item.emoji}
+              {showBadge && (
+                <span style={styles.badge}>
+                  {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
+                </span>
+              )}
+            </span>
             <span style={{
               ...styles.label,
               ...(isActive ? styles.labelActive : {}),
@@ -53,8 +63,9 @@ const styles = {
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: 'var(--nav-bg)',
+    borderRadius: '20px 20px 0 0',
     borderTop: '1px solid var(--nav-border)',
-    padding: '8px 0 12px 0',
+    padding: '12px 8px calc(14px + env(safe-area-inset-bottom, 0px)) 8px',
     zIndex: 1000,
   },
   navItem: {
@@ -88,6 +99,24 @@ const styles = {
   labelActive: {
     color: 'var(--text-primary)',
     fontWeight: '600',
+  },
+  badge: {
+    position: 'absolute',
+    top: '-6px',
+    right: '-10px',
+    backgroundColor: '#FF3B30',
+    color: '#FFFFFF',
+    fontSize: '10px',
+    fontWeight: '700',
+    minWidth: '18px',
+    height: '18px',
+    borderRadius: '9px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0 4px',
+    lineHeight: 1,
+    boxSizing: 'border-box',
   },
 };
 
