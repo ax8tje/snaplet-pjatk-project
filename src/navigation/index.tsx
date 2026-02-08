@@ -43,6 +43,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5E6D3',
+    backgroundColor: '#F5E6D3', // Mobile only - no CSS vars needed
   },
 });

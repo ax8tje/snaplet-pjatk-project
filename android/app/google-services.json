@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "965459311029",
+    "project_id": "snaplet-byt",
+    "storage_bucket": "snaplet-byt.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:965459311029:android:2a355d5d28a5d69d47c1fc",
+        "android_client_info": {
+          "package_name": "com.snapletpjatk.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "965459311029-ohft0m2hu7i069t7qvng1sf9pq5kr3m5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyBND3pI_bmPqT1202lGa9KVSosReMftA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "965459311029-ohft0m2hu7i069t7qvng1sf9pq5kr3m5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

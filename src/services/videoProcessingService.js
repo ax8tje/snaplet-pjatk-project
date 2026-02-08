@@ -52,7 +52,8 @@ async function getFFmpeg(onLog) {
             });
         }
 
-        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+        // Use single-threaded core (0.12.10) — no SharedArrayBuffer/COOP/COEP needed
+        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd';
         await ffmpeg.load({
             coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
             wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
@@ -63,7 +64,7 @@ async function getFFmpeg(onLog) {
         return ffmpeg;
     } catch (err) {
         console.error('Blad ladowania FFmpeg:', err);
-        throw new Error('Nie udalo sie zaladowac FFmpeg. Sprawdz polaczenie internetowe i naglowki COOP/COEP.');
+        throw new Error('Nie udalo sie zaladowac FFmpeg. Sprawdz polaczenie internetowe.');
     } finally {
         ffmpegLoading = false;
     }
@@ -308,9 +309,9 @@ export async function shareVideo(blob, filename) {
 }
 
 /**
- * Sprawdza czy przegladarka obsluguje SharedArrayBuffer (wymagany przez ffmpeg.wasm).
+ * Sprawdza czy przegladarka obsluguje ffmpeg.wasm (single-threaded, wymaga tylko WebAssembly).
  * @returns {boolean}
  */
 export function isFFmpegSupported() {
-    return typeof SharedArrayBuffer !== 'undefined';
+    return typeof WebAssembly !== 'undefined';
 }

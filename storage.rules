@@ -36,8 +36,8 @@ service firebase.storage {
     }
 
     // ========= WRITE RULES =========
-    // PROFILE: users/{userId}/profile/{fileName}
-    match /users/{userId}/profile/{fileName} {
+    // PROFILE: users/{userId}/profile/{fileName} or users/{userId}/profile/{subDir}/{fileName}
+    match /users/{userId}/profile/{allPaths=**} {
       allow write: if isOwner(userId) && isValidImage();
     }
 

@@ -73,7 +73,5 @@ module.exports = {
         warnings: false,
       },
     },
-    // No COOP/COEP headers - Google popup auth works
-    // SharedArrayBuffer may still work in some browsers or we'll need server-side processing
   },
 };

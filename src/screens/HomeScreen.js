@@ -22,17 +22,40 @@ const PostMedia = ({ post }) => {
   // If URL has video extension, show as video immediately
   const showAsVideo = isVideo || isVideoUrl(post.imageUrl) || isVideoUrl(post.videoUrl);
 
+  const videoRef = useRef(null);
+
+  // IntersectionObserver for mobile autoplay
+  useEffect(() => {
+    if (!showAsVideo) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, [showAsVideo]);
+
   if (loadError && !isVideo) {
     // Image failed to load, show error
     return (
       <div style={{
         width: '100%',
         aspectRatio: '1',
-        backgroundColor: '#f0f0f0',
+        backgroundColor: 'var(--bg-media)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#999'
+        color: 'var(--text-disabled)'
       }}>
         Media failed to load
       </div>
@@ -48,6 +71,7 @@ const PostMedia = ({ post }) => {
         position: 'relative'
       }}>
         <video
+          ref={videoRef}
           src={post.videoUrl || post.imageUrl}
           poster={post.thumbnailUrl !== post.imageUrl ? post.thumbnailUrl : undefined}
           style={{
@@ -87,7 +111,7 @@ const PostMedia = ({ post }) => {
     <div style={{
       width: '100%',
       aspectRatio: '1',
-      backgroundColor: '#f0f0f0',
+      backgroundColor: 'var(--bg-media)',
       position: 'relative'
     }}>
       <img
@@ -326,8 +350,8 @@ const HomeScreen = () => {
           disabled={refreshing}
           style={{
             padding: '8px 16px',
-            backgroundColor: '#FDF5DD',
-            border: '1px solid #3A2B20',
+            backgroundColor: 'var(--color-accent)',
+            border: '1px solid var(--color-primary)',
             borderRadius: '20px',
             cursor: refreshing ? 'not-allowed' : 'pointer',
             opacity: refreshing ? 0.6 : 1,
@@ -363,8 +387,8 @@ const HomeScreen = () => {
           <div className="loading-spinner" style={{
             width: '40px',
             height: '40px',
-            border: '3px solid #f3f3f3',
-            borderTop: '3px solid #3A2B20',
+            border: '3px solid var(--spinner-track)',
+            borderTop: '3px solid var(--color-primary)',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
             margin: '0 auto 16px'
@@ -378,12 +402,12 @@ const HomeScreen = () => {
         <div style={{
           padding: '40px',
           textAlign: 'center',
-          color: '#666'
+          color: 'var(--text-secondary)'
         }}>
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" style={{ marginBottom: '16px' }}>
-            <rect x="3" y="3" width="18" height="18" rx="2" stroke="#999" strokeWidth="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5" fill="#999"/>
-            <path d="M21 15l-5-5L5 21" stroke="#999" strokeWidth="2"/>
+            <rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--text-disabled)" strokeWidth="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5" fill="var(--text-disabled)"/>
+            <path d="M21 15l-5-5L5 21" stroke="var(--text-disabled)" strokeWidth="2"/>
           </svg>
           <p style={{ fontSize: '18px', marginBottom: '8px' }}>No posts yet</p>
           <p style={{ fontSize: '14px' }}>Be the first to share a Snaplet!</p>
@@ -392,8 +416,8 @@ const HomeScreen = () => {
             style={{
               marginTop: '16px',
               padding: '12px 24px',
-              backgroundColor: '#3A2B20',
-              color: '#FDF5DD',
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-accent)',
               border: 'none',
               borderRadius: '24px',
               cursor: 'pointer',
@@ -416,11 +440,11 @@ const HomeScreen = () => {
                 className="post-card"
                 onClick={() => handlePostClick(post.id)}
                 style={{
-                  backgroundColor: '#fff',
+                  backgroundColor: 'var(--bg-card)',
                   borderRadius: '12px',
                   marginBottom: '16px',
                   overflow: 'hidden',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  boxShadow: '0 2px 8px var(--shadow-card)',
                   cursor: 'pointer'
                 }}
               >
@@ -430,7 +454,7 @@ const HomeScreen = () => {
                     display: 'flex',
                     alignItems: 'center',
                     padding: '12px',
-                    borderBottom: '1px solid #f0f0f0',
+                    borderBottom: '1px solid var(--border-post)',
                     cursor: 'pointer'
                   }}
                   onClick={(e) => handleUserClick(post.userId, e)}
@@ -439,7 +463,7 @@ const HomeScreen = () => {
                     width: '40px',
                     height: '40px',
                     borderRadius: '50%',
-                    backgroundColor: '#ddd',
+                    backgroundColor: 'var(--bg-placeholder)',
                     overflow: 'hidden',
                     marginRight: '12px'
                   }}>
@@ -456,8 +480,8 @@ const HomeScreen = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        backgroundColor: '#3A2B20',
-                        color: '#FDF5DD',
+                        backgroundColor: 'var(--color-primary)',
+                        color: 'var(--color-accent)',
                         fontSize: '16px',
                         fontWeight: '600'
                       }}>
@@ -466,10 +490,10 @@ const HomeScreen = () => {
                     )}
                   </div>
                   <div>
-                    <p style={{ margin: 0, fontWeight: '600', fontSize: '14px', color: '#3A2B20' }}>
+                    <p style={{ margin: 0, fontWeight: '600', fontSize: '14px', color: 'var(--color-primary)' }}>
                       {profile.displayName || 'Unknown User'}
                     </p>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#888' }}>
+                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)' }}>
                       {formatTimeAgo(post.createdAt)}
                     </p>
                   </div>
@@ -504,13 +528,13 @@ const HomeScreen = () => {
                       <svg width="20" height="20" viewBox="0 0 24 24" fill={likedPosts[post.id] ? '#e74c3c' : 'none'}>
                         <path
                           d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                          stroke={likedPosts[post.id] ? '#e74c3c' : '#666'}
+                          stroke={likedPosts[post.id] ? '#e74c3c' : 'var(--text-secondary)'}
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
                         />
                       </svg>
-                      <span style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
+                      <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: '500' }}>
                         {localLikeCounts[post.id] ?? (post.likes || 0)}
                       </span>
                     </button>
@@ -531,13 +555,13 @@ const HomeScreen = () => {
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <path
                           d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"
-                          stroke="#666"
+                          stroke="var(--text-secondary)"
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
                         />
                       </svg>
-                      <span style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
+                      <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: '500' }}>
                         {post.commentCount || 0}
                       </span>
                     </button>
@@ -573,7 +597,7 @@ const HomeScreen = () => {
             <div style={{
               padding: '20px',
               textAlign: 'center',
-              color: '#888'
+              color: 'var(--text-muted)'
             }}>
               <p>You've seen all posts!</p>
             </div>
@@ -591,8 +615,8 @@ const HomeScreen = () => {
           width: '56px',
           height: '56px',
           borderRadius: '50%',
-          backgroundColor: '#3A2B20',
-          color: '#FDF5DD',
+          backgroundColor: 'var(--color-primary)',
+          color: 'var(--color-accent)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -620,7 +644,7 @@ const HomeScreen = () => {
 
 const screenStyles = {
   container: {
-    backgroundColor: '#F5E6D3',
+    backgroundColor: 'var(--bg-page)',
     minHeight: '100vh',
     overflowY: 'auto',
     paddingBottom: '20px',
@@ -630,8 +654,8 @@ const screenStyles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '16px 20px',
-    backgroundColor: '#F5E6D3',
-    borderBottom: '1px solid #E0D5C7',
+    backgroundColor: 'var(--bg-page)',
+    borderBottom: '1px solid var(--border-default)',
     position: 'sticky',
     top: 0,
     zIndex: 100,
@@ -640,7 +664,7 @@ const screenStyles = {
     fontSize: '24px',
     fontWeight: '700',
     margin: 0,
-    color: '#3A2B20',
+    color: 'var(--color-primary)',
   },
   settingsBtn: {
     background: 'none',

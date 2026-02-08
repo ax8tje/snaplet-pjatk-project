@@ -8,10 +8,10 @@
     "email": "stasko004@gmail.com"
   },
   "scripts": {
-    "android": "react-native run-android",
+    "android": "expo run:android",
     "android:clean": "cd android && gradlew clean && cd ..",
     "android:build": "cd android && gradlew assembleDebug && cd ..",
-    "ios": "react-native run-ios",
+    "ios": "expo run:ios",
     "ios:clean": "cd ios && rm -rf Pods Podfile.lock && pod install && cd ..",
     "ios:pod-install": "cd ios && pod install && cd ..",
     "start": "react-native start",

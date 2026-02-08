@@ -43,6 +43,7 @@ export const MainTabNavigator = () => {
                 tabBarActiveTintColor: '#000000',
                 tabBarInactiveTintColor: '#666666',
                 tabBarShowLabel: false,
+                tabBarHideOnKeyboard: true,
             }}>
             <Tab.Screen
                 name="Profile"

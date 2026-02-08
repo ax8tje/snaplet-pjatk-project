@@ -1,4 +1,38 @@
 {
   "name": "SnapletPjatk",
-  "displayName": "Snaplet PJATK"
+  "displayName": "Snaplet PJATK",
+  "expo": {
+    "name": "Snaplet PJATK",
+    "slug": "snaplet-pjatk",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/placeholder.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#1a1a2e"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1a1a2e"
+      },
+      "package": "com.snapletpjatk.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "Snaplet needs access to your camera to take photos and videos.",
+          "enableMicrophonePermission": true,
+          "microphonePermissionText": "Snaplet needs access to your microphone to record videos."
+        }
+      ]
+    ]
+  }
 }

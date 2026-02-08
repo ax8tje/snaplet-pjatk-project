@@ -5,7 +5,6 @@ import {
   logout as authLogout,
   resetPassword,
   onAuthStateChange,
-  getCurrentUser,
 } from "../services/authService";
 import {
   getUserProfile,
@@ -183,13 +182,11 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
 
   initialize: () => {
-    let authResolved = false;
     let unsubscribeProfile: (() => void) | null = null;
     let unsubscribeAuth: (() => void) | null = null;
 
     console.log('[AUTH] initialize() called');
 
-    // Helper to clean up profile subscription
     const cleanupProfileSubscription = () => {
       if (unsubscribeProfile) {
         unsubscribeProfile();
@@ -197,33 +194,8 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
     };
 
-    const currentUser = getCurrentUser();
-    console.log('[AUTH] getCurrentUser():', currentUser?.uid || 'null');
-
-    if (currentUser) {
-      authResolved = true;
-      const user: AuthUser = {
-        uid: currentUser.uid,
-        email: currentUser.email,
-        displayName: currentUser.displayName,
-        photoURL: currentUser.photoURL,
-      };
-      set({ user, isAuthenticated: true, isLoading: false });
-
-      // Set up profile subscription for current user
-      unsubscribeProfile = subscribeToUser(
-        currentUser.uid,
-        (profile: UserProfile) => {
-          set({ profile });
-        }
-      );
-    }
-
     unsubscribeAuth = onAuthStateChange((firebaseUser) => {
       console.log('[AUTH] onAuthStateChange fired:', firebaseUser?.uid || 'null');
-      authResolved = true;
-
-      // Clean up previous profile subscription before setting up new one
       cleanupProfileSubscription();
 
       if (firebaseUser) {
@@ -233,10 +205,9 @@ export const useUserStore = create<UserState>((set, get) => ({
           displayName: firebaseUser.displayName,
           photoURL: firebaseUser.photoURL,
         };
-        console.log('[AUTH] Setting isAuthenticated: true');
+        console.log('[AUTH] Setting isAuthenticated: true for:', firebaseUser.email);
         set({ user, isAuthenticated: true, isLoading: false });
 
-        // Set up new profile subscription
         unsubscribeProfile = subscribeToUser(
           firebaseUser.uid,
           (profile: UserProfile) => {
@@ -254,14 +225,14 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
     });
 
-    // Fallback: if auth state doesn't resolve within 3s, stop loading
+    // Fallback: if auth doesn't resolve within 5s, stop loading
     setTimeout(() => {
-      if (!authResolved) {
+      if (get().isLoading) {
+        console.log('[AUTH] Timeout fallback - stopping loading');
         set({ isLoading: false, isAuthenticated: false });
       }
-    }, 3000);
+    }, 5000);
 
-    // Return cleanup function that unsubscribes from both auth and profile
     return () => {
       cleanupProfileSubscription();
       if (unsubscribeAuth) unsubscribeAuth();

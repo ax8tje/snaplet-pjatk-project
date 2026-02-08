@@ -6,6 +6,12 @@
     --mv-success: #27ae60;
 }
 
+[data-theme="dark"] {
+    --mv-bg: #1A1A1A;
+    --mv-cream: #E0D0C0;
+    --mv-accent: #D4A574;
+}
+
 .mv-root {
     min-height: 100vh;
     background: var(--mv-bg);

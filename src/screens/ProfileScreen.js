@@ -205,7 +205,7 @@ const ProfileScreen = () => {
       setUploadError(null);
 
       try {
-        const uploadTask = uploadPhoto(file, user.uid, 'avatars', null, {
+        const uploadTask = uploadPhoto(file, user.uid, 'profile', null, {
           compress: true,
           generateThumb: false,
         });
@@ -276,15 +276,15 @@ const ProfileScreen = () => {
           padding: '20px',
           textAlign: 'center'
         }}>
-          <p style={{ fontSize: '18px', marginBottom: '20px', color: '#666' }}>
+          <p style={{ fontSize: '18px', marginBottom: '20px', color: 'var(--text-secondary)' }}>
             Please log in to view your profile
           </p>
           <button
             onClick={() => navigate('/login')}
             style={{
               padding: '12px 24px',
-              backgroundColor: '#3A2B20',
-              color: '#FDF5DD',
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-accent)',
               border: 'none',
               borderRadius: '24px',
               cursor: 'pointer',
@@ -301,12 +301,12 @@ const ProfileScreen = () => {
   // Loading other user's profile
   if (loadingOtherProfile) {
     return (
-      <div style={{ backgroundColor: '#F5E6D3', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ backgroundColor: 'var(--bg-page)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="loading-spinner" style={{
           width: '40px',
           height: '40px',
-          border: '3px solid #f3f3f3',
-          borderTop: '3px solid #3A2B20',
+          border: '3px solid var(--spinner-track)',
+          borderTop: '3px solid var(--color-primary)',
           borderRadius: '50%',
           animation: 'spin 1s linear infinite'
         }}></div>
@@ -323,14 +323,14 @@ const ProfileScreen = () => {
   // Other user not found
   if (!isOwnProfile && !otherUserProfile) {
     return (
-      <div style={{ backgroundColor: '#F5E6D3', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ fontSize: '18px', marginBottom: '20px', color: '#666' }}>User not found</p>
+      <div style={{ backgroundColor: 'var(--bg-page)', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ fontSize: '18px', marginBottom: '20px', color: 'var(--text-secondary)' }}>User not found</p>
         <button
           onClick={() => navigate(-1)}
           style={{
             padding: '12px 24px',
-            backgroundColor: '#3A2B20',
-            color: '#FDF5DD',
+            backgroundColor: 'var(--color-primary)',
+            color: 'var(--color-accent)',
             border: 'none',
             borderRadius: '24px',
             cursor: 'pointer',
@@ -346,15 +346,15 @@ const ProfileScreen = () => {
   const groupedPosts = groupPostsByMonth(userPosts);
 
   return (
-    <div style={{ backgroundColor: '#F5E6D3', minHeight: '100vh', overflowY: 'auto', paddingBottom: '80px' }}>
+    <div style={{ backgroundColor: 'var(--bg-page)', minHeight: '100vh', overflowY: 'auto', paddingBottom: '80px' }}>
       {/* Header */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: '16px 20px',
-        backgroundColor: '#F5E6D3',
-        borderBottom: '1px solid #E0D5C7',
+        backgroundColor: 'var(--bg-page)',
+        borderBottom: '1px solid var(--border-default)',
         position: 'sticky',
         top: 0,
         zIndex: 100,
@@ -372,16 +372,16 @@ const ProfileScreen = () => {
               }}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#3A2B20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#3A2B20', flex: 1 }}>
+            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: 'var(--color-primary)', flex: 1 }}>
               {profile?.displayName || 'User'}
             </h1>
           </>
         ) : (
           <>
-            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#3A2B20' }}>👤 Profile</h1>
+            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: 'var(--color-primary)' }}>👤 Profile</h1>
             <button
               onClick={handleLogout}
               style={{
@@ -404,8 +404,8 @@ const ProfileScreen = () => {
       {(error || uploadError) && (
         <div style={{
           padding: '12px 16px',
-          backgroundColor: '#ffe6e6',
-          color: '#cc0000',
+          backgroundColor: 'var(--error-bg)',
+          color: 'var(--error-text)',
           margin: '16px',
           borderRadius: '8px',
           textAlign: 'center'
@@ -431,7 +431,7 @@ const ProfileScreen = () => {
         flexDirection: 'column',
         alignItems: 'center',
         padding: '24px 16px',
-        borderBottom: '1px solid #eee'
+        borderBottom: '1px solid var(--border-light)'
       }}>
         {/* Avatar */}
         <div
@@ -442,7 +442,7 @@ const ProfileScreen = () => {
             height: '100px',
             borderRadius: '50%',
             overflow: 'hidden',
-            backgroundColor: '#ddd',
+            backgroundColor: 'var(--bg-placeholder)',
             cursor: isOwnProfile ? 'pointer' : 'default',
             position: 'relative',
             marginBottom: '16px'
@@ -461,8 +461,8 @@ const ProfileScreen = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: '#3A2B20',
-              color: '#FDF5DD',
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-accent)',
               fontSize: '40px',
               fontWeight: '600'
             }}>
@@ -501,14 +501,14 @@ const ProfileScreen = () => {
               width: '28px',
               height: '28px',
               borderRadius: '50%',
-              backgroundColor: '#3A2B20',
+              backgroundColor: 'var(--color-primary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="#FDF5DD" strokeWidth="2"/>
-                <circle cx="12" cy="13" r="4" stroke="#FDF5DD" strokeWidth="2"/>
+                <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="var(--color-accent)" strokeWidth="2"/>
+                <circle cx="12" cy="13" r="4" stroke="var(--color-accent)" strokeWidth="2"/>
               </svg>
             </div>
           )}
@@ -520,7 +520,8 @@ const ProfileScreen = () => {
             <h2 className="profile-username" style={{
               margin: '0 0 8px',
               fontSize: '24px',
-              fontWeight: '600'
+              fontWeight: '600',
+              color: 'var(--color-primary)'
             }}>
               {profile?.displayName || 'Unknown User'}
             </h2>
@@ -529,7 +530,7 @@ const ProfileScreen = () => {
               <p style={{
                 margin: '0 0 12px',
                 fontSize: '14px',
-                color: '#666',
+                color: 'var(--text-secondary)',
                 textAlign: 'center',
                 maxWidth: '280px'
               }}>
@@ -537,7 +538,7 @@ const ProfileScreen = () => {
               </p>
             )}
 
-            <p style={{ margin: '0 0 16px', fontSize: '14px', color: '#888' }}>
+            <p style={{ margin: '0 0 16px', fontSize: '14px', color: 'var(--text-muted)' }}>
               {isOwnProfile ? (profile?.email || user?.email) : ''}
             </p>
 
@@ -546,9 +547,9 @@ const ProfileScreen = () => {
                 onClick={handleStartEdit}
                 style={{
                   padding: '8px 24px',
-                  backgroundColor: '#FDF5DD',
-                  color: '#3A2B20',
-                  border: '1px solid #3A2B20',
+                  backgroundColor: 'var(--color-accent)',
+                  color: 'var(--color-primary)',
+                  border: '1px solid var(--color-primary)',
                   borderRadius: '20px',
                   cursor: 'pointer',
                   fontSize: '14px'
@@ -565,8 +566,8 @@ const ProfileScreen = () => {
                     disabled={friendLoading}
                     style={{
                       padding: '8px 24px',
-                      backgroundColor: '#3A2B20',
-                      color: '#FDF5DD',
+                      backgroundColor: 'var(--color-primary)',
+                      color: 'var(--color-accent)',
                       border: 'none',
                       borderRadius: '20px',
                       cursor: friendLoading ? 'not-allowed' : 'pointer',
@@ -665,7 +666,7 @@ const ProfileScreen = () => {
                 width: '100%',
                 padding: '12px 16px',
                 marginBottom: '12px',
-                border: '1px solid #ddd',
+                border: '1px solid var(--border-input)',
                 borderRadius: '8px',
                 fontSize: '16px',
                 outline: 'none'
@@ -681,7 +682,7 @@ const ProfileScreen = () => {
                 width: '100%',
                 padding: '12px 16px',
                 marginBottom: '12px',
-                border: '1px solid #ddd',
+                border: '1px solid var(--border-input)',
                 borderRadius: '8px',
                 fontSize: '16px',
                 outline: 'none',
@@ -694,8 +695,8 @@ const ProfileScreen = () => {
                 style={{
                   padding: '8px 24px',
                   backgroundColor: 'transparent',
-                  color: '#666',
-                  border: '1px solid #ddd',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-input)',
                   borderRadius: '20px',
                   cursor: 'pointer',
                   fontSize: '14px'
@@ -708,8 +709,8 @@ const ProfileScreen = () => {
                 disabled={userLoading}
                 style={{
                   padding: '8px 24px',
-                  backgroundColor: '#3A2B20',
-                  color: '#FDF5DD',
+                  backgroundColor: 'var(--color-primary)',
+                  color: 'var(--color-accent)',
                   border: 'none',
                   borderRadius: '20px',
                   cursor: userLoading ? 'not-allowed' : 'pointer',
@@ -730,26 +731,26 @@ const ProfileScreen = () => {
           marginTop: '24px'
         }}>
           <div className="stat-item" style={{ textAlign: 'center' }}>
-            <span className="stat-value" style={{ fontSize: '24px', fontWeight: '600', display: 'block' }}>
+            <span className="stat-value" style={{ fontSize: '24px', fontWeight: '600', display: 'block', color: 'var(--color-primary)' }}>
               {userPosts.length}
             </span>
-            <span className="stat-label" style={{ fontSize: '14px', color: '#666' }}>
+            <span className="stat-label" style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
               Posts
             </span>
           </div>
           <div className="stat-item" style={{ textAlign: 'center' }}>
-            <span className="stat-value" style={{ fontSize: '24px', fontWeight: '600', display: 'block' }}>
+            <span className="stat-value" style={{ fontSize: '24px', fontWeight: '600', display: 'block', color: 'var(--color-primary)' }}>
               {userClips.length}
             </span>
-            <span className="stat-label" style={{ fontSize: '14px', color: '#666' }}>
+            <span className="stat-label" style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
               Snaplets
             </span>
           </div>
           <div className="stat-item" style={{ textAlign: 'center' }}>
-            <span className="stat-value" style={{ fontSize: '24px', fontWeight: '600', display: 'block' }}>
+            <span className="stat-value" style={{ fontSize: '24px', fontWeight: '600', display: 'block', color: 'var(--color-primary)' }}>
               {profile?.friendCount || 0}
             </span>
-            <span className="stat-label" style={{ fontSize: '14px', color: '#666' }}>
+            <span className="stat-label" style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
               Friends
             </span>
           </div>
@@ -759,7 +760,7 @@ const ProfileScreen = () => {
       {/* Tabs */}
       <div style={{
         display: 'flex',
-        borderBottom: '1px solid #eee'
+        borderBottom: '1px solid var(--border-light)'
       }}>
         <button
           onClick={() => setActiveTab('posts')}
@@ -768,8 +769,8 @@ const ProfileScreen = () => {
             padding: '12px',
             backgroundColor: 'transparent',
             border: 'none',
-            borderBottom: activeTab === 'posts' ? '2px solid #3A2B20' : '2px solid transparent',
-            color: activeTab === 'posts' ? '#3A2B20' : '#888',
+            borderBottom: activeTab === 'posts' ? '2px solid var(--color-primary)' : '2px solid transparent',
+            color: activeTab === 'posts' ? 'var(--color-primary)' : 'var(--text-muted)',
             cursor: 'pointer',
             fontSize: '14px',
             fontWeight: activeTab === 'posts' ? '600' : '400'
@@ -784,8 +785,8 @@ const ProfileScreen = () => {
             padding: '12px',
             backgroundColor: 'transparent',
             border: 'none',
-            borderBottom: activeTab === 'snaplets' ? '2px solid #3A2B20' : '2px solid transparent',
-            color: activeTab === 'snaplets' ? '#3A2B20' : '#888',
+            borderBottom: activeTab === 'snaplets' ? '2px solid var(--color-primary)' : '2px solid transparent',
+            color: activeTab === 'snaplets' ? 'var(--color-primary)' : 'var(--text-muted)',
             cursor: 'pointer',
             fontSize: '14px',
             fontWeight: activeTab === 'snaplets' ? '600' : '400'
@@ -801,13 +802,13 @@ const ProfileScreen = () => {
           <div className="loading-spinner" style={{
             width: '32px',
             height: '32px',
-            border: '2px solid #f3f3f3',
-            borderTop: '2px solid #3A2B20',
+            border: '2px solid var(--spinner-track)',
+            borderTop: '2px solid var(--color-primary)',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
             margin: '0 auto 16px'
           }}></div>
-          <p style={{ color: '#888' }}>Loading posts...</p>
+          <p style={{ color: 'var(--text-muted)' }}>Loading posts...</p>
         </div>
       )}
 
@@ -819,12 +820,12 @@ const ProfileScreen = () => {
             <div style={{
               padding: '40px 20px',
               textAlign: 'center',
-              color: '#666'
+              color: 'var(--text-secondary)'
             }}>
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style={{ marginBottom: '12px' }}>
-                <rect x="3" y="3" width="18" height="18" rx="2" stroke="#999" strokeWidth="2"/>
-                <circle cx="8.5" cy="8.5" r="1.5" fill="#999"/>
-                <path d="M21 15l-5-5L5 21" stroke="#999" strokeWidth="2"/>
+                <rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--text-disabled)" strokeWidth="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5" fill="var(--text-disabled)"/>
+                <path d="M21 15l-5-5L5 21" stroke="var(--text-disabled)" strokeWidth="2"/>
               </svg>
               <p style={{ fontSize: '16px', marginBottom: '8px' }}>No posts yet</p>
               <p style={{ fontSize: '14px' }}>Stwórz swój pierwszy post!</p>
@@ -834,8 +835,8 @@ const ProfileScreen = () => {
                   style={{
                     marginTop: '16px',
                     padding: '12px 24px',
-                    backgroundColor: '#3A2B20',
-                    color: '#FDF5DD',
+                    backgroundColor: 'var(--color-primary)',
+                    color: 'var(--color-accent)',
                     border: 'none',
                     borderRadius: '24px',
                     cursor: 'pointer',
@@ -856,7 +857,7 @@ const ProfileScreen = () => {
                   <h4 className="timeline-month-title" style={{
                     fontSize: '14px',
                     fontWeight: '600',
-                    color: '#666',
+                    color: 'var(--text-secondary)',
                     marginBottom: '12px',
                     paddingLeft: '4px'
                   }}>
@@ -875,7 +876,7 @@ const ProfileScreen = () => {
                         style={{
                           aspectRatio: '1',
                           overflow: 'hidden',
-                          backgroundColor: '#f0f0f0',
+                          backgroundColor: 'var(--bg-media)',
                           cursor: 'pointer',
                           position: 'relative'
                         }}
@@ -941,13 +942,13 @@ const ProfileScreen = () => {
               <div className="loading-spinner" style={{
                 width: '32px',
                 height: '32px',
-                border: '2px solid #f3f3f3',
-                borderTop: '2px solid #3A2B20',
+                border: '2px solid var(--spinner-track)',
+                borderTop: '2px solid var(--color-primary)',
                 borderRadius: '50%',
                 animation: 'spin 1s linear infinite',
                 margin: '0 auto 16px'
               }}></div>
-              <p style={{ color: '#888' }}>Loading snaplets...</p>
+              <p style={{ color: 'var(--text-muted)' }}>Loading snaplets...</p>
             </div>
           )}
 
@@ -956,10 +957,10 @@ const ProfileScreen = () => {
             <div style={{
               padding: '40px 20px',
               textAlign: 'center',
-              color: '#666'
+              color: 'var(--text-secondary)'
             }}>
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style={{ marginBottom: '12px' }}>
-                <polygon points="5,3 19,12 5,21" stroke="#999" strokeWidth="2" fill="none"/>
+                <polygon points="5,3 19,12 5,21" stroke="var(--text-disabled)" strokeWidth="2" fill="none"/>
               </svg>
               <p style={{ fontSize: '16px', marginBottom: '8px' }}>No snaplets yet</p>
               <p style={{ fontSize: '14px' }}>Daily video clips will appear here</p>
@@ -969,8 +970,8 @@ const ProfileScreen = () => {
                   style={{
                     marginTop: '16px',
                     padding: '12px 24px',
-                    backgroundColor: '#3A2B20',
-                    color: '#FDF5DD',
+                    backgroundColor: 'var(--color-primary)',
+                    color: 'var(--color-accent)',
                     border: 'none',
                     borderRadius: '24px',
                     cursor: 'pointer',
@@ -1069,9 +1070,9 @@ const ProfileScreen = () => {
         <div style={{
           padding: '20px',
           textAlign: 'center',
-          color: '#888',
+          color: 'var(--text-muted)',
           fontSize: '14px',
-          borderTop: '1px solid #eee'
+          borderTop: '1px solid var(--border-light)'
         }}>
           Member since {formatDate(profile.createdAt)}
         </div>

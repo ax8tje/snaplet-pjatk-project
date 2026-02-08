@@ -26,11 +26,11 @@ const PostMediaDetail = ({ post }) => {
       <div style={{
         width: '100%',
         aspectRatio: '1',
-        backgroundColor: '#f0f0f0',
+        backgroundColor: 'var(--bg-media)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#999'
+        color: 'var(--text-disabled)'
       }}>
         Media failed to load
       </div>
@@ -82,7 +82,7 @@ const PostMediaDetail = ({ post }) => {
     <div style={{
       width: '100%',
       aspectRatio: '1',
-      backgroundColor: '#f0f0f0'
+      backgroundColor: 'var(--bg-media)'
     }}>
       <img
         src={post.imageUrl}
@@ -290,8 +290,8 @@ const PostDetailScreen = () => {
         <div style={{
           width: '40px',
           height: '40px',
-          border: '3px solid #f3f3f3',
-          borderTop: '3px solid #3A2B20',
+          border: '3px solid var(--spinner-track)',
+          borderTop: '3px solid var(--color-primary)',
           borderRadius: '50%',
           animation: 'spin 1s linear infinite'
         }}></div>
@@ -316,15 +316,15 @@ const PostDetailScreen = () => {
         height: '100vh',
         padding: '20px'
       }}>
-        <p style={{ fontSize: '18px', marginBottom: '20px', color: '#666' }}>
+        <p style={{ fontSize: '18px', marginBottom: '20px', color: 'var(--text-secondary)' }}>
           Post not found
         </p>
         <button
           onClick={() => navigate('/home')}
           style={{
             padding: '12px 24px',
-            backgroundColor: '#3A2B20',
-            color: '#FDF5DD',
+            backgroundColor: 'var(--color-primary)',
+            color: 'var(--color-accent)',
             border: 'none',
             borderRadius: '24px',
             cursor: 'pointer',
@@ -344,7 +344,7 @@ const PostDetailScreen = () => {
         display: 'flex',
         alignItems: 'center',
         padding: '12px 16px',
-        borderBottom: '1px solid #eee'
+        borderBottom: '1px solid var(--border-light)'
       }}>
         <button
           onClick={() => navigate(-1)}
@@ -357,7 +357,7 @@ const PostDetailScreen = () => {
           }}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--text-default)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
 
@@ -376,7 +376,7 @@ const PostDetailScreen = () => {
             height: '40px',
             borderRadius: '50%',
             overflow: 'hidden',
-            backgroundColor: '#ddd',
+            backgroundColor: 'var(--bg-placeholder)',
             marginRight: '12px'
           }}>
             {postAuthor?.photoURL ? (
@@ -392,8 +392,8 @@ const PostDetailScreen = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: '#3A2B20',
-                color: '#FDF5DD',
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-accent)',
                 fontSize: '16px',
                 fontWeight: '600'
               }}>
@@ -402,10 +402,10 @@ const PostDetailScreen = () => {
             )}
           </div>
           <div>
-            <p style={{ margin: 0, fontWeight: '600', fontSize: '14px', color: '#3A2B20' }}>
+            <p style={{ margin: 0, fontWeight: '600', fontSize: '14px', color: 'var(--color-primary)' }}>
               {postAuthor?.displayName || 'Unknown User'}
             </p>
-            <p style={{ margin: 0, fontSize: '12px', color: '#888' }}>
+            <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)' }}>
               {formatTime(post.createdAt)} ago
             </p>
           </div>
@@ -422,7 +422,7 @@ const PostDetailScreen = () => {
           display: 'flex',
           padding: '12px 16px',
           gap: '20px',
-          borderBottom: '1px solid #eee'
+          borderBottom: '1px solid var(--border-light)'
         }}>
           {/* Like button */}
           <button
@@ -442,7 +442,7 @@ const PostDetailScreen = () => {
             <svg width="24" height="24" viewBox="0 0 24 24" fill={isLiked ? '#e74c3c' : 'none'}>
               <path
                 d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                stroke={isLiked ? '#e74c3c' : '#333'}
+                stroke={isLiked ? '#e74c3c' : 'var(--text-default)'}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -466,7 +466,7 @@ const PostDetailScreen = () => {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path
                 d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"
-                stroke="#333"
+                stroke="var(--text-default)"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -488,17 +488,17 @@ const PostDetailScreen = () => {
             }}
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <circle cx="18" cy="5" r="3" stroke="#333" strokeWidth="2"/>
-              <circle cx="6" cy="12" r="3" stroke="#333" strokeWidth="2"/>
-              <circle cx="18" cy="19" r="3" stroke="#333" strokeWidth="2"/>
-              <path d="M8.59 13.51L15.42 17.49M15.41 6.51L8.59 10.49" stroke="#333" strokeWidth="2"/>
+              <circle cx="18" cy="5" r="3" stroke="var(--text-default)" strokeWidth="2"/>
+              <circle cx="6" cy="12" r="3" stroke="var(--text-default)" strokeWidth="2"/>
+              <circle cx="18" cy="19" r="3" stroke="var(--text-default)" strokeWidth="2"/>
+              <path d="M8.59 13.51L15.42 17.49M15.41 6.51L8.59 10.49" stroke="var(--text-default)" strokeWidth="2"/>
             </svg>
           </button>
         </div>
 
         {/* Caption */}
         {post.caption && (
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid #eee' }}>
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-light)' }}>
             <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.5' }}>
               <span style={{ fontWeight: '600' }}>
                 {postAuthor?.displayName || 'Unknown'}
@@ -516,7 +516,7 @@ const PostDetailScreen = () => {
 
           {/* Comments list */}
           {comments.length === 0 ? (
-            <p style={{ color: '#888', fontSize: '14px', textAlign: 'center', padding: '20px' }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', textAlign: 'center', padding: '20px' }}>
               No comments yet. Be the first to comment!
             </p>
           ) : (
@@ -537,7 +537,7 @@ const PostDetailScreen = () => {
                         height: '36px',
                         borderRadius: '50%',
                         overflow: 'hidden',
-                        backgroundColor: '#ddd',
+                        backgroundColor: 'var(--bg-placeholder)',
                         flexShrink: 0,
                         cursor: 'pointer'
                       }}
@@ -556,8 +556,8 @@ const PostDetailScreen = () => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          backgroundColor: '#3A2B20',
-                          color: '#FDF5DD',
+                          backgroundColor: 'var(--color-primary)',
+                          color: 'var(--color-accent)',
                           fontSize: '14px',
                           fontWeight: '600'
                         }}>
@@ -575,12 +575,12 @@ const PostDetailScreen = () => {
                       }}>
                         <div>
                           <span
-                            style={{ fontWeight: '600', fontSize: '14px', cursor: 'pointer', color: '#3A2B20' }}
+                            style={{ fontWeight: '600', fontSize: '14px', cursor: 'pointer', color: 'var(--color-primary)' }}
                             onClick={() => navigate(`/user/${comment.userId}`)}
                           >
                             {author.displayName || 'Unknown'}
                           </span>
-                          <span style={{ color: '#888', fontSize: '12px', marginLeft: '8px' }}>
+                          <span style={{ color: 'var(--text-muted)', fontSize: '12px', marginLeft: '8px' }}>
                             {formatTime(comment.createdAt)}
                           </span>
                         </div>
@@ -591,7 +591,7 @@ const PostDetailScreen = () => {
                               backgroundColor: 'transparent',
                               border: 'none',
                               cursor: 'pointer',
-                              color: '#888',
+                              color: 'var(--text-muted)',
                               padding: '4px'
                             }}
                           >
@@ -605,7 +605,7 @@ const PostDetailScreen = () => {
                         margin: '4px 0 0',
                         fontSize: '14px',
                         lineHeight: '1.4',
-                        color: '#333'
+                        color: 'var(--text-default)'
                       }}>
                         {comment.text}
                       </p>
@@ -622,8 +622,8 @@ const PostDetailScreen = () => {
       {error && (
         <div style={{
           padding: '8px 16px',
-          backgroundColor: '#ffe6e6',
-          color: '#cc0000',
+          backgroundColor: 'var(--error-bg)',
+          color: 'var(--error-text)',
           textAlign: 'center',
           fontSize: '14px'
         }}>
@@ -638,9 +638,9 @@ const PostDetailScreen = () => {
           style={{
             display: 'flex',
             padding: '12px 16px',
-            borderTop: '1px solid #eee',
+            borderTop: '1px solid var(--border-light)',
             gap: '12px',
-            backgroundColor: '#fff'
+            backgroundColor: 'var(--bg-card)'
           }}
         >
           <input
@@ -652,7 +652,7 @@ const PostDetailScreen = () => {
             style={{
               flex: 1,
               padding: '10px 16px',
-              border: '1px solid #ddd',
+              border: '1px solid var(--border-input)',
               borderRadius: '24px',
               fontSize: '14px',
               outline: 'none'
@@ -663,8 +663,8 @@ const PostDetailScreen = () => {
             disabled={!newComment.trim() || isSubmitting}
             style={{
               padding: '10px 20px',
-              backgroundColor: '#3A2B20',
-              color: '#FDF5DD',
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-accent)',
               border: 'none',
               borderRadius: '24px',
               cursor: !newComment.trim() || isSubmitting ? 'not-allowed' : 'pointer',
@@ -678,16 +678,16 @@ const PostDetailScreen = () => {
       ) : (
         <div style={{
           padding: '12px 16px',
-          borderTop: '1px solid #eee',
+          borderTop: '1px solid var(--border-light)',
           textAlign: 'center',
-          backgroundColor: '#f5f5f5'
+          backgroundColor: 'var(--bg-input)'
         }}>
           <button
             onClick={() => navigate('/login')}
             style={{
               padding: '10px 24px',
-              backgroundColor: '#3A2B20',
-              color: '#FDF5DD',
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-accent)',
               border: 'none',
               borderRadius: '24px',
               cursor: 'pointer',

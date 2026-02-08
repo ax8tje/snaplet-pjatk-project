@@ -198,12 +198,11 @@ export default function MonthlyVideoScreen() {
                     )}
                 </div>
 
-                {/* COOP/COEP warning */}
+                {/* WebAssembly warning */}
                 {!supported && (
                     <div className="mv-warning">
-                        <strong>Uwaga:</strong> Twoja przegladarka nie obsluguje SharedArrayBuffer.
-                        FFmpeg.wasm wymaga naglowkow COOP/COEP. Uzyj Chrome/Edge i upewnij sie,
-                        ze serwer wysyla odpowiednie naglowki.
+                        <strong>Uwaga:</strong> Twoja przegladarka nie obsluguje WebAssembly.
+                        Generowanie filmow wymaga nowoczesnej przegladarki (Chrome, Firefox, Edge, Safari).
                     </div>
                 )}
 

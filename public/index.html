@@ -15,6 +15,95 @@
     <link rel="stylesheet" href="/figma/styles.css">
 
     <style>
+        /* ===================== */
+        /* THEME CSS VARIABLES   */
+        /* ===================== */
+        :root {
+            --bg-page: #F5E6D3;
+            --bg-card: #FFFFFF;
+            --bg-elevated: #FFFFFF;
+            --bg-input: #f5f5f5;
+            --bg-hover: #f5f5f5;
+            --bg-placeholder: #ddd;
+            --bg-media: #f0f0f0;
+            --bg-unread: #f8f8f8;
+
+            --color-primary: #3A2B20;
+            --color-accent: #FDF5DD;
+
+            --text-primary: #000000;
+            --text-default: #333333;
+            --text-secondary: #666666;
+            --text-muted: #888888;
+            --text-disabled: #999999;
+
+            --border-default: #E0D5C7;
+            --border-light: #eeeeee;
+            --border-subtle: #f5f5f5;
+            --border-input: #dddddd;
+            --border-post: #f0f0f0;
+
+            --icon-muted: #cccccc;
+            --spinner-track: #f3f3f3;
+
+            --nav-bg: #FFFFFF;
+            --nav-active-bg: #F5E6D3;
+            --nav-border: #E0E0E0;
+
+            --msg-own-bg: #3A2B20;
+            --msg-own-text: #FDF5DD;
+            --msg-other-bg: #FFFFFF;
+            --msg-other-text: #333333;
+
+            --error-bg: #ffe6e6;
+            --error-text: #cc0000;
+
+            --shadow-card: rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-page: #121212;
+            --bg-card: #1E1E1E;
+            --bg-elevated: #252525;
+            --bg-input: #2A2A2A;
+            --bg-hover: #2A2A2A;
+            --bg-placeholder: #444444;
+            --bg-media: #2A2A2A;
+            --bg-unread: #252525;
+
+            --color-primary: #D4A574;
+            --color-accent: #2A2218;
+
+            --text-primary: #F5F5F5;
+            --text-default: #E0E0E0;
+            --text-secondary: #AAAAAA;
+            --text-muted: #888888;
+            --text-disabled: #666666;
+
+            --border-default: #333333;
+            --border-light: #2A2A2A;
+            --border-subtle: #2A2A2A;
+            --border-input: #444444;
+            --border-post: #2A2A2A;
+
+            --icon-muted: #555555;
+            --spinner-track: #333333;
+
+            --nav-bg: #1A1A1A;
+            --nav-active-bg: #2A2218;
+            --nav-border: #333333;
+
+            --msg-own-bg: #D4A574;
+            --msg-own-text: #1A1A1A;
+            --msg-other-bg: #1E1E1E;
+            --msg-other-text: #E0E0E0;
+
+            --error-bg: #3A1A1A;
+            --error-text: #FF6666;
+
+            --shadow-card: rgba(0,0,0,0.3);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -36,7 +125,7 @@
         #root {
             width: 100%;
             min-height: 100vh;
-            background: #FDF5DD;
+            background: var(--bg-page);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -134,11 +223,11 @@
             left: 0;
             width: 100%;
             height: 64px;
-            background: #FDF5DD;
+            background: var(--nav-bg);
             display: flex;
             justify-content: space-around;
             align-items: center;
-            border-top: 1px solid rgba(0,0,0,0.1);
+            border-top: 1px solid var(--nav-border);
         }
 
         .nav-item {
@@ -161,6 +250,16 @@
 <div id="root"></div>
 
 <script>
+    // Apply saved theme immediately to prevent flash
+    (function() {
+        var saved = localStorage.getItem('theme');
+        if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', '#121212');
+        }
+    })();
+
     window.addEventListener('load', () => {
         const loading = document.getElementById('loading-screen');
         if (loading) {

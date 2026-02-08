@@ -2,9 +2,10 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useMessageStore } from '../store/messageStore';
 import { useUserStore } from '../store/userStore';
+import { checkFriendship } from '../services/friendService';
 
 const ChatScreen = () => {
-  const { userId: partnerId } = useParams();
+  const { id: partnerId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useUserStore();
@@ -19,18 +20,29 @@ const ChatScreen = () => {
 
   const [messageText, setMessageText] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [isFriend, setIsFriend] = useState(null); // null = checking
   const messagesEndRef = useRef(null);
   const partnerName = location.state?.displayName || 'User';
 
-  // Subscribe to conversation messages
+  // Check friendship before allowing chat
   useEffect(() => {
     if (user?.uid && partnerId) {
+      setIsFriend(null);
+      checkFriendship(user.uid, partnerId)
+        .then((result) => setIsFriend(result))
+        .catch(() => setIsFriend(false));
+    }
+  }, [user?.uid, partnerId]);
+
+  // Subscribe to conversation messages (only if friends)
+  useEffect(() => {
+    if (user?.uid && partnerId && isFriend === true) {
       const unsubscribe = subscribeToChat(user.uid, partnerId);
       return () => {
         if (unsubscribe) unsubscribe();
       };
     }
-  }, [user?.uid, partnerId, subscribeToChat]);
+  }, [user?.uid, partnerId, isFriend, subscribeToChat]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -73,20 +85,91 @@ const ChatScreen = () => {
     }
   };
 
+  // Friendship checking state
+  if (isFriend === null) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        backgroundColor: 'var(--bg-page)',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <div style={{
+          width: '32px',
+          height: '32px',
+          border: '2px solid var(--spinner-track)',
+          borderTop: '2px solid var(--color-primary)',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+        }} />
+        <p style={{ color: 'var(--text-muted)', marginTop: '16px' }}>Checking...</p>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  // Not friends — block access
+  if (isFriend === false) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        backgroundColor: 'var(--bg-page)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+        textAlign: 'center',
+      }}>
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" style={{ marginBottom: '16px' }}>
+          <circle cx="12" cy="12" r="10" stroke="#999" strokeWidth="2"/>
+          <path d="M4.93 4.93l14.14 14.14" stroke="#999" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+        <p style={{ fontSize: '18px', fontWeight: '600', color: 'var(--color-primary)', marginBottom: '8px' }}>
+          Cannot send messages
+        </p>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+          You need to be friends to message this user.
+        </p>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            padding: '12px 24px',
+            backgroundColor: 'var(--color-primary)',
+            color: 'var(--color-accent)',
+            border: 'none',
+            borderRadius: '24px',
+            cursor: 'pointer',
+            fontSize: '16px',
+          }}
+        >
+          Go back
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div style={{
       display: 'flex',
       flexDirection: 'column',
       height: '100vh',
-      backgroundColor: '#F5E6D3'
+      backgroundColor: 'var(--bg-page)'
     }}>
       {/* Header */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         padding: '12px 16px',
-        backgroundColor: '#F5E6D3',
-        borderBottom: '1px solid #E0D5C7',
+        backgroundColor: 'var(--bg-page)',
+        borderBottom: '1px solid var(--border-default)',
         position: 'sticky',
         top: 0,
         zIndex: 100
@@ -102,7 +185,7 @@ const ChatScreen = () => {
           }}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#3A2B20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
 
@@ -110,11 +193,11 @@ const ChatScreen = () => {
           width: '40px',
           height: '40px',
           borderRadius: '50%',
-          backgroundColor: '#3A2B20',
+          backgroundColor: 'var(--color-primary)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#FDF5DD',
+          color: 'var(--color-accent)',
           fontWeight: '600',
           marginRight: '12px'
         }}>
@@ -122,7 +205,7 @@ const ChatScreen = () => {
         </div>
 
         <div style={{ flex: 1 }}>
-          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#3A2B20' }}>
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: 'var(--color-primary)' }}>
             {partnerName}
           </h2>
         </div>
@@ -132,8 +215,8 @@ const ChatScreen = () => {
       {error && (
         <div style={{
           padding: '12px 16px',
-          backgroundColor: '#ffe6e6',
-          color: '#cc0000',
+          backgroundColor: 'var(--error-bg)',
+          color: 'var(--error-text)',
           textAlign: 'center'
         }}>
           {error}
@@ -161,7 +244,7 @@ const ChatScreen = () => {
         gap: '8px'
       }}>
         {isLoading && currentConversation.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#888' }}>
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
             Loading messages...
           </div>
         )}
@@ -170,7 +253,7 @@ const ChatScreen = () => {
           <div style={{
             textAlign: 'center',
             padding: '40px',
-            color: '#888'
+            color: 'var(--text-muted)'
           }}>
             <p>No messages yet</p>
             <p style={{ fontSize: '14px', marginTop: '8px' }}>Send a message to start the conversation!</p>
@@ -192,8 +275,8 @@ const ChatScreen = () => {
                 maxWidth: '75%',
                 padding: '10px 14px',
                 borderRadius: '18px',
-                backgroundColor: isOwnMessage ? '#3A2B20' : '#fff',
-                color: isOwnMessage ? '#FDF5DD' : '#333',
+                backgroundColor: isOwnMessage ? 'var(--msg-own-bg)' : 'var(--msg-other-bg)',
+                color: isOwnMessage ? 'var(--msg-own-text)' : 'var(--msg-other-text)',
                 boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
               }}>
                 <p style={{ margin: 0, wordBreak: 'break-word' }}>{msg.text}</p>
@@ -217,8 +300,8 @@ const ChatScreen = () => {
       {/* Message input */}
       <div style={{
         padding: '12px 16px',
-        backgroundColor: '#F5E6D3',
-        borderTop: '1px solid #E0D5C7',
+        backgroundColor: 'var(--bg-page)',
+        borderTop: '1px solid var(--border-default)',
         display: 'flex',
         alignItems: 'center',
         gap: '12px'
@@ -233,7 +316,8 @@ const ChatScreen = () => {
           style={{
             flex: 1,
             padding: '12px 16px',
-            backgroundColor: '#fff',
+            backgroundColor: 'var(--bg-card)',
+            color: 'var(--text-default)',
             border: 'none',
             borderRadius: '24px',
             fontSize: '16px',
@@ -248,7 +332,7 @@ const ChatScreen = () => {
             width: '44px',
             height: '44px',
             borderRadius: '50%',
-            backgroundColor: messageText.trim() && !isSending ? '#3A2B20' : '#ccc',
+            backgroundColor: messageText.trim() && !isSending ? 'var(--color-primary)' : 'var(--icon-muted)',
             border: 'none',
             cursor: messageText.trim() && !isSending ? 'pointer' : 'not-allowed',
             display: 'flex',
@@ -258,7 +342,7 @@ const ChatScreen = () => {
           }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="#FDF5DD" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
       </div>

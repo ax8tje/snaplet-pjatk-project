@@ -1,15 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../store/userStore';
+import { useTheme } from '../utils/useTheme';
 
 const SettingsScreen = () => {
   const navigate = useNavigate();
   const { logout } = useUserStore();
+  const { isDark, toggleTheme } = useTheme();
 
   const settingsItems = [
     { icon: '👤', label: 'Account', path: '/profile' },
     { icon: '🔔', label: 'Notifications', path: null },
-    { icon: '🎨', label: 'Appearance', path: null },
     { icon: '🔒', label: 'Privacy & Security', path: null },
     { icon: '❓', label: 'Help and Support', path: null },
     { icon: '📱', label: 'About', path: null },
@@ -42,6 +43,43 @@ const SettingsScreen = () => {
         />
       </div>
 
+      {/* Dark Mode Toggle */}
+      <div style={styles.list}>
+        <div style={styles.item}>
+          <span style={styles.icon}>{isDark ? '🌙' : '☀️'}</span>
+          <span style={styles.label}>Dark Mode</span>
+          <label style={styles.toggleLabel}>
+            <input
+              type="checkbox"
+              checked={isDark}
+              onChange={toggleTheme}
+              style={{ display: 'none' }}
+            />
+            <span style={{
+              width: '44px',
+              height: '24px',
+              backgroundColor: isDark ? 'var(--color-primary)' : 'var(--icon-muted)',
+              borderRadius: '12px',
+              position: 'relative',
+              display: 'inline-block',
+              transition: 'background-color 0.2s',
+              cursor: 'pointer',
+            }}>
+              <span style={{
+                width: '20px',
+                height: '20px',
+                backgroundColor: '#fff',
+                borderRadius: '50%',
+                position: 'absolute',
+                top: '2px',
+                left: isDark ? '22px' : '2px',
+                transition: 'left 0.2s',
+              }} />
+            </span>
+          </label>
+        </div>
+      </div>
+
       {/* Settings List */}
       <div style={styles.list}>
         {settingsItems.map((item, index) => (
@@ -72,7 +110,7 @@ const SettingsScreen = () => {
 
 const styles = {
   container: {
-    backgroundColor: '#F5E6D3',
+    backgroundColor: 'var(--bg-page)',
     minHeight: '100vh',
     paddingBottom: '20px',
   },
@@ -81,8 +119,8 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '16px 20px',
-    backgroundColor: '#F5E6D3',
-    borderBottom: '1px solid #E0D5C7',
+    backgroundColor: 'var(--bg-page)',
+    borderBottom: '1px solid var(--border-default)',
     position: 'sticky',
     top: 0,
     zIndex: 100,
@@ -93,13 +131,13 @@ const styles = {
     fontSize: '24px',
     cursor: 'pointer',
     padding: '4px 8px',
-    color: '#3A2B20',
+    color: 'var(--color-primary)',
   },
   title: {
     margin: 0,
     fontSize: '24px',
     fontWeight: '700',
-    color: '#3A2B20',
+    color: 'var(--color-primary)',
   },
   searchContainer: {
     padding: '16px 20px',
@@ -108,8 +146,9 @@ const styles = {
     width: '100%',
     padding: '12px 16px',
     borderRadius: '12px',
-    border: '1px solid #E0D5C7',
-    backgroundColor: '#FFFFFF',
+    border: '1px solid var(--border-default)',
+    backgroundColor: 'var(--bg-card)',
+    color: 'var(--text-default)',
     fontSize: '16px',
     outline: 'none',
     boxSizing: 'border-box',
@@ -121,7 +160,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     padding: '16px',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'var(--bg-card)',
     borderRadius: '12px',
     marginBottom: '8px',
     cursor: 'pointer',
@@ -134,12 +173,17 @@ const styles = {
   label: {
     flex: 1,
     fontSize: '16px',
-    color: '#3A2B20',
+    color: 'var(--color-primary)',
     fontWeight: '500',
   },
   arrow: {
     fontSize: '20px',
-    color: '#999',
+    color: 'var(--text-disabled)',
+  },
+  toggleLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'pointer',
   },
   logoutSection: {
     padding: '24px 20px',
@@ -147,7 +191,7 @@ const styles = {
   logoutBtn: {
     width: '100%',
     padding: '14px',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'var(--bg-card)',
     color: '#cc0000',
     border: '1px solid #cc0000',
     borderRadius: '12px',

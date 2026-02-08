@@ -2,13 +2,36 @@
     --bg-dark: #3a2a23;
     --cream: #fff6e6;
     --muted: #7a6f69;
-    --future-fill: #AC7F5E; /* future-day color adjusted to mock */
+    --future-fill: #AC7F5E;
     --tile-shadow: rgba(0,0,0,0.18);
-    --today-bg: #fff9ee;       /* jasne tło dla bieżącego dnia */
+    --today-bg: #fff9ee;
     --today-border: rgba(255,255,255,0.65);
     --today-shadow: rgba(0,0,0,0.25);
-    --today-plus-bg: #6b6a63;  /* kolor tła plusa (możesz zmienić) */
-    --today-plus-color: var(--cream); /* kolor znaku + */
+    --today-plus-bg: #6b6a63;
+    --today-plus-color: var(--cream);
+    --cal-tile-bg: var(--cream);
+    --cal-tile-number-bg: rgba(255,255,255,0.95);
+    --cal-tile-number-color: #2b1f18;
+    --cal-modal-bg: #fff;
+    --cal-modal-text: #222;
+}
+
+[data-theme="dark"] {
+    --bg-dark: #1A1A1A;
+    --cream: #E0D0C0;
+    --muted: #888;
+    --future-fill: #5A4A3A;
+    --tile-shadow: rgba(0,0,0,0.4);
+    --today-bg: #2A2218;
+    --today-border: rgba(255,255,255,0.2);
+    --today-shadow: rgba(0,0,0,0.5);
+    --today-plus-bg: #444;
+    --today-plus-color: var(--cream);
+    --cal-tile-bg: #2A2A2A;
+    --cal-tile-number-bg: rgba(0,0,0,0.6);
+    --cal-tile-number-color: #E0E0E0;
+    --cal-modal-bg: #1E1E1E;
+    --cal-modal-text: #E0E0E0;
 }
 
 /* root */
@@ -79,7 +102,7 @@
 /* tile common */
 .tile {
     border-radius: 10px;
-    background: var(--cream);
+    background: var(--cal-tile-bg);
     box-shadow: 0 6px 0 var(--tile-shadow);
     border: none;
     overflow: hidden;
@@ -100,9 +123,9 @@
     left: 8px;
     top: 8px;
     font-size: 12px;
-    color: #2b1f18;
+    color: var(--cal-tile-number-color);
     font-weight: 700;
-    background: rgba(255,255,255,0.95);
+    background: var(--cal-tile-number-bg);
     padding: 3px 6px;
     border-radius: 8px;
     z-index: 5;
@@ -124,7 +147,7 @@
 .tile-blank {
     position: absolute;
     inset: 8%;
-    background: rgb(255, 246, 230);
+    background: var(--cal-tile-bg);
     border-radius: 8px;
 }
 
@@ -248,10 +271,10 @@
 
 /* modal styles remain same as before */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index: 2000; }
-.modal { background: #fff; border-radius: 10px; padding: 12px; width: calc(100% - 40px); max-width: 720px; max-height: 90vh; overflow:auto; position: relative; }
-.modal-close { position: absolute; right: 8px; top: 8px; background: transparent; border: none; font-size: 18px; cursor: pointer; }
+.modal { background: var(--cal-modal-bg); border-radius: 10px; padding: 12px; width: calc(100% - 40px); max-width: 720px; max-height: 90vh; overflow:auto; position: relative; }
+.modal-close { position: absolute; right: 8px; top: 8px; background: transparent; border: none; font-size: 18px; cursor: pointer; color: var(--cal-modal-text); }
 .modal-video, .modal-image { width: 100%; max-height: 60vh; border-radius: 8px; background: #000; object-fit: cover; }
-.modal-meta { margin-top: 10px; color: #222; font-size: 13px; text-align: center; }
+.modal-meta { margin-top: 10px; color: var(--cal-modal-text); font-size: 13px; text-align: center; }
 .modal-actions { display: flex; gap: 12px; margin-top: 16px; justify-content: center; }
 .modal-btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.2s; }
 .modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }

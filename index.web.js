@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useUserStore } from './src/store/userStore';
@@ -17,6 +17,7 @@ import PostDetailScreen from './src/screens/PostDetailScreen';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import CalendarScreen from './src/screens/CalendarScreen'; // calendar route
 import MonthlyVideoScreen from './src/screens/MonthlyVideoScreen'; // monthly video generation
+import FriendsScreen from './src/screens/FriendsScreen'; // friends list & requests
 import BottomNav from './src/components/BottomNav'; // bottom navigation (web)
 
 // Remove loading screen helper
@@ -52,8 +53,9 @@ const ProtectedRoute = ({ children }) => {
 const BottomNavWrapper = ({ isAuthenticated }) => {
   const location = useLocation();
   const hiddenRoutes = ['/camera', '/monthly-video'];
+  const hiddenPrefixes = ['/chat/'];
 
-  if (!isAuthenticated || hiddenRoutes.includes(location.pathname)) {
+  if (!isAuthenticated || hiddenRoutes.includes(location.pathname) || hiddenPrefixes.some(p => location.pathname.startsWith(p))) {
     return null;
   }
 
@@ -78,29 +80,28 @@ const AuthRoute = ({ children }) => {
 // Main App component with routing
 const App = () => {
   const { initialize, isLoading, isAuthenticated } = useUserStore();
-  const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
     console.log('[APP] useEffect running, calling initialize()');
-    // Initialize auth state
     const unsubscribe = initialize();
 
-    // Mark app as ready after a short delay to ensure state is settled
-    const timeout = setTimeout(() => {
-      console.log('[APP] Setting appReady=true');
-      setAppReady(true);
-      removeLoadingScreen();
-    }, 250);
-
-    // Don't unsubscribe on StrictMode remount - only on actual unmount
-    // The initialize function handles its own cleanup internally
     return () => {
       console.log('[APP] useEffect cleanup');
-      clearTimeout(timeout);
+      unsubscribe();
     };
   }, []);
 
-  if (!appReady) return null;
+  // Remove loading screen once auth state is resolved
+  useEffect(() => {
+    if (!isLoading) {
+      console.log('[APP] Auth resolved, isAuthenticated:', isAuthenticated);
+      removeLoadingScreen();
+    }
+  }, [isLoading, isAuthenticated]);
+
+  // Don't render routes until auth state is determined.
+  // The HTML loading screen stays visible until then.
+  if (isLoading) return null;
 
   return (
       <Router>
@@ -115,6 +116,7 @@ const App = () => {
           <Route path="/post/:postId" element={<ProtectedRoute><PostDetailScreen /></ProtectedRoute>} />
           <Route path="/user/:userId" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
           <Route path="/messages" element={<ProtectedRoute><MessagesScreen /></ProtectedRoute>} />
+          <Route path="/friends" element={<ProtectedRoute><FriendsScreen /></ProtectedRoute>} />
           <Route path="/chat/:id" element={<ProtectedRoute><ChatScreen /></ProtectedRoute>} />
 
           <Route path="/settings" element={<ProtectedRoute><SettingsScreen /></ProtectedRoute>} />
